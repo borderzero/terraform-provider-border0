@@ -82,7 +82,6 @@ func resourceSocket() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "The upstream connection type. Valid values: `ssh`, `aws_ec2_connect`, `aws_ssm`, `database`. Defaults to `ssh`.",
-				Default:     border0types.UpstreamConnectionTypeSSH,
 			},
 			"upstream_hostname": {
 				Type:        schema.TypeString,
@@ -98,7 +97,6 @@ func resourceSocket() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "The upstream authentication type. Valid values: `username_password`, `border0_cert`, `ssh_private_key`. Defaults to `border0_cert`.",
-				Default:     border0types.UpstreamAuthenticationTypeBorder0Cert,
 			},
 			"upstream_username": {
 				Type:        schema.TypeString,
@@ -337,6 +335,9 @@ func populateSocketConnectorDataFrom(d *schema.ResourceData, socket *border0clie
 
 		switch socket.SocketType {
 		case "ssh":
+			if socket.ConnectorData.Config.UpstreamConnectionType == "" {
+				socket.ConnectorData.Config.UpstreamConnectionType = border0types.UpstreamConnectionTypeSSH
+			}
 			if socket.ConnectorData.Config.SSHConfiguration == nil {
 				socket.ConnectorData.Config.SSHConfiguration = new(border0types.SSHConfiguration)
 			}
@@ -345,6 +346,9 @@ func populateSocketConnectorDataFrom(d *schema.ResourceData, socket *border0clie
 			case border0types.UpstreamConnectionTypeSSH:
 				if v, ok := d.GetOk("upstream_authentication_type"); ok {
 					socket.ConnectorData.Config.SSHConfiguration.UpstreamAuthenticationType = v.(string)
+				}
+				if socket.ConnectorData.Config.SSHConfiguration.UpstreamAuthenticationType == "" {
+					socket.ConnectorData.Config.SSHConfiguration.UpstreamAuthenticationType = border0types.UpstreamAuthenticationTypeBorder0Cert
 				}
 
 				switch socket.ConnectorData.Config.SSHConfiguration.UpstreamAuthenticationType {

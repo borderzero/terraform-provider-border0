@@ -1,9 +1,9 @@
-// use the provider from local path (for development)
+// use the provider from terraform registry
 terraform {
   required_providers {
     border0 = {
-      source = "border0.com/border0/border0"
-      version = "0.1.0"
+      source = "borderzero/border0"
+      version = "0.1.2"
     }
   }
 }

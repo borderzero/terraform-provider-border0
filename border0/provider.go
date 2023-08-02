@@ -32,7 +32,9 @@ func Provider(options ...ProviderOption) *schema.Provider {
 			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
-			"border0_socket": resourceSocket(),
+			"border0_socket":          resourceSocket(),
+			"border0_connector":       resourceConnector(),
+			"border0_connector_token": resourceConnectorToken(),
 		},
 	}
 
