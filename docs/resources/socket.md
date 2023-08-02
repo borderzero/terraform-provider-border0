@@ -13,8 +13,8 @@ The socket resource allows you to create and manage a Border0 socket.
 ## Example Usage
 
 ```terraform
-resource "border0_socket" "test_tf_http" {
-  name = "test-tf-http"
+resource "border0_socket" "test_http" {
+  name = "test-http"
   socket_type = "http"
   tags = {
     "test_key_1" = "test_value_1"
@@ -22,14 +22,30 @@ resource "border0_socket" "test_tf_http" {
   upstream_type = "https"
 }
 
-resource "border0_socket" "test_tf_ssh" {
-  name = "test-tf-ssh"
+// create an SSH socket and link it to a connector that was created outside of Terraform
+resource "border0_socket" "test_ssh" {
+  name = "test-ssh"
   recording_enabled = true
   socket_type = "ssh"
   connector_id = "a7de4cc3-d977-4c4b-82e7-dedb6e7b74a1"
   upstream_hostname = "127.0.0.1"
   upstream_port = 22
+  upstream_username = "test_user"
+  upstream_connection_type = "ssh"
   upstream_authentication_type = "border0_cert"
+}
+
+// create another SSH socket and link it to a connector that was created in Terraform
+resource "border0_socket" "test_another_ssh" {
+  name = "test-another_ssh"
+  recording_enabled = true
+  socket_type = "ssh"
+  connector_id = border0_connector.test_connector.id
+  upstream_hostname = "127.0.0.1"
+  upstream_port = 22
+  upstream_username = "test_user"
+  upstream_connection_type = "ssh"
+  upstream_authentication_type = "username_password"
 }
 ```
 
@@ -38,15 +54,15 @@ resource "border0_socket" "test_tf_ssh" {
 
 ### Required
 
-- `name` (String) The name of the socket.
-- `socket_type` (String) The type of the socket.
+- `name` (String) The name of the socket. Must be unique within your Border0 organization. Socket name can have alphanumerics and hyphens, but it must start or end with alphanumeric.
+- `socket_type` (String) The type of the socket. Valid values: `ssh`, `http`, `database`, `tls`.
 
 ### Optional
 
 - `connector_authentication_enabled` (Boolean) Indicates if connector authentication is enabled for the socket.
 - `connector_id` (String) The connector id that the socket is associated with.
 - `description` (String) The description of the socket.
-- `recording_enabled` (Boolean) Indicates if recording is enabled for the socket.
+- `recording_enabled` (Boolean) Indicates if session recording is enabled for the socket.
 - `tags` (Map of String) The tags of the socket.
 - `upstream_authentication_type` (String) The upstream authentication type. Valid values: `username_password`, `border0_cert`, `ssh_private_key`. Defaults to `border0_cert`.
 - `upstream_connection_type` (String) The upstream connection type. Valid values: `ssh`, `aws_ec2_connect`, `aws_ssm`, `database`. Defaults to `ssh`.

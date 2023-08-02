@@ -13,7 +13,7 @@ terraform {
   required_providers {
     border0 = {
       source  = "borderzero/border0"
-      version = "0.1.1"
+      version = "0.1.2"
     }
   }
 }
@@ -87,24 +87,24 @@ Some different variations:
 
 ```shell
 # run against prod api
-BORDER0_AUTH_TOKEN=_border0_auth_token_ terraform apply
+BORDER0_TOKEN=_border0_auth_token_ terraform apply
 
 # run with a local dev api that's listening to localhost:8080
-BORDER0_AUTH_TOKEN=_border0_auth_token_ BORDER0_BASE_URL=http://localhost:8080/api/v1 terraform apply
+BORDER0_TOKEN=_border0_auth_token_ BORDER0_API=http://localhost:8080/api/v1 terraform apply
 ```
 
 ## Tag a new release
 
-Create a new tag.
+Create a new tag. Assuming the next release is `v1.1.1`.
 
 ```shell
-git tag v0.1.1
+git tag v1.1.1
 ```
 
 Push the tag to GitHub.
 
 ```shell
-git push origin v0.1.1
+git push origin v1.1.1
 ```
 
 It will trigger the GitHub Actions `release` workflow.
