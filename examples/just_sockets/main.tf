@@ -3,9 +3,17 @@ terraform {
   required_providers {
     border0 = {
       source = "borderzero/border0"
-      version = "0.1.1"
+      version = "0.1.4"
     }
   }
+}
+
+variable "token" {
+  type = string
+}
+
+provider "border0" {
+  token = var.token
 }
 
 resource "border0_socket" "test_tf_http" {

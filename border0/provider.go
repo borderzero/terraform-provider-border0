@@ -21,18 +21,20 @@ func Provider(options ...ProviderOption) *schema.Provider {
 				Type:        schema.TypeString,
 				DefaultFunc: schema.EnvDefaultFunc("BORDER0_TOKEN", ""),
 				Required:    true,
-				Description: "The auth token used to authenticate with the Border0 API.",
+				Description: "The auth token used to authenticate with the Border0 API. Can also be set with the `BORDER0_TOKEN` environment variable. If you need to generate a Border0 access token, go to [Border0 Admin Portal](https://portal.border0.com) -> Organization Settings -> Access Tokens, create a token in `Member` or `Admin` permission groups.",
 				Sensitive:   true,
 			},
 			"api_url": {
 				Type:        schema.TypeString,
 				DefaultFunc: schema.EnvDefaultFunc("BORDER0_API", "https://api.border0.com/api/v1"),
 				Optional:    true,
-				Description: "The URL of the Border0 API.",
+				Description: "The URL of the Border0 API. Can also be set with the `BORDER0_API` environment variable. Defaults to `https://api.border0.com/api/v1`.",
 			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
-			"border0_socket": resourceSocket(),
+			"border0_socket":          resourceSocket(),
+			"border0_connector":       resourceConnector(),
+			"border0_connector_token": resourceConnectorToken(),
 		},
 	}
 

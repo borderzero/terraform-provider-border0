@@ -1,23 +1,23 @@
-// use the provider from local path (for development)
+// use the provider from terraform registry
 terraform {
   required_providers {
     border0 = {
-      source = "border0.com/border0/border0"
-      version = "0.1.0"
+      source = "borderzero/border0"
+      version = "0.1.4"
     }
   }
 }
 
-variable "token"   { type = string }
-variable "api_url" { type = string }
+variable "token" {
+  type = string
+}
 
 provider "border0" {
   token = var.token
-  api_url = var.api_url
 }
 
 resource "border0_connector" "test_tf_connector" {
-  name = "test-tf-connector-1"
+  name = "test-tf-connector"
   description = "test connector from terraform"
 }
 
