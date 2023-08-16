@@ -2,7 +2,9 @@ package border0
 
 import (
 	"context"
+	"fmt"
 	"log"
+	"strings"
 
 	border0client "github.com/borderzero/border0-go/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -48,8 +50,13 @@ func resourceConnectorToken() *schema.Resource {
 }
 
 func resourceConnectorTokenRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	client := m.(*border0client.APIClient)
-	connectorID := d.Get("connector_id").(string)
+	client := m.(border0client.Requester)
+
+	connectorID, connectorTokenID, diags := determineConnectorIDAndConnectorTokenID(d)
+	if diags != nil && diags.HasError() {
+		return diags
+	}
+
 	connectorTokens, err := client.ConnectorTokens(ctx, connectorID)
 	if !d.IsNewResource() && border0client.NotFound(err) {
 		log.Printf("[WARN] No tokens found for connector (%s), removing from state", connectorID)
@@ -62,7 +69,7 @@ func resourceConnectorTokenRead(ctx context.Context, d *schema.ResourceData, m i
 
 	var connectorToken *border0client.ConnectorToken
 	for _, token := range connectorTokens.List {
-		if token.ID == d.Id() {
+		if token.ID == connectorTokenID {
 			connectorToken = &token
 			break
 		}
@@ -81,7 +88,7 @@ func resourceConnectorTokenRead(ctx context.Context, d *schema.ResourceData, m i
 }
 
 func resourceConnectorTokenCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	client := m.(*border0client.APIClient)
+	client := m.(border0client.Requester)
 	connectorID := d.Get("connector_id").(string)
 	connectorToken := &border0client.ConnectorToken{
 		ConnectorID: connectorID,
@@ -101,7 +108,7 @@ func resourceConnectorTokenCreate(ctx context.Context, d *schema.ResourceData, m
 		return diagnosticsError(err, "Failed to create connector token")
 	}
 
-	d.SetId(created.ID)
+	d.SetId(fmt.Sprintf("%s:%s", connectorID, created.ID))
 
 	diagnotics := setValues(d, map[string]any{
 		"connector_id": connectorID,
@@ -115,11 +122,28 @@ func resourceConnectorTokenCreate(ctx context.Context, d *schema.ResourceData, m
 }
 
 func resourceConnectorTokenDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	client := m.(*border0client.APIClient)
-	connectorID := d.Get("connector_id").(string)
-	if err := client.DeleteConnectorToken(ctx, connectorID, d.Id()); err != nil {
+	client := m.(border0client.Requester)
+	connectorID, connectorTokenID, diags := determineConnectorIDAndConnectorTokenID(d)
+	if diags != nil && diags.HasError() {
+		return diags
+	}
+	if err := client.DeleteConnectorToken(ctx, connectorID, connectorTokenID); err != nil {
 		return diagnosticsError(err, "Failed to delete connector token")
 	}
 	d.SetId("")
 	return nil
+}
+
+func determineConnectorIDAndConnectorTokenID(d *schema.ResourceData) (connectorID string, connectorTokenID string, diags diag.Diagnostics) {
+	ids := strings.Split(d.Id(), ":")
+	if len(ids) == 1 {
+		connectorID = d.Get("connector_id").(string)
+		connectorTokenID = ids[0]
+	} else if len(ids) == 2 {
+		connectorID = ids[0]
+		connectorTokenID = ids[1]
+	} else {
+		diags = diag.Errorf("Invalid ID format: %s", d.Id())
+	}
+	return connectorID, connectorTokenID, diags
 }

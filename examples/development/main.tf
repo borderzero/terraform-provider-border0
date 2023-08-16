@@ -3,7 +3,7 @@ terraform {
   required_providers {
     border0 = {
       source  = "border0.com/border0/border0"
-      version = "0.1.5"
+      version = "0.1.0" # keep this as 0.1.0, it's a dummy version for local build
     }
   }
 }
@@ -33,6 +33,59 @@ resource "border0_connector_token" "test_tf_connector_token_expires" {
   expires_at   = "2023-12-31T23:59:59Z"
 }
 
+resource "border0_policy" "test_tf_policy" {
+  name        = "test-tf-policy"
+  description = "test policy from terraform"
+  policy_data = jsonencode({
+    "version" : "v1",
+    "action" : ["database", "ssh", "http", "tls"],
+    "condition" : {
+      "who" : {
+        "email" : ["johndoe@example.com"],
+        "domain" : ["example.com"]
+      },
+      "where" : {
+        "allowed_ip" : ["0.0.0.0/0", "::/0"],
+        "country" : ["NL", "CA", "US", "BR", "FR"],
+        "country_not" : ["BE"]
+      },
+      "when" : {
+        "after" : "2022-10-13T05:12:26Z",
+        "before" : null,
+        "time_of_day_after" : "00:00 UTC",
+        "time_of_day_before" : "23:59 UTC"
+      }
+    }
+  })
+}
+
+data "border0_policy_document" "test_tf_policy_document" {
+  version = "v1"
+  action  = ["database", "ssh", "http", "tls"]
+  condition {
+    who {
+      email  = ["johndoe@example.com"]
+      domain = ["example.com"]
+    }
+    where {
+      allowed_ip  = ["0.0.0.0/0", "::/0"]
+      country     = ["NL", "CA", "US", "BR", "FR"]
+      country_not = ["BE"]
+    }
+    when {
+      after              = "2022-10-13T05:12:27Z"
+      time_of_day_after  = "00:00 UTC"
+      time_of_day_before = "23:59 UTC"
+    }
+  }
+}
+
+resource "border0_policy" "another_test_tf_policy" {
+  name        = "another-test-tf-policy"
+  description = "another test policy from terraform"
+  policy_data = data.border0_policy_document.test_tf_policy_document.json
+}
+
 resource "border0_socket" "test_tf_http" {
   name        = "test-tf-http"
   socket_type = "http"
@@ -54,6 +107,21 @@ resource "border0_socket" "test_tf_ssh" {
   upstream_authentication_type = "border0_cert"
 }
 
+resource "border0_policy_attachment" "test_tf_policy_http_socket" {
+  policy_id = border0_policy.test_tf_policy.id
+  socket_id = border0_socket.test_tf_http.id
+}
+
+resource "border0_policy_attachment" "test_tf_policy_ssh_socket" {
+  policy_id = border0_policy.test_tf_policy.id
+  socket_id = border0_socket.test_tf_ssh.id
+}
+
+resource "border0_policy_attachment" "another_test_tf_policy_ssh_socket" {
+  policy_id = border0_policy.another_test_tf_policy.id
+  socket_id = border0_socket.test_tf_ssh.id
+}
+
 output "managed_resources" {
   value = {
     connector = {
@@ -71,6 +139,14 @@ output "managed_resources" {
       connector_id = border0_connector_token.test_tf_connector_token_expires.connector_id
       name         = border0_connector_token.test_tf_connector_token_expires.name
       expires_at   = border0_connector_token.test_tf_connector_token_expires.expires_at
+    }
+    policy = {
+      id   = border0_policy.test_tf_policy.id
+      name = border0_policy.test_tf_policy.name
+    }
+    another_policy = {
+      id   = border0_policy.another_test_tf_policy.id
+      name = border0_policy.another_test_tf_policy.name
     }
     http = {
       id   = border0_socket.test_tf_http.id

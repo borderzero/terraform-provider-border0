@@ -1,5 +1,10 @@
 # terraform-provider-border0
 
+[![Run tests](https://github.com/borderzero/terraform-provider-border0/actions/workflows/run_tests.yml/badge.svg)](https://github.com/borderzero/terraform-provider-border0/actions/workflows/run_tests.yml)
+[![Terraform Registery](https://img.shields.io/badge/terraform-border0-4931de.svg?logo=terraform)](https://registry.terraform.io/providers/borderzero/border0/latest)
+[![License](https://img.shields.io/github/license/borderzero/border0-go)](https://github.com/borderzero/border0-go/blob/master/LICENSE)
+[![Slack](https://img.shields.io/badge/slack-community-orange.svg?logo=slack)](https://join.slack.com/t/border0community/shared_invite/zt-zbx586ls-x44z7I3POLPQfesRWnig7Q)
+
 In this repo, you'll find the source code for the Border0 Terraform Provider. With this provider,
 you can provision and manage Border0 resources, such as sockets, policies, and connectors,
 using Terraform.
@@ -13,7 +18,7 @@ terraform {
   required_providers {
     border0 = {
       source  = "borderzero/border0"
-      version = "0.1.5"
+      version = "0.1.6"
     }
   }
 }
@@ -22,9 +27,6 @@ provider "border0" {
   // Border0 access token. Required.
   // if not set explicitly, the provider will use the environment variable BORDER0_TOKEN
   token = "_my_access_token_"
-  // Border0 API URL. Optional and Defaults to https://api.border0.io/api/v1
-  // if not set explicitly, the provider will use the environment variable BORDER0_API
-  api_url = "https://api.border0.io/api/v1"
 }
 ```
 

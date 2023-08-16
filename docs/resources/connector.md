@@ -13,9 +13,9 @@ The connector resource allows you to create and manage a Border0 connector.
 ## Example Usage
 
 ```terraform
-resource "border0_connector" "test_connector" {
-  name                         = "test-connector"
-  description                  = "test creating and managing connector from terraform"
+resource "border0_connector" "example" {
+  name                         = "example-connector"
+  description                  = "My first connector created from terraform"
   built_in_ssh_service_enabled = true
 }
 ```
