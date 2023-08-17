@@ -19,6 +19,7 @@ provider "border0" {
 resource "border0_connector" "test_tf_connector" {
   name = "test-tf-connector"
   description = "test connector from terraform"
+  built_in_ssh_service_enabled = true
 }
 
 resource "border0_connector_token" "test_tf_connector_token_never_expires" {

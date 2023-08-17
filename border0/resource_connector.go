@@ -30,6 +30,11 @@ func resourceConnector() *schema.Resource {
 				Optional:    true,
 				Description: "The description of the connector.",
 			},
+			"built_in_ssh_service_enabled": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "Whether to expose the connector as an ssh service.",
+			},
 		},
 	}
 }
@@ -47,8 +52,9 @@ func resourceConnectorRead(ctx context.Context, d *schema.ResourceData, m interf
 	}
 
 	return setValues(d, map[string]any{
-		"name":        connector.Name,
-		"description": connector.Description,
+		"name":                         connector.Name,
+		"description":                  connector.Description,
+		"built_in_ssh_service_enabled": connector.BuiltInSshServiceEnabled,
 	})
 }
 
@@ -60,6 +66,10 @@ func resourceConnectorCreate(ctx context.Context, d *schema.ResourceData, m inte
 
 	if v, ok := d.GetOk("description"); ok {
 		connector.Description = v.(string)
+	}
+
+	if v, ok := d.GetOk("built_in_ssh_service_enabled"); ok {
+		connector.BuiltInSshServiceEnabled = v.(bool)
 	}
 
 	created, err := client.CreateConnector(ctx, connector)
@@ -75,7 +85,13 @@ func resourceConnectorCreate(ctx context.Context, d *schema.ResourceData, m inte
 func resourceConnectorUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	client := m.(*border0client.APIClient)
 
-	if d.HasChanges("name", "description") {
+	fieldsToCheckForChanges := []string{
+		"name",
+		"description",
+		"built_in_ssh_service_enabled",
+	}
+
+	if d.HasChanges(fieldsToCheckForChanges...) {
 		connectorUpdate := &border0client.Connector{
 			ConnectorID: d.Id(),
 			Name:        d.Get("name").(string),
@@ -83,6 +99,10 @@ func resourceConnectorUpdate(ctx context.Context, d *schema.ResourceData, m inte
 
 		if v, ok := d.GetOk("description"); ok {
 			connectorUpdate.Description = v.(string)
+		}
+
+		if v, ok := d.GetOk("built_in_ssh_service_enabled"); ok {
+			connectorUpdate.BuiltInSshServiceEnabled = v.(bool)
 		}
 
 		_, err := client.UpdateConnector(ctx, connectorUpdate)
