@@ -14,8 +14,9 @@ The connector resource allows you to create and manage a Border0 connector.
 
 ```terraform
 resource "border0_connector" "test_connector" {
-  name = "test-connector"
-  description = "test creating and managing connector from terraform"
+  name                         = "test-connector"
+  description                  = "test creating and managing connector from terraform"
+  built_in_ssh_service_enabled = true
 }
 ```
 
@@ -28,6 +29,7 @@ resource "border0_connector" "test_connector" {
 
 ### Optional
 
+- `built_in_ssh_service_enabled` (Boolean) Whether to expose the connector as an ssh service.
 - `description` (String) The description of the connector.
 
 ### Read-Only
