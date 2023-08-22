@@ -5,8 +5,8 @@ import (
 	"log"
 
 	border0client "github.com/borderzero/border0-go/client"
-	border0enum "github.com/borderzero/border0-go/client/enum"
-	border0types "github.com/borderzero/border0-go/service/connector/types"
+	"github.com/borderzero/border0-go/client/enum"
+	"github.com/borderzero/terraform-provider-border0/internal/schemautil"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -79,10 +79,10 @@ func resourceSocket() *schema.Resource {
 				Optional:    true,
 				Description: "The upstream http hostname of the socket.",
 			},
-			"upstream_connection_type": {
+			"upstream_service_type": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "The upstream connection type. Valid values: `ssh`, `aws_ec2_connect`, `aws_ssm`, `database`. Defaults to `ssh`.",
+				Description: "The upstream service type. Valid values depend on the socket type, for ssh: `standard`, `aws_ec2_instance_connect`, `aws_ssm`. Defaults to `standard`.",
 			},
 			"upstream_hostname": {
 				Type:        schema.TypeString,
@@ -97,7 +97,7 @@ func resourceSocket() *schema.Resource {
 			"upstream_authentication_type": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "The upstream authentication type. Valid values: `username_password`, `border0_cert`, `ssh_private_key`. Defaults to `border0_cert`.",
+				Description: "The upstream authentication type. Valid values: `username_password`, `border0_certificate`, `ssh_private_key`. Defaults to `border0_certificate`.",
 			},
 			"upstream_username": {
 				Type:        schema.TypeString,
@@ -132,27 +132,27 @@ func resourceSocketRead(ctx context.Context, d *schema.ResourceData, m interface
 		return diag.Diagnostics{}
 	}
 	if err != nil {
-		return diagnosticsError(err, "Failed to fetch socket")
+		return schemautil.DiagnosticsError(err, "Failed to fetch socket")
 	}
 	// get socket linked connectors and their ids
 	connectors, err := client.SocketConnectors(ctx, d.Id())
 	if err != nil {
-		return diagnosticsError(err, "Failed to fetch socket connectors")
+		return schemautil.DiagnosticsError(err, "Failed to fetch socket connectors")
 	}
 	// get socket upstream configs for linked connectors
 	upstreamConfigs, err := client.SocketUpstreamConfigs(ctx, d.Id())
 	if err != nil {
-		return diagnosticsError(err, "Failed to fetch socket upstream configs")
+		return schemautil.DiagnosticsError(err, "Failed to fetch socket upstream configs")
 	}
 
 	// now inject the socket details, connector id and upstream config into the resource data
-	if diagnotics := injectSocketFieldsTo(d, socket); diagnotics != nil && diagnotics.HasError() {
-		return diagnotics
+	if diagnostics := injectSocketFieldsTo(d, socket); diagnostics.HasError() {
+		return diagnostics
 	}
-	if diagnotics := injectSocketConnectorIDTo(d, connectors); diagnotics != nil && diagnotics.HasError() {
-		return diagnotics
+	if diagnostics := injectSocketConnectorIDTo(d, connectors); diagnostics.HasError() {
+		return diagnostics
 	}
-	return injectSocketUpstreamConfigTo(d, socket, upstreamConfigs)
+	return schemautil.FromUpstreamConfig(d, upstreamConfigs)
 }
 
 func resourceSocketCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
@@ -163,11 +163,14 @@ func resourceSocketCreate(ctx context.Context, d *schema.ResourceData, m interfa
 	}
 
 	populateSocketOptionalFieldsFrom(d, socket)
-	populateSocketUpstreamConfigFrom(d, socket)
+
+	if diagnostics := schemautil.ToUpstreamConfig(d, socket); diagnostics.HasError() {
+		return diagnostics
+	}
 
 	created, err := client.CreateSocket(ctx, socket)
 	if err != nil {
-		return diagnosticsError(err, "Failed to create socket")
+		return schemautil.DiagnosticsError(err, "Failed to create socket")
 	}
 
 	d.SetId(created.SocketID)
@@ -181,7 +184,7 @@ func resourceSocketUpdate(ctx context.Context, d *schema.ResourceData, m interfa
 	if d.HasChangesExcept("socket_type") {
 		existingSocket, err := client.Socket(ctx, d.Id())
 		if err != nil {
-			return diagnosticsError(err, "Failed to fetch socket")
+			return schemautil.DiagnosticsError(err, "Failed to fetch socket")
 		}
 		socketUpdate := &border0client.Socket{
 			Name:         d.Get("name").(string),
@@ -190,11 +193,14 @@ func resourceSocketUpdate(ctx context.Context, d *schema.ResourceData, m interfa
 		}
 
 		populateSocketOptionalFieldsFrom(d, socketUpdate)
-		populateSocketUpstreamConfigFrom(d, socketUpdate)
+
+		if diagnostics := schemautil.ToUpstreamConfig(d, socketUpdate); diagnostics.HasError() {
+			return diagnostics
+		}
 
 		_, err = client.UpdateSocket(ctx, d.Id(), socketUpdate)
 		if err != nil {
-			return diagnosticsError(err, "Failed to update socket")
+			return schemautil.DiagnosticsError(err, "Failed to update socket")
 		}
 	}
 
@@ -204,7 +210,7 @@ func resourceSocketUpdate(ctx context.Context, d *schema.ResourceData, m interfa
 func resourceSocketDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	client := m.(border0client.Requester)
 	if err := client.DeleteSocket(ctx, d.Id()); err != nil {
-		return diagnosticsError(err, "Failed to delete socket")
+		return schemautil.DiagnosticsError(err, "Failed to delete socket")
 	}
 	d.SetId("")
 	return nil
@@ -215,11 +221,11 @@ func injectSocketFieldsTo(d *schema.ResourceData, socket *border0client.Socket) 
 		// only set tags if there are any, this prevents a drift in the state
 		// if no tags are set in the terraform resource border0_socket
 		if err := d.Set("tags", socket.Tags); err != nil {
-			return diagnosticsError(err, "Failed to set tags")
+			return schemautil.DiagnosticsError(err, "Failed to set tags")
 		}
 	}
 
-	return setValues(d, map[string]any{
+	return schemautil.SetValues(d, map[string]any{
 		"name":                             socket.Name,
 		"socket_type":                      socket.SocketType,
 		"description":                      socket.Description,
@@ -237,66 +243,8 @@ func injectSocketConnectorIDTo(d *schema.ResourceData, connectors *border0client
 		connectorID = connectors.List[0].ConnectorID
 	}
 
-	return setValues(d, map[string]any{
+	return schemautil.SetValues(d, map[string]any{
 		"connector_id": connectorID,
-	})
-}
-
-// TODO: refactor this function
-func injectSocketUpstreamConfigTo(d *schema.ResourceData, socket *border0client.Socket, configs *border0client.SocketUpstreamConfigs) diag.Diagnostics {
-	var (
-		upstreamHostname           string
-		upstreamPort               int
-		upstreamConnectionType     string
-		upstreamAuthenticationType string
-		upstreamUsername           string
-		upstreamPassword           string
-		upstreamPrivateKey         string
-	)
-
-	if len(configs.List) > 0 {
-		config := configs.List[0].Config
-
-		upstreamConnectionType = config.UpstreamConnectionType
-		upstreamHostname = config.Hostname
-		upstreamPort = config.Port
-
-		switch socket.SocketType {
-		case border0enum.SocketTypeSSH:
-			if config.SSHConfiguration != nil {
-				switch config.UpstreamConnectionType {
-				case border0types.UpstreamConnectionTypeSSH:
-					upstreamAuthenticationType = config.SSHConfiguration.UpstreamAuthenticationType
-
-					switch config.SSHConfiguration.UpstreamAuthenticationType {
-					case border0types.UpstreamAuthenticationTypeUsernamePassword:
-						if config.SSHConfiguration.BasicCredentials != nil {
-							upstreamUsername = config.SSHConfiguration.BasicCredentials.Username
-							upstreamPassword = config.SSHConfiguration.BasicCredentials.Password
-						}
-					case border0types.UpstreamAuthenticationTypeBorder0Cert:
-						if config.SSHConfiguration.Border0CertificateDetails != nil {
-							upstreamUsername = config.SSHConfiguration.Border0CertificateDetails.Username
-						}
-					case border0types.UpstreamAuthenticationTypeSSHPrivateKey:
-						if config.SSHConfiguration.SSHPrivateKeyDetails != nil {
-							upstreamUsername = config.SSHConfiguration.SSHPrivateKeyDetails.Username
-							upstreamPrivateKey = config.SSHConfiguration.SSHPrivateKeyDetails.Key
-						}
-					}
-				}
-			}
-		}
-	}
-
-	return setValues(d, map[string]any{
-		"upstream_connection_type":     upstreamConnectionType,
-		"upstream_hostname":            upstreamHostname,
-		"upstream_port":                upstreamPort,
-		"upstream_authentication_type": upstreamAuthenticationType,
-		"upstream_username":            upstreamUsername,
-		"upstream_password":            upstreamPassword,
-		"upstream_private_key":         upstreamPrivateKey,
 	})
 }
 
@@ -311,9 +259,9 @@ func populateSocketOptionalFieldsFrom(d *schema.ResourceData, socket *border0cli
 		// if upstream type is not set, use socket type as default upstream type
 		// except for database sockets, which use mysql as default upstream type
 		switch socket.SocketType {
-		case border0enum.SocketTypeHTTP, border0enum.SocketTypeSSH, border0enum.SocketTypeTLS:
+		case enum.SocketTypeHTTP, enum.SocketTypeSSH, enum.SocketTypeTLS:
 			socket.UpstreamType = socket.SocketType
-		case border0enum.SocketTypeDatabase:
+		case enum.SocketTypeDatabase:
 			socket.UpstreamType = "mysql"
 		}
 	}
@@ -340,78 +288,5 @@ func populateSocketOptionalFieldsFrom(d *schema.ResourceData, socket *border0cli
 
 	if v, ok := d.GetOk("connector_id"); ok {
 		socket.ConnectorID = v.(string)
-	}
-}
-
-// TODO: need to validate input data
-// TODO: refactor this function
-func populateSocketUpstreamConfigFrom(d *schema.ResourceData, socket *border0client.Socket) {
-	// noop if connector id is not set or empty
-	if v, ok := d.GetOk("connector_id"); !ok || v.(string) == "" {
-		return
-	}
-
-	// if connector id is given, upstream config is required
-	if socket.UpstreamConfig == nil {
-		socket.UpstreamConfig = new(border0types.ConnectorServiceUpstreamConfig)
-	}
-	if v, ok := d.GetOk("upstream_connection_type"); ok {
-		socket.UpstreamConfig.UpstreamConnectionType = v.(string)
-	}
-	if v, ok := d.GetOk("upstream_hostname"); ok {
-		socket.UpstreamConfig.Hostname = v.(string)
-	}
-	if v, ok := d.GetOk("upstream_port"); ok {
-		socket.UpstreamConfig.Port = v.(int)
-	}
-
-	switch socket.SocketType {
-	case border0enum.SocketTypeSSH:
-		if socket.UpstreamConfig.UpstreamConnectionType == "" {
-			socket.UpstreamConfig.UpstreamConnectionType = border0types.UpstreamConnectionTypeSSH
-		}
-		if socket.UpstreamConfig.SSHConfiguration == nil {
-			socket.UpstreamConfig.SSHConfiguration = new(border0types.SSHConfiguration)
-		}
-
-		switch socket.UpstreamConfig.UpstreamConnectionType {
-		case border0types.UpstreamConnectionTypeSSH:
-			if v, ok := d.GetOk("upstream_authentication_type"); ok {
-				socket.UpstreamConfig.SSHConfiguration.UpstreamAuthenticationType = v.(string)
-			}
-			if socket.UpstreamConfig.SSHConfiguration.UpstreamAuthenticationType == "" {
-				socket.UpstreamConfig.SSHConfiguration.UpstreamAuthenticationType = border0types.UpstreamAuthenticationTypeBorder0Cert
-			}
-
-			switch socket.UpstreamConfig.SSHConfiguration.UpstreamAuthenticationType {
-			case border0types.UpstreamAuthenticationTypeUsernamePassword:
-				if socket.UpstreamConfig.SSHConfiguration.BasicCredentials == nil {
-					socket.UpstreamConfig.SSHConfiguration.BasicCredentials = new(border0types.BasicCredentials)
-				}
-				if v, ok := d.GetOk("upstream_username"); ok {
-					socket.UpstreamConfig.SSHConfiguration.BasicCredentials.Username = v.(string)
-				}
-				if v, ok := d.GetOk("upstream_password"); ok {
-					socket.UpstreamConfig.SSHConfiguration.BasicCredentials.Password = v.(string)
-				}
-			case border0types.UpstreamAuthenticationTypeBorder0Cert:
-				if socket.UpstreamConfig.SSHConfiguration.Border0CertificateDetails == nil {
-					socket.UpstreamConfig.SSHConfiguration.Border0CertificateDetails = new(border0types.Border0CertificateDetails)
-				}
-				if v, ok := d.GetOk("upstream_username"); ok {
-					socket.UpstreamConfig.SSHConfiguration.Border0CertificateDetails.Username = v.(string)
-				}
-			case border0types.UpstreamAuthenticationTypeSSHPrivateKey:
-				if socket.UpstreamConfig.SSHConfiguration.SSHPrivateKeyDetails == nil {
-					socket.UpstreamConfig.SSHConfiguration.SSHPrivateKeyDetails = new(border0types.SSHPrivateKeyDetails)
-				}
-				if v, ok := d.GetOk("upstream_username"); ok {
-					socket.UpstreamConfig.SSHConfiguration.SSHPrivateKeyDetails.Username = v.(string)
-				}
-				if v, ok := d.GetOk("upstream_private_key"); ok {
-					socket.UpstreamConfig.SSHConfiguration.SSHPrivateKeyDetails.Key = v.(string)
-				}
-			}
-		}
 	}
 }

@@ -8,5 +8,5 @@ packages:
       Requester:
         config:
           dir: mocks
-          structname: APIClientRequester
+          mockname: APIClientRequester
           filename: api_client_requester.go

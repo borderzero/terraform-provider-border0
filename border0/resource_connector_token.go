@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	border0client "github.com/borderzero/border0-go/client"
+	"github.com/borderzero/terraform-provider-border0/internal/schemautil"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -64,7 +65,7 @@ func resourceConnectorTokenRead(ctx context.Context, d *schema.ResourceData, m i
 		return diag.Diagnostics{}
 	}
 	if err != nil {
-		return diagnosticsError(err, "Failed to fetch connector tokens")
+		return schemautil.DiagnosticsError(err, "Failed to fetch connector tokens")
 	}
 
 	var connectorToken *border0client.ConnectorToken
@@ -81,7 +82,7 @@ func resourceConnectorTokenRead(ctx context.Context, d *schema.ResourceData, m i
 		return diag.Diagnostics{}
 	}
 
-	return setValues(d, map[string]any{
+	return schemautil.SetValues(d, map[string]any{
 		"name":       connectorToken.Name,
 		"expires_at": connectorToken.ExpiresAt.String(),
 	})
@@ -98,24 +99,24 @@ func resourceConnectorTokenCreate(ctx context.Context, d *schema.ResourceData, m
 	if v, ok := d.GetOk("expires_at"); ok {
 		expiresAt, err := border0client.FlexibleTimeFrom(v.(string))
 		if err != nil {
-			return diagnosticsError(err, "Failed to parse expires_at")
+			return schemautil.DiagnosticsError(err, "Failed to parse expires_at")
 		}
 		connectorToken.ExpiresAt = expiresAt
 	}
 
 	created, err := client.CreateConnectorToken(ctx, connectorToken)
 	if err != nil {
-		return diagnosticsError(err, "Failed to create connector token")
+		return schemautil.DiagnosticsError(err, "Failed to create connector token")
 	}
 
 	d.SetId(fmt.Sprintf("%s:%s", connectorID, created.ID))
 
-	diagnotics := setValues(d, map[string]any{
+	diagnostics := schemautil.SetValues(d, map[string]any{
 		"connector_id": connectorID,
 		"token":        created.Token,
 	})
-	if diagnotics != nil && diagnotics.HasError() {
-		return diagnotics
+	if diagnostics != nil && diagnostics.HasError() {
+		return diagnostics
 	}
 
 	return resourceConnectorTokenRead(ctx, d, m)
@@ -128,7 +129,7 @@ func resourceConnectorTokenDelete(ctx context.Context, d *schema.ResourceData, m
 		return diags
 	}
 	if err := client.DeleteConnectorToken(ctx, connectorID, connectorTokenID); err != nil {
-		return diagnosticsError(err, "Failed to delete connector token")
+		return schemautil.DiagnosticsError(err, "Failed to delete connector token")
 	}
 	d.SetId("")
 	return nil

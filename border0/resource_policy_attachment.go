@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	border0client "github.com/borderzero/border0-go/client"
+	"github.com/borderzero/terraform-provider-border0/internal/schemautil"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -48,12 +49,12 @@ func resourcePolicyAttachmentRead(ctx context.Context, d *schema.ResourceData, m
 
 	policy, err := client.Policy(ctx, policyID)
 	if err != nil {
-		return diagnosticsError(err, "Failed to fetch policy")
+		return schemautil.DiagnosticsError(err, "Failed to fetch policy")
 	}
 
 	for _, eachSocketID := range policy.SocketIDs {
 		if eachSocketID == socketID {
-			return setValues(d, map[string]any{
+			return schemautil.SetValues(d, map[string]any{
 				"policy_id": policyID,
 				"socket_id": socketID,
 			})
@@ -68,7 +69,7 @@ func resourcePolicyAttachmentCreate(ctx context.Context, d *schema.ResourceData,
 	socketID := d.Get("socket_id").(string)
 	err := client.AttachPolicyToSocket(ctx, policyID, socketID)
 	if err != nil {
-		return diagnosticsError(err, "Failed to attach policy to socket")
+		return schemautil.DiagnosticsError(err, "Failed to attach policy to socket")
 	}
 	d.SetId(fmt.Sprintf("%s:%s", policyID, socketID))
 	return resourcePolicyAttachmentRead(ctx, d, m)
@@ -82,7 +83,7 @@ func resourcePolicyAttachmentDelete(ctx context.Context, d *schema.ResourceData,
 	}
 	policyID, socketID := ids[0], ids[1]
 	if err := client.RemovePolicyFromSocket(ctx, policyID, socketID); err != nil {
-		return diagnosticsError(err, "Failed to remove policy from socket")
+		return schemautil.DiagnosticsError(err, "Failed to remove policy from socket")
 	}
 	d.SetId("")
 	return nil

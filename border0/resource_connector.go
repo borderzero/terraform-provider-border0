@@ -5,6 +5,7 @@ import (
 	"log"
 
 	border0client "github.com/borderzero/border0-go/client"
+	"github.com/borderzero/terraform-provider-border0/internal/schemautil"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -48,10 +49,10 @@ func resourceConnectorRead(ctx context.Context, d *schema.ResourceData, m interf
 		return diag.Diagnostics{}
 	}
 	if err != nil {
-		return diagnosticsError(err, "Failed to fetch connector")
+		return schemautil.DiagnosticsError(err, "Failed to fetch connector")
 	}
 
-	return setValues(d, map[string]any{
+	return schemautil.SetValues(d, map[string]any{
 		"name":                         connector.Name,
 		"description":                  connector.Description,
 		"built_in_ssh_service_enabled": connector.BuiltInSshServiceEnabled,
@@ -74,7 +75,7 @@ func resourceConnectorCreate(ctx context.Context, d *schema.ResourceData, m inte
 
 	created, err := client.CreateConnector(ctx, connector)
 	if err != nil {
-		return diagnosticsError(err, "Failed to create connector")
+		return schemautil.DiagnosticsError(err, "Failed to create connector")
 	}
 
 	d.SetId(created.ConnectorID)
@@ -107,7 +108,7 @@ func resourceConnectorUpdate(ctx context.Context, d *schema.ResourceData, m inte
 
 		_, err := client.UpdateConnector(ctx, connectorUpdate)
 		if err != nil {
-			return diagnosticsError(err, "Failed to update connector")
+			return schemautil.DiagnosticsError(err, "Failed to update connector")
 		}
 	}
 
@@ -117,7 +118,7 @@ func resourceConnectorUpdate(ctx context.Context, d *schema.ResourceData, m inte
 func resourceConnectorDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	client := m.(border0client.Requester)
 	if err := client.DeleteConnector(ctx, d.Id()); err != nil {
-		return diagnosticsError(err, "Failed to delete connector")
+		return schemautil.DiagnosticsError(err, "Failed to delete connector")
 	}
 	d.SetId("")
 	return nil
