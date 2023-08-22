@@ -32,9 +32,14 @@ func Provider(options ...ProviderOption) *schema.Provider {
 			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
-			"border0_socket":          resourceSocket(),
-			"border0_connector":       resourceConnector(),
-			"border0_connector_token": resourceConnectorToken(),
+			"border0_socket":            resourceSocket(),
+			"border0_policy":            resourcePolicy(),
+			"border0_policy_attachment": resourcePolicyAttachment(),
+			"border0_connector":         resourceConnector(),
+			"border0_connector_token":   resourceConnectorToken(),
+		},
+		DataSourcesMap: map[string]*schema.Resource{
+			"border0_policy_document": dataSourcePolicyDocument(),
 		},
 	}
 

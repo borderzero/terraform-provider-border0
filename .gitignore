@@ -21,6 +21,8 @@
 go.work
 
 *.swp
+coverage.out
+coverage.tmp
 dist/*
 terraform-provider-border0
 terraform.tfstate*

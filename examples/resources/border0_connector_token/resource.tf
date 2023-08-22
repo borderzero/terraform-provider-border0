@@ -1,17 +1,18 @@
-resource "border0_connector" "test_connector" {
-  name        = "test-connector"
-  description = "test creating and managing connector from terraform"
+// first, create a connector
+resource "border0_connector" "example" {
+  name        = "example-connector"
+  description = "My first connector created from terraform"
 }
 
-// create a connector token that never expires
-resource "border0_connector_token" "test_connector_token_never_expires" {
-  connector_id = border0_connector.test_connector.id
-  name         = "test-connector-token-never-expires"
+// next, create a token for the connector, and ensure that it never expires.
+resource "border0_connector_token" "example_token_never_expires" {
+  connector_id = border0_connector.example.id
+  name         = "example-connector-token-never-expires"
 }
 
-// create another connector token that expires at a specific date
-resource "border0_connector_token" "test_connector_token_expires" {
-  connector_id = border0_connector.test_connector.id
-  name         = "test-connector-token-never-expires"
+// and create another connector token that expires at a specific date
+resource "border0_connector_token" "example_token_expires" {
+  connector_id = border0_connector.example.id
+  name         = "example-connector-token-never-expires"
   expires_at   = "2023-12-31T23:59:59Z"
 }

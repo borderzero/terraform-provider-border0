@@ -15,8 +15,8 @@ The socket resource allows you to create and manage a Border0 socket.
 ```terraform
 // create an HTTP socket with an HTTPS upstream and add few tags to the socket
 // this socket will not be linked to any connector
-resource "border0_socket" "test_http" {
-  name        = "test-http"
+resource "border0_socket" "example_http" {
+  name        = "example-http"
   socket_type = "http"
   tags = {
     "user"        = "Bilbo Baggins"
@@ -29,28 +29,28 @@ resource "border0_socket" "test_http" {
 }
 
 // create an SSH socket and link it to a connector that's not managed by Terraform
-resource "border0_socket" "test_ssh" {
-  name                         = "test-ssh"
+resource "border0_socket" "example_ssh" {
+  name                         = "example-ssh"
   recording_enabled            = true
   socket_type                  = "ssh"
   connector_id                 = "a7de4cc3-d977-4c4b-82e7-dedb6e7b74a1"
   upstream_hostname            = "127.0.0.1"
   upstream_port                = 22
-  upstream_username            = "test_user"
+  upstream_username            = "some_user"
   upstream_connection_type     = "ssh"
   upstream_authentication_type = "border0_cert"
 }
 
 // create another SSH socket and link it to a connector that was created with Terraform
-resource "border0_socket" "test_another_ssh" {
-  name                         = "test-another-ssh"
+resource "border0_socket" "example_another_ssh" {
+  name                         = "example-another-ssh"
   recording_enabled            = true
   socket_type                  = "ssh"
-  connector_id                 = border0_connector.test_connector.id
+  connector_id                 = border0_connector.example.id
   upstream_hostname            = "127.0.0.1"
   upstream_port                = 22
-  upstream_username            = "test_user"
-  upstream_password            = "test_password"
+  upstream_username            = "some_user"
+  upstream_password            = "some_password"
   upstream_connection_type     = "ssh"
   upstream_authentication_type = "username_password"
 }

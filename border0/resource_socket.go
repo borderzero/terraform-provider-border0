@@ -122,7 +122,7 @@ func resourceSocket() *schema.Resource {
 }
 
 func resourceSocketRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	client := m.(*border0client.APIClient)
+	client := m.(border0client.Requester)
 
 	// get socket details
 	socket, err := client.Socket(ctx, d.Id())
@@ -156,7 +156,7 @@ func resourceSocketRead(ctx context.Context, d *schema.ResourceData, m interface
 }
 
 func resourceSocketCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	client := m.(*border0client.APIClient)
+	client := m.(border0client.Requester)
 	socket := &border0client.Socket{
 		Name:       d.Get("name").(string),
 		SocketType: d.Get("socket_type").(string),
@@ -176,7 +176,7 @@ func resourceSocketCreate(ctx context.Context, d *schema.ResourceData, m interfa
 }
 
 func resourceSocketUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	client := m.(*border0client.APIClient)
+	client := m.(border0client.Requester)
 
 	if d.HasChangesExcept("socket_type") {
 		existingSocket, err := client.Socket(ctx, d.Id())
@@ -202,7 +202,7 @@ func resourceSocketUpdate(ctx context.Context, d *schema.ResourceData, m interfa
 }
 
 func resourceSocketDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	client := m.(*border0client.APIClient)
+	client := m.(border0client.Requester)
 	if err := client.DeleteSocket(ctx, d.Id()); err != nil {
 		return diagnosticsError(err, "Failed to delete socket")
 	}
