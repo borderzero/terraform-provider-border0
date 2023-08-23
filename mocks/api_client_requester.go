@@ -25,6 +25,50 @@ func (_m *APIClientRequester) EXPECT() *APIClientRequester_Expecter {
 	return &APIClientRequester_Expecter{mock: &_m.Mock}
 }
 
+// AttachPoliciesToSocket provides a mock function with given fields: ctx, policyIDs, socketID
+func (_m *APIClientRequester) AttachPoliciesToSocket(ctx context.Context, policyIDs []string, socketID string) error {
+	ret := _m.Called(ctx, policyIDs, socketID)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, []string, string) error); ok {
+		r0 = rf(ctx, policyIDs, socketID)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// APIClientRequester_AttachPoliciesToSocket_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AttachPoliciesToSocket'
+type APIClientRequester_AttachPoliciesToSocket_Call struct {
+	*mock.Call
+}
+
+// AttachPoliciesToSocket is a helper method to define mock.On call
+//   - ctx context.Context
+//   - policyIDs []string
+//   - socketID string
+func (_e *APIClientRequester_Expecter) AttachPoliciesToSocket(ctx interface{}, policyIDs interface{}, socketID interface{}) *APIClientRequester_AttachPoliciesToSocket_Call {
+	return &APIClientRequester_AttachPoliciesToSocket_Call{Call: _e.mock.On("AttachPoliciesToSocket", ctx, policyIDs, socketID)}
+}
+
+func (_c *APIClientRequester_AttachPoliciesToSocket_Call) Run(run func(ctx context.Context, policyIDs []string, socketID string)) *APIClientRequester_AttachPoliciesToSocket_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].([]string), args[2].(string))
+	})
+	return _c
+}
+
+func (_c *APIClientRequester_AttachPoliciesToSocket_Call) Return(err error) *APIClientRequester_AttachPoliciesToSocket_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *APIClientRequester_AttachPoliciesToSocket_Call) RunAndReturn(run func(context.Context, []string, string) error) *APIClientRequester_AttachPoliciesToSocket_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // AttachPolicyToSocket provides a mock function with given fields: ctx, policyID, socketID
 func (_m *APIClientRequester) AttachPolicyToSocket(ctx context.Context, policyID string, socketID string) error {
 	ret := _m.Called(ctx, policyID, socketID)
@@ -680,6 +724,75 @@ func (_c *APIClientRequester_Policies_Call) RunAndReturn(run func(context.Contex
 	return _c
 }
 
+// PoliciesByNames provides a mock function with given fields: ctx, names
+func (_m *APIClientRequester) PoliciesByNames(ctx context.Context, names ...string) ([]client.Policy, error) {
+	_va := make([]interface{}, len(names))
+	for _i := range names {
+		_va[_i] = names[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	var r0 []client.Policy
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, ...string) ([]client.Policy, error)); ok {
+		return rf(ctx, names...)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, ...string) []client.Policy); ok {
+		r0 = rf(ctx, names...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]client.Policy)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, ...string) error); ok {
+		r1 = rf(ctx, names...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// APIClientRequester_PoliciesByNames_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'PoliciesByNames'
+type APIClientRequester_PoliciesByNames_Call struct {
+	*mock.Call
+}
+
+// PoliciesByNames is a helper method to define mock.On call
+//   - ctx context.Context
+//   - names ...string
+func (_e *APIClientRequester_Expecter) PoliciesByNames(ctx interface{}, names ...interface{}) *APIClientRequester_PoliciesByNames_Call {
+	return &APIClientRequester_PoliciesByNames_Call{Call: _e.mock.On("PoliciesByNames",
+		append([]interface{}{ctx}, names...)...)}
+}
+
+func (_c *APIClientRequester_PoliciesByNames_Call) Run(run func(ctx context.Context, names ...string)) *APIClientRequester_PoliciesByNames_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]string, len(args)-1)
+		for i, a := range args[1:] {
+			if a != nil {
+				variadicArgs[i] = a.(string)
+			}
+		}
+		run(args[0].(context.Context), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *APIClientRequester_PoliciesByNames_Call) Return(out []client.Policy, err error) *APIClientRequester_PoliciesByNames_Call {
+	_c.Call.Return(out, err)
+	return _c
+}
+
+func (_c *APIClientRequester_PoliciesByNames_Call) RunAndReturn(run func(context.Context, ...string) ([]client.Policy, error)) *APIClientRequester_PoliciesByNames_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Policy provides a mock function with given fields: ctx, id
 func (_m *APIClientRequester) Policy(ctx context.Context, id string) (*client.Policy, error) {
 	ret := _m.Called(ctx, id)
@@ -731,6 +844,50 @@ func (_c *APIClientRequester_Policy_Call) Return(out *client.Policy, err error) 
 }
 
 func (_c *APIClientRequester_Policy_Call) RunAndReturn(run func(context.Context, string) (*client.Policy, error)) *APIClientRequester_Policy_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// RemovePoliciesFromSocket provides a mock function with given fields: ctx, policyIDs, socketID
+func (_m *APIClientRequester) RemovePoliciesFromSocket(ctx context.Context, policyIDs []string, socketID string) error {
+	ret := _m.Called(ctx, policyIDs, socketID)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, []string, string) error); ok {
+		r0 = rf(ctx, policyIDs, socketID)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// APIClientRequester_RemovePoliciesFromSocket_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RemovePoliciesFromSocket'
+type APIClientRequester_RemovePoliciesFromSocket_Call struct {
+	*mock.Call
+}
+
+// RemovePoliciesFromSocket is a helper method to define mock.On call
+//   - ctx context.Context
+//   - policyIDs []string
+//   - socketID string
+func (_e *APIClientRequester_Expecter) RemovePoliciesFromSocket(ctx interface{}, policyIDs interface{}, socketID interface{}) *APIClientRequester_RemovePoliciesFromSocket_Call {
+	return &APIClientRequester_RemovePoliciesFromSocket_Call{Call: _e.mock.On("RemovePoliciesFromSocket", ctx, policyIDs, socketID)}
+}
+
+func (_c *APIClientRequester_RemovePoliciesFromSocket_Call) Run(run func(ctx context.Context, policyIDs []string, socketID string)) *APIClientRequester_RemovePoliciesFromSocket_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].([]string), args[2].(string))
+	})
+	return _c
+}
+
+func (_c *APIClientRequester_RemovePoliciesFromSocket_Call) Return(err error) *APIClientRequester_RemovePoliciesFromSocket_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *APIClientRequester_RemovePoliciesFromSocket_Call) RunAndReturn(run func(context.Context, []string, string) error) *APIClientRequester_RemovePoliciesFromSocket_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -1274,13 +1431,12 @@ func (_c *APIClientRequester_UpdateSocket_Call) RunAndReturn(run func(context.Co
 	return _c
 }
 
-type mockConstructorTestingTNewAPIClientRequester interface {
+// NewAPIClientRequester creates a new instance of APIClientRequester. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewAPIClientRequester(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewAPIClientRequester creates a new instance of APIClientRequester. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewAPIClientRequester(t mockConstructorTestingTNewAPIClientRequester) *APIClientRequester {
+}) *APIClientRequester {
 	mock := &APIClientRequester{}
 	mock.Mock.Test(t)
 

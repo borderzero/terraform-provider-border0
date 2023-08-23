@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/autarch/testify v1.2.2
-	github.com/borderzero/border0-go v1.1.1
+	github.com/borderzero/border0-go v1.3.5
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/hashicorp/terraform-plugin-docs v0.16.0
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.26.1

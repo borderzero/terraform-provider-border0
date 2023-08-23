@@ -103,8 +103,7 @@ resource "border0_socket" "test_tf_ssh" {
   upstream_hostname            = "127.0.0.1"
   upstream_port                = 22
   upstream_username            = "test_user"
-  upstream_connection_type     = "ssh"
-  upstream_authentication_type = "border0_cert"
+  upstream_authentication_type = "border0_certificate"
 }
 
 resource "border0_policy_attachment" "test_tf_policy_http_socket" {

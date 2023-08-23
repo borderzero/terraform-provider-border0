@@ -71,13 +71,13 @@ resource "border0_socket" "example_another_ssh" {
 - `description` (String) The description of the socket.
 - `recording_enabled` (Boolean) Indicates if session recording is enabled for the socket.
 - `tags` (Map of String) The tags of the socket.
-- `upstream_authentication_type` (String) The upstream authentication type. Valid values: `username_password`, `border0_cert`, `ssh_private_key`. Defaults to `border0_cert`.
-- `upstream_connection_type` (String) The upstream connection type. Valid values: `ssh`, `aws_ec2_connect`, `aws_ssm`, `database`. Defaults to `ssh`.
+- `upstream_authentication_type` (String) The upstream authentication type. Valid values: `username_password`, `border0_certificate`, `ssh_private_key`. Defaults to `border0_certificate`.
 - `upstream_hostname` (String) The upstream hostname.
 - `upstream_http_hostname` (String) The upstream http hostname of the socket.
 - `upstream_password` (String, Sensitive) The upstream password.
 - `upstream_port` (Number) The upstream port number.
 - `upstream_private_key` (String, Sensitive) The upstream private key.
+- `upstream_service_type` (String) The upstream service type. Valid values depend on the socket type, for ssh: `standard`, `aws_ec2_instance_connect`, `aws_ssm`. Defaults to `standard`.
 - `upstream_type` (String) The upstream type of the socket.
 - `upstream_username` (String, Sensitive) The upstream username.
 

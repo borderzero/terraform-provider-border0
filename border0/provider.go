@@ -2,7 +2,6 @@ package border0
 
 import (
 	"context"
-	"fmt"
 
 	border0client "github.com/borderzero/border0-go/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -62,37 +61,4 @@ func providerConfigure(_ context.Context, d *schema.ResourceData) (interface{}, 
 		border0client.WithAuthToken(token),
 		border0client.WithBaseURL(apiURL),
 	), nil
-}
-
-func setValues(d *schema.ResourceData, values map[string]any) diag.Diagnostics {
-	for key, value := range values {
-		if err := d.Set(key, value); err != nil {
-			return diagnosticsError(err, "Failed to set %s", key)
-		}
-	}
-	return nil
-}
-
-func diagnosticsError(err error, message string, args ...interface{}) diag.Diagnostics {
-	var detail string
-	if err != nil {
-		detail = err.Error()
-	}
-
-	diags := []diag.Diagnostic{
-		{
-			Severity: diag.Error,
-			Summary:  fmt.Sprintf(message, args...),
-			Detail:   detail,
-		},
-	}
-
-	if clientError, ok := err.(border0client.Error); ok {
-		diags = append(diags, diag.Diagnostic{
-			Severity: diag.Error,
-			Summary:  clientError.Error(),
-		})
-	}
-
-	return diags
 }
