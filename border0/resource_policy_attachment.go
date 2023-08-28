@@ -3,6 +3,7 @@ package border0
 import (
 	"context"
 	"fmt"
+	"log"
 	"strings"
 
 	border0client "github.com/borderzero/border0-go/client"
@@ -48,6 +49,11 @@ func resourcePolicyAttachmentRead(ctx context.Context, d *schema.ResourceData, m
 	policyID, socketID := ids[0], ids[1]
 
 	policy, err := client.Policy(ctx, policyID)
+	if !d.IsNewResource() && border0client.NotFound(err) {
+		log.Printf("[WARN] Policy (%s) not found, removing from state", policyID)
+		d.SetId("")
+		return nil
+	}
 	if err != nil {
 		return schemautil.DiagnosticsError(err, "Failed to fetch policy")
 	}
