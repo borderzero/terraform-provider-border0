@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	border0client "github.com/borderzero/border0-go/client"
+	"github.com/borderzero/terraform-provider-border0/internal/diagnostics"
 	"github.com/borderzero/terraform-provider-border0/internal/schemautil"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -65,7 +66,7 @@ func resourceConnectorTokenRead(ctx context.Context, d *schema.ResourceData, m i
 		return diag.Diagnostics{}
 	}
 	if err != nil {
-		return schemautil.DiagnosticsError(err, "Failed to fetch connector tokens")
+		return diagnostics.Error(err, "Failed to fetch connector tokens")
 	}
 
 	var connectorToken *border0client.ConnectorToken
@@ -99,24 +100,24 @@ func resourceConnectorTokenCreate(ctx context.Context, d *schema.ResourceData, m
 	if v, ok := d.GetOk("expires_at"); ok {
 		expiresAt, err := border0client.FlexibleTimeFrom(v.(string))
 		if err != nil {
-			return schemautil.DiagnosticsError(err, "Failed to parse expires_at")
+			return diagnostics.Error(err, "Failed to parse expires_at")
 		}
 		connectorToken.ExpiresAt = expiresAt
 	}
 
 	created, err := client.CreateConnectorToken(ctx, connectorToken)
 	if err != nil {
-		return schemautil.DiagnosticsError(err, "Failed to create connector token")
+		return diagnostics.Error(err, "Failed to create connector token")
 	}
 
 	d.SetId(fmt.Sprintf("%s:%s", connectorID, created.ID))
 
-	diagnostics := schemautil.SetValues(d, map[string]any{
+	diags := schemautil.SetValues(d, map[string]any{
 		"connector_id": connectorID,
 		"token":        created.Token,
 	})
-	if diagnostics != nil && diagnostics.HasError() {
-		return diagnostics
+	if diags != nil && diags.HasError() {
+		return diags
 	}
 
 	return resourceConnectorTokenRead(ctx, d, m)
@@ -129,7 +130,7 @@ func resourceConnectorTokenDelete(ctx context.Context, d *schema.ResourceData, m
 		return diags
 	}
 	if err := client.DeleteConnectorToken(ctx, connectorID, connectorTokenID); err != nil {
-		return schemautil.DiagnosticsError(err, "Failed to delete connector token")
+		return diagnostics.Error(err, "Failed to delete connector token")
 	}
 	d.SetId("")
 	return nil
