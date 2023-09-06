@@ -25,12 +25,20 @@ resource "border0_connector" "test_tf_connector" {
 resource "border0_connector_token" "test_tf_connector_token_never_expires" {
   connector_id = border0_connector.test_tf_connector.id
   name         = "test-tf-connector-token-never-expires"
+
+  provisioner "local-exec" {
+    command = "echo ${self.token} > ./connector-token-never-expires"
+  }
 }
 
 resource "border0_connector_token" "test_tf_connector_token_expires" {
   connector_id = border0_connector.test_tf_connector.id
-  name         = "test-tf-connector-token-never-expires"
+  name         = "test-tf-connector-token-expires"
   expires_at   = "2023-12-31T23:59:59Z"
+
+  provisioner "local-exec" {
+    command = "echo ${self.token} > ./connector-token-expires"
+  }
 }
 
 resource "border0_policy" "test_tf_policy" {
@@ -96,14 +104,17 @@ resource "border0_socket" "test_tf_http" {
 }
 
 resource "border0_socket" "test_tf_ssh" {
-  name                         = "test-tf-ssh"
-  recording_enabled            = true
-  socket_type                  = "ssh"
-  connector_id                 = border0_connector.test_tf_connector.id
-  upstream_hostname            = "127.0.0.1"
-  upstream_port                = 22
-  upstream_username            = "test_user"
-  upstream_authentication_type = "border0_certificate"
+  name              = "test-tf-ssh"
+  recording_enabled = true
+  socket_type       = "ssh"
+  connector_id      = border0_connector.test_tf_connector.id
+
+  ssh_configuration {
+    hostname            = "127.0.0.1"
+    port                = 22
+    username            = "test_user"
+    authentication_type = "border0_certificate"
+  }
 }
 
 resource "border0_policy_attachment" "test_tf_policy_http_socket" {
@@ -119,6 +130,21 @@ resource "border0_policy_attachment" "test_tf_policy_ssh_socket" {
 resource "border0_policy_attachment" "another_test_tf_policy_ssh_socket" {
   policy_id = border0_policy.another_test_tf_policy.id
   socket_id = border0_socket.test_tf_ssh.id
+}
+
+resource "border0_socket" "test_tf_mysql" {
+  name              = "test-tf-mysql"
+  recording_enabled = true
+  socket_type       = "database"
+  connector_id      = border0_connector.test_tf_connector.id
+
+  database_configuration {
+    protocol = "mysql"
+    hostname = "127.0.0.1"
+    port     = 3307
+    username = "root"
+    password = "test"
+  }
 }
 
 output "managed_resources" {
@@ -147,12 +173,12 @@ output "managed_resources" {
       id   = border0_policy.another_test_tf_policy.id
       name = border0_policy.another_test_tf_policy.name
     }
-    http = {
+    http_socket = {
       id   = border0_socket.test_tf_http.id
       name = border0_socket.test_tf_http.name
       type = border0_socket.test_tf_http.socket_type
     }
-    ssh = {
+    ssh_socket = {
       id   = border0_socket.test_tf_ssh.id
       name = border0_socket.test_tf_ssh.name
       type = border0_socket.test_tf_ssh.socket_type

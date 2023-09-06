@@ -19,6 +19,7 @@ resource "border0_socket" "unit_test_http" {
   }
 }
 `
+
 var updateHTTPSocketConfig = `
 resource "border0_socket" "unit_test_http" {
   name = "unit-test-http-socket"

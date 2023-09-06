@@ -37,6 +37,7 @@ resource "border0_policy" "unit_test" {
   })
 }
 `
+
 var updatePolicyConfig = `
 resource "border0_policy" "unit_test" {
   name = "unit-test-policy-1"

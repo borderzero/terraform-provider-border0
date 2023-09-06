@@ -43,15 +43,17 @@ resource "border0_socket" "test_tf_http" {
 }
 
 resource "border0_socket" "test_tf_ssh" {
-  name                         = "test-tf-ssh"
-  recording_enabled            = true
-  socket_type                  = "ssh"
-  connector_id                 = border0_connector.test_tf_connector.id
-  upstream_hostname            = "127.0.0.1"
-  upstream_port                = 22
-  upstream_username            = "test_user"
-  upstream_connection_type     = "ssh"
-  upstream_authentication_type = "border0_cert"
+  name              = "test-tf-ssh"
+  recording_enabled = true
+  socket_type       = "ssh"
+  connector_id      = border0_connector.test_tf_connector.id
+
+  ssh_configuration {
+    hostname            = "127.0.0.1"
+    port                = 22
+    username            = "test_user"
+    authentication_type = "border0_certificate"
+  }
 }
 
 output "managed_resources" {
@@ -72,12 +74,12 @@ output "managed_resources" {
       name         = border0_connector_token.test_tf_connector_token_expires.name
       expires_at   = border0_connector_token.test_tf_connector_token_expires.expires_at
     }
-    http = {
+    http_socket = {
       id   = border0_socket.test_tf_http.id
       name = border0_socket.test_tf_http.name
       type = border0_socket.test_tf_http.socket_type
     }
-    ssh = {
+    ssh_socket = {
       id   = border0_socket.test_tf_ssh.id
       name = border0_socket.test_tf_ssh.name
       type = border0_socket.test_tf_ssh.socket_type

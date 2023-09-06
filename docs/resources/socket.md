@@ -30,29 +30,92 @@ resource "border0_socket" "example_http" {
 
 // create an SSH socket and link it to a connector that's not managed by Terraform
 resource "border0_socket" "example_ssh" {
-  name                         = "example-ssh"
-  recording_enabled            = true
-  socket_type                  = "ssh"
-  connector_id                 = "a7de4cc3-d977-4c4b-82e7-dedb6e7b74a1"
-  upstream_hostname            = "127.0.0.1"
-  upstream_port                = 22
-  upstream_username            = "some_user"
-  upstream_connection_type     = "ssh"
-  upstream_authentication_type = "border0_cert"
+  name              = "example-ssh"
+  recording_enabled = true
+  socket_type       = "ssh"
+  connector_id      = "a7de4cc3-d977-4c4b-82e7-dedb6e7b74a1"
+
+  ssh_configuration {
+    hostname            = "127.0.0.1"
+    port                = 22
+    username            = "some_user"
+    authentication_type = "border0_certificate"
+  }
 }
 
 // create another SSH socket and link it to a connector that was created with Terraform
 resource "border0_socket" "example_another_ssh" {
-  name                         = "example-another-ssh"
-  recording_enabled            = true
-  socket_type                  = "ssh"
-  connector_id                 = border0_connector.example.id
-  upstream_hostname            = "127.0.0.1"
-  upstream_port                = 22
-  upstream_username            = "some_user"
-  upstream_password            = "some_password"
-  upstream_connection_type     = "ssh"
-  upstream_authentication_type = "username_password"
+  name              = "example-another-ssh"
+  recording_enabled = true
+  socket_type       = "ssh"
+  connector_id      = border0_connector.example.id
+
+  ssh_configuration {
+    hostname            = "127.0.0.1"
+    port                = 22
+    username            = "some_user"
+    password            = "some_password"
+    authentication_type = "username_and_password"
+  }
+}
+
+// create a database socket and link it to a connector that was created with Terraform
+// this socket will be used to connect to an AWS RDS instance with IAM authentication
+// https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/UsingWithRDS.IAMDBAuth.html
+resource "border0_socket" "example_aws_rds_with_iam_auth" {
+  name              = "example-aws-rds-with-iam-auth"
+  recording_enabled = true
+  socket_type       = "database"
+  connector_id      = border0_connector.example.id
+
+  database_configuration {
+    protocol            = "mysql"
+    hostname            = "some-aws-rds-cluster.us-west-2.rds.amazonaws.com"
+    port                = 3306
+    service_type        = "aws_rds"
+    authentication_type = "iam"
+    rds_instance_region = "us-east-2"
+    username            = "some_db_iam_user_name"
+  }
+}
+
+// create an SSH socket and link it to a connector that was created with Terraform
+// this socket will be used to connect to an AWS EC2 instance with EC2 Instance Connect
+// https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-connect-set-up.html
+resource "border0_socket" "example_aws_ec2_instance_connect" {
+  name              = "example-ec2-instance-connect"
+  recording_enabled = true
+  socket_type       = "ssh"
+  connector_id      = border0_connector.example.id
+
+  ssh_configuration {
+    service_type        = "aws_ec2_instance_connect"
+    hostname            = "10.0.0.101"
+    port                = 22
+    username_provider   = "defined"
+    username            = "ubuntu"
+    ec2_instance_id     = "i-00000000000000001"
+    ec2_instance_region = "ap-southeast-2"
+  }
+}
+
+// create an SSH socket and link it to a connector that was created with Terraform
+// this socket will be used to connect to an AWS ECS service with SSM Session Manager
+// https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-exec.html
+// https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html
+resource "border0_socket" "example_connect_to_ecs_with_ssm" {
+  name              = "example-connect-to-ecs-with-ssm"
+  recording_enabled = true
+  socket_type       = "ssh"
+  connector_id      = border0_connector.example.id
+
+  ssh_configuration {
+    service_type       = "aws_ssm"
+    ssm_target_type    = "ecs"
+    ecs_cluster_region = "eu-west-1"
+    ecs_cluster_name   = "some-ecs-cluster-name"
+    ecs_service_name   = "some-ecs-service-name"
+  }
 }
 ```
 
@@ -68,19 +131,106 @@ resource "border0_socket" "example_another_ssh" {
 
 - `connector_authentication_enabled` (Boolean) Indicates if connector authentication is enabled for the socket.
 - `connector_id` (String) The connector id that the socket is associated with.
+- `database_configuration` (Block List) (see [below for nested schema](#nestedblock--database_configuration))
 - `description` (String) The description of the socket.
+- `http_configuration` (Block List) (see [below for nested schema](#nestedblock--http_configuration))
 - `recording_enabled` (Boolean) Indicates if session recording is enabled for the socket.
+- `ssh_configuration` (Block List) (see [below for nested schema](#nestedblock--ssh_configuration))
 - `tags` (Map of String) The tags of the socket.
-- `upstream_authentication_type` (String) The upstream authentication type. Valid values: `username_password`, `border0_certificate`, `ssh_private_key`. Defaults to `border0_certificate`.
-- `upstream_hostname` (String) The upstream hostname.
+- `tls_configuration` (Block List) (see [below for nested schema](#nestedblock--tls_configuration))
 - `upstream_http_hostname` (String) The upstream http hostname of the socket.
-- `upstream_password` (String, Sensitive) The upstream password.
-- `upstream_port` (Number) The upstream port number.
-- `upstream_private_key` (String, Sensitive) The upstream private key.
-- `upstream_service_type` (String) The upstream service type. Valid values depend on the socket type, for ssh: `standard`, `aws_ec2_instance_connect`, `aws_ssm`. Defaults to `standard`.
 - `upstream_type` (String) The upstream type of the socket.
-- `upstream_username` (String, Sensitive) The upstream username.
 
 ### Read-Only
 
 - `id` (String) The ID of this resource.
+
+<a id="nestedblock--database_configuration"></a>
+### Nested Schema for `database_configuration`
+
+Optional:
+
+- `authentication_type` (String) The upstream authentication type. Valid values: `username_password`, `tls`, `iam`. Defaults to `username_password`.
+- `aws_credentials` (Block List) The upstream service's AWS credentials. (see [below for nested schema](#nestedblock--database_configuration--aws_credentials))
+- `ca_certificate` (String, Sensitive) The upstream CA certificate.
+- `certificate` (String, Sensitive) The upstream certificate.
+- `cloudsql_connector_enabled` (Boolean) Indicates if CloudSQL connector is enabled. Only used when service type is `gcp_cloud_sql`.
+- `cloudsql_instance_id` (String) The upstream CloudSQL instance id.
+- `gcp_credentials` (String, Sensitive) The upstream GCP credentials.
+- `hostname` (String) The upstream database hostname.
+- `password` (String, Sensitive) The upstream password.
+- `port` (Number) The upstream database port number.
+- `private_key` (String, Sensitive) The upstream private key.
+- `protocol` (String) The upstream database protocol. Valid values: `mysql`, `postgres`. Defaults to `mysql`.
+- `rds_instance_region` (String) The upstream RDS database region.
+- `service_type` (String) The upstream service type. Valid values: `standard`, `aws_rds`, `gcp_cloud_sql`. Defaults to `standard`.
+- `username` (String, Sensitive) The upstream username.
+
+<a id="nestedblock--database_configuration--aws_credentials"></a>
+### Nested Schema for `database_configuration.aws_credentials`
+
+Optional:
+
+- `access_key_id` (String, Sensitive) The upstream AWS access key id.
+- `profile` (String, Sensitive) The upstream AWS profile.
+- `secret_access_key` (String, Sensitive) The upstream AWS secret access key.
+- `session_token` (String, Sensitive) The upstream AWS session token.
+
+
+
+<a id="nestedblock--http_configuration"></a>
+### Nested Schema for `http_configuration`
+
+Optional:
+
+- `file_server_directory` (String) The upstream file server directory. Only used when service type is `connector_file_server`.
+- `host_header` (String) The upstream host header.
+- `hostname` (String) The upstream HTTP hostname.
+- `port` (Number) The upstream HTTP port number.
+- `service_type` (String) The upstream service type. Valid values: `standard`, `connector_file_server`. Defaults to `standard`.
+
+
+<a id="nestedblock--ssh_configuration"></a>
+### Nested Schema for `ssh_configuration`
+
+Optional:
+
+- `authentication_type` (String) The upstream authentication type for standard SSH service. Valid values: `username_password`, `border0_certificate`, `ssh_private_key`. Defaults to `border0_certificate`.
+- `aws_credentials` (Block List) The upstream service's AWS credentials. (see [below for nested schema](#nestedblock--ssh_configuration--aws_credentials))
+- `ec2_instance_id` (String) The upstream EC2 instance id.
+- `ec2_instance_region` (String) The upstream EC2 instance region.
+- `ecs_cluster_name` (String) The upstream ECS cluster name.
+- `ecs_cluster_region` (String) The upstream ECS cluster region.
+- `ecs_service_name` (String) The upstream ECS service name.
+- `hostname` (String) The upstream SSH hostname.
+- `password` (String, Sensitive) The upstream password.
+- `port` (Number) The upstream SSH port number.
+- `private_key` (String, Sensitive) The upstream private key.
+- `service_type` (String) The upstream service type. Valid values: `standard`, `aws_ec2_instance_connect`, `aws_ssm`. Defaults to `standard`.
+- `ssm_target_type` (String) The upstream SSM target type. Valid values: `ec2`, `ecs`. Defaults to `ec2`.
+- `username` (String, Sensitive) The upstream username.
+- `username_provider` (String) The upstream username provider. Valid values: `defined`, `prompt_client`, `use_connector_user`. Defaults to `prompt_client`.
+
+<a id="nestedblock--ssh_configuration--aws_credentials"></a>
+### Nested Schema for `ssh_configuration.aws_credentials`
+
+Optional:
+
+- `access_key_id` (String, Sensitive) The upstream AWS access key id.
+- `profile` (String, Sensitive) The upstream AWS profile.
+- `secret_access_key` (String, Sensitive) The upstream AWS secret access key.
+- `session_token` (String, Sensitive) The upstream AWS session token.
+
+
+
+<a id="nestedblock--tls_configuration"></a>
+### Nested Schema for `tls_configuration`
+
+Optional:
+
+- `hostname` (String) The upstream TLS hostname. Only used when service type is `standard`.
+- `http_proxy_host_allowlist` (List of String) The HTTP proxy host allowlist. Only used when service type is `http_proxy`.
+- `port` (Number) The upstream TLS port number. Only used when service type is `standard`.
+- `service_type` (String) The upstream service type. Valid values: `standard`, `vpn`, http_proxy`. Defaults to `standard`.
+- `vpn_routes` (List of String) The VPN routes. Only used when service type is `vpn`.
+- `vpn_subnet` (String) The VPN subnet. Only used when service type is `vpn`.

@@ -14,6 +14,7 @@ resource "border0_connector" "unit_test" {
   description = "connector created from terraform unit test"
 }
 `
+
 var updateConnectorConfig = `
 resource "border0_connector" "unit_test" {
   name = "unit-test-connector-1"
