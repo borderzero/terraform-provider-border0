@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-var initialHTTPSocketConfig = `
+var httpSocketConfig = `
 resource "border0_socket" "unit_test_http" {
   name = "unit-test-http-socket"
   description = "socket created from terraform unit test"
@@ -19,7 +19,8 @@ resource "border0_socket" "unit_test_http" {
   }
 }
 `
-var updateHTTPSocketConfig = `
+
+var httpSocketConfig_update = `
 resource "border0_socket" "unit_test_http" {
   name = "unit-test-http-socket"
   description = "update socket description"
@@ -30,7 +31,18 @@ resource "border0_socket" "unit_test_http" {
 }
 `
 
-func Test_Resource_Border0Socket_HTTP(t *testing.T) {
+var sshSocketConfig_awsEC2InstanceConnect = `
+resource "border0_socket" "unit_test_http" {
+  name = "unit-test-http-socket"
+  description = "socket created from terraform unit test"
+  socket_type = "http"
+  tags = {
+    "test_key_1" = "test_value_1"
+  }
+}
+`
+
+func Test_Resource_Border0Socket_HTTPBasic(t *testing.T) {
 	initialInput := border0client.Socket{
 		Name:        "unit-test-http-socket",
 		Description: "socket created from terraform unit test",
@@ -116,7 +128,7 @@ func Test_Resource_Border0Socket_HTTP(t *testing.T) {
 		ProviderFactories: testProviderFactories(t, &clientMock),
 		Steps: []resource.TestStep{
 			{
-				Config: initialHTTPSocketConfig,
+				Config: httpSocketConfig,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("border0_socket.unit_test_http", "name", "unit-test-http-socket"),
 					resource.TestCheckResourceAttr("border0_socket.unit_test_http", "description", "socket created from terraform unit test"),
@@ -126,7 +138,7 @@ func Test_Resource_Border0Socket_HTTP(t *testing.T) {
 				),
 			},
 			{
-				Config: updateHTTPSocketConfig,
+				Config: httpSocketConfig_update,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("border0_socket.unit_test_http", "name", "unit-test-http-socket"),
 					resource.TestCheckResourceAttr("border0_socket.unit_test_http", "description", "update socket description"),

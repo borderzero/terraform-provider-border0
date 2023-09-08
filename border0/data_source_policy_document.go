@@ -8,7 +8,7 @@ import (
 	"strconv"
 
 	border0client "github.com/borderzero/border0-go/client"
-	"github.com/borderzero/terraform-provider-border0/internal/schemautil"
+	"github.com/borderzero/terraform-provider-border0/internal/diagnostics"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -182,7 +182,7 @@ func dataSourcePolicyDocumentRead(ctx context.Context, d *schema.ResourceData, m
 
 	jsonPolicyData, err := json.MarshalIndent(policyData, "", "  ")
 	if err != nil {
-		return schemautil.DiagnosticsError(err, "Failed to marshal policy data")
+		return diagnostics.Error(err, "Failed to marshal policy data")
 	}
 	jsonString := string(jsonPolicyData)
 

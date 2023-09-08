@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	border0client "github.com/borderzero/border0-go/client"
+	"github.com/borderzero/terraform-provider-border0/internal/diagnostics"
 	"github.com/borderzero/terraform-provider-border0/internal/schemautil"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -60,12 +61,12 @@ func resourcePolicyRead(ctx context.Context, d *schema.ResourceData, m interface
 		return diag.Diagnostics{}
 	}
 	if err != nil {
-		return schemautil.DiagnosticsError(err, "Failed to fetch policy")
+		return diagnostics.Error(err, "Failed to fetch policy")
 	}
 
 	policyData, err := json.Marshal(&policy.PolicyData)
 	if err != nil {
-		return schemautil.DiagnosticsError(err, "Failed to marshal policy data")
+		return diagnostics.Error(err, "Failed to marshal policy data")
 	}
 
 	return schemautil.SetValues(d, map[string]any{
@@ -84,7 +85,7 @@ func resourcePolicyCreate(ctx context.Context, d *schema.ResourceData, m interfa
 
 	var policyData border0client.PolicyData
 	if err := json.Unmarshal([]byte(d.Get("policy_data").(string)), &policyData); err != nil {
-		return schemautil.DiagnosticsError(err, "Failed to unmarshal policy data")
+		return diagnostics.Error(err, "Failed to unmarshal policy data")
 	}
 	policy.PolicyData = policyData
 
@@ -97,7 +98,7 @@ func resourcePolicyCreate(ctx context.Context, d *schema.ResourceData, m interfa
 
 	created, err := client.CreatePolicy(ctx, policy)
 	if err != nil {
-		return schemautil.DiagnosticsError(err, "Failed to create policy")
+		return diagnostics.Error(err, "Failed to create policy")
 	}
 
 	d.SetId(created.ID)
@@ -115,7 +116,7 @@ func resourcePolicyUpdate(ctx context.Context, d *schema.ResourceData, m interfa
 
 		var policyData border0client.PolicyData
 		if err := json.Unmarshal([]byte(d.Get("policy_data").(string)), &policyData); err != nil {
-			return schemautil.DiagnosticsError(err, "Failed to unmarshal policy data")
+			return diagnostics.Error(err, "Failed to unmarshal policy data")
 		}
 		policyUpdate.PolicyData = policyData
 
@@ -125,7 +126,7 @@ func resourcePolicyUpdate(ctx context.Context, d *schema.ResourceData, m interfa
 
 		_, err := client.UpdatePolicy(ctx, d.Id(), policyUpdate)
 		if err != nil {
-			return schemautil.DiagnosticsError(err, "Failed to update policy")
+			return diagnostics.Error(err, "Failed to update policy")
 		}
 	}
 
@@ -135,7 +136,7 @@ func resourcePolicyUpdate(ctx context.Context, d *schema.ResourceData, m interfa
 func resourcePolicyDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	client := m.(border0client.Requester)
 	if err := client.DeletePolicy(ctx, d.Id()); err != nil {
-		return schemautil.DiagnosticsError(err, "Failed to delete policy")
+		return diagnostics.Error(err, "Failed to delete policy")
 	}
 	d.SetId("")
 	return nil
