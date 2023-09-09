@@ -3,7 +3,7 @@ terraform {
   required_providers {
     border0 = {
       source  = "borderzero/border0"
-      version = "0.1.9"
+      version = "0.1.10"
     }
   }
 }
@@ -40,6 +40,23 @@ resource "border0_socket" "test_tf_http" {
     "test_key_1" = "test_value_1"
   }
   upstream_type = "https"
+}
+
+resource "border0_socket" "test_tf_http" {
+  name         = "test-tf-http"
+  socket_type  = "http"
+  connector_id = border0_connector.test_tf_connector.id
+
+  http_configuration {
+    hostname    = "www.bbc.com"
+    port        = 443
+    host_header = "www.bbc.com"
+  }
+  upstream_type = "https"
+
+  tags = {
+    "test_key_1" = "test_value_1"
+  }
 }
 
 resource "border0_socket" "test_tf_ssh" {

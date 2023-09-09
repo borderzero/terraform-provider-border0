@@ -1,57 +1,64 @@
 // create an HTTP socket with an HTTPS upstream and add few tags to the socket
-// this socket will not be linked to any connector
+// this socket will be linked to a connector that was created with terraform
 resource "border0_socket" "example_http" {
-  name        = "example-http"
-  socket_type = "http"
+  name         = "example-http"
+  socket_type  = "http"
+  connector_id = border0_connector.example.id // link to a connector that was created with terraform
+
+  http_configuration {
+    hostname    = "www.bbc.com"
+    port        = 443
+    host_header = "www.bbc.com"
+  }
+  upstream_type = "https"
+
   tags = {
     "user"        = "Bilbo Baggins"
     "project"     = "The Hobbit"
     "region"      = "The Shire"
     "environment" = "dev"
   }
-  upstream_type          = "https"
-  upstream_http_hostname = "www.bbc.com"
 }
 
-// create an SSH socket and link it to a connector that's not managed by Terraform
-resource "border0_socket" "example_ssh" {
-  name              = "example-ssh"
+// create an SSH socket and link it to a connector that's not managed by terraform
+resource "border0_socket" "example_ssh_password_auth" {
+  name              = "example-ssh-password-auth"
   recording_enabled = true
   socket_type       = "ssh"
-  connector_id      = "a7de4cc3-d977-4c4b-82e7-dedb6e7b74a1"
+  connector_id      = "a7de4cc3-d977-4c4b-82e7-dedb6e7b74a1" // replace with your connector ID
 
   ssh_configuration {
     hostname            = "127.0.0.1"
     port                = 22
-    username            = "some_user"
-    authentication_type = "border0_certificate"
-  }
-}
-
-// create another SSH socket and link it to a connector that was created with Terraform
-resource "border0_socket" "example_another_ssh" {
-  name              = "example-another-ssh"
-  recording_enabled = true
-  socket_type       = "ssh"
-  connector_id      = border0_connector.example.id
-
-  ssh_configuration {
-    hostname            = "127.0.0.1"
-    port                = 22
-    username            = "some_user"
-    password            = "some_password"
     authentication_type = "username_and_password"
+    username            = "some_user"
+    password            = "from:file:/path/to/password/file"
   }
 }
 
-// create a database socket and link it to a connector that was created with Terraform
+// create another SSH socket and link it to a connector that was created with terraform
+resource "border0_socket" "example_ssh_border0_certificate_auth" {
+  name              = "example-ssh-border0-certificate-auth"
+  recording_enabled = true
+  socket_type       = "ssh"
+  connector_id      = border0_connector.example.id // link to a connector that was created with terraform
+
+  ssh_configuration {
+    hostname            = "127.0.0.1"
+    port                = 22
+    authentication_type = "border0_certificate"
+    username            = "some_user"
+  }
+}
+
+// create a database socket and link it to a connector that was created with terraform
 // this socket will be used to connect to an AWS RDS instance with IAM authentication
 // https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/UsingWithRDS.IAMDBAuth.html
 resource "border0_socket" "example_aws_rds_with_iam_auth" {
   name              = "example-aws-rds-with-iam-auth"
   recording_enabled = true
   socket_type       = "database"
-  connector_id      = border0_connector.example.id
+  connector_id      = border0_connector.example.id // link to a connector that was created with terraform
 
   database_configuration {
     protocol            = "mysql"
@@ -64,7 +71,7 @@ resource "border0_socket" "example_aws_rds_with_iam_auth" {
   }
 }
 
-// create an SSH socket and link it to a connector that was created with Terraform
+// create an SSH socket and link it to a connector that was created with terraform
 // this socket will be used to connect to an AWS EC2 instance with EC2 Instance Connect
 // https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-connect-set-up.html
 resource "border0_socket" "example_aws_ec2_instance_connect" {
@@ -84,7 +91,7 @@ resource "border0_socket" "example_aws_ec2_instance_connect" {
   }
 }
 
-// create an SSH socket and link it to a connector that was created with Terraform
+// create an SSH socket and link it to a connector that was created with terraform
 // this socket will be used to connect to an AWS ECS service with SSM Session Manager
 // https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-exec.html
 // https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html
@@ -92,7 +99,7 @@ resource "border0_socket" "example_connect_to_ecs_with_ssm" {
   name              = "example-connect-to-ecs-with-ssm"
   recording_enabled = true
   socket_type       = "ssh"
-  connector_id      = border0_connector.example.id
+  connector_id      = border0_connector.example.id // link to a connector that was created with terraform
 
   ssh_configuration {
     service_type       = "aws_ssm"
