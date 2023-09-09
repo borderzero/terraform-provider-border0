@@ -18,14 +18,18 @@ terraform {
   required_providers {
     border0 = {
       source  = "borderzero/border0"
-      version = "0.1.9"
+      version = "0.1.10"
     }
   }
 }
 
 provider "border0" {
   // Border0 access token. Required.
-  // if not set explicitly, the provider will use the environment variable BORDER0_TOKEN
+  // If not set explicitly, the provider will use the env var BORDER0_TOKEN.
+  //
+  // You can generate a Border0 access token one by going to:
+  // portal.border0.com -> Organization Settings -> Access Tokens
+  // and then create a token in Member or Admin permission groups.
   token = "_my_access_token_"
 }
 ```

@@ -14,18 +14,25 @@ The socket resource allows you to create and manage a Border0 socket.
 
 ```terraform
 // create an HTTP socket with an HTTPS upstream and add few tags to the socket
-// this socket will not be linked to any connector
+// this socket will be linked to a connector that was created with terraform
 resource "border0_socket" "example_http" {
-  name        = "example-http"
-  socket_type = "http"
+  name         = "example-http"
+  socket_type  = "http"
+  connector_id = border0_connector.example.id // link to a connector that was created with terraform
+
+  http_configuration {
+    hostname    = "www.bbc.com"
+    port        = 443
+    host_header = "www.bbc.com"
+  }
+  upstream_type = "https"
+
   tags = {
     "user"        = "Bilbo Baggins"
     "project"     = "The Hobbit"
     "region"      = "The Shire"
     "environment" = "dev"
   }
-  upstream_type          = "https"
-  upstream_http_hostname = "www.bbc.com"
 }
 
 // create an SSH socket and link it to a connector that's not managed by Terraform
@@ -33,7 +40,7 @@ resource "border0_socket" "example_ssh" {
   name              = "example-ssh"
   recording_enabled = true
   socket_type       = "ssh"
-  connector_id      = "a7de4cc3-d977-4c4b-82e7-dedb6e7b74a1"
+  connector_id      = "a7de4cc3-d977-4c4b-82e7-dedb6e7b74a1" // replace with your connector ID
 
   ssh_configuration {
     hostname            = "127.0.0.1"
@@ -48,7 +55,7 @@ resource "border0_socket" "example_another_ssh" {
   name              = "example-another-ssh"
   recording_enabled = true
   socket_type       = "ssh"
-  connector_id      = border0_connector.example.id
+  connector_id      = border0_connector.example.id // link to a connector that was created with terraform
 
   ssh_configuration {
     hostname            = "127.0.0.1"
@@ -66,7 +73,7 @@ resource "border0_socket" "example_aws_rds_with_iam_auth" {
   name              = "example-aws-rds-with-iam-auth"
   recording_enabled = true
   socket_type       = "database"
-  connector_id      = border0_connector.example.id
+  connector_id      = border0_connector.example.id // link to a connector that was created with terraform
 
   database_configuration {
     protocol            = "mysql"
@@ -107,7 +114,7 @@ resource "border0_socket" "example_connect_to_ecs_with_ssm" {
   name              = "example-connect-to-ecs-with-ssm"
   recording_enabled = true
   socket_type       = "ssh"
-  connector_id      = border0_connector.example.id
+  connector_id      = border0_connector.example.id // link to a connector that was created with terraform
 
   ssh_configuration {
     service_type       = "aws_ssm"
@@ -150,7 +157,7 @@ resource "border0_socket" "example_connect_to_ecs_with_ssm" {
 
 Optional:
 
-- `authentication_type` (String) The upstream authentication type. Valid values: `username_password`, `tls`, `iam`. Defaults to `username_password`.
+- `authentication_type` (String) The upstream authentication type. Valid values: `username_and_password`, `tls`, `iam`. Defaults to `username_and_password`.
 - `aws_credentials` (Block List) The upstream service's AWS credentials. (see [below for nested schema](#nestedblock--database_configuration--aws_credentials))
 - `ca_certificate` (String, Sensitive) The upstream CA certificate.
 - `certificate` (String, Sensitive) The upstream certificate.
@@ -195,7 +202,7 @@ Optional:
 
 Optional:
 
-- `authentication_type` (String) The upstream authentication type for standard SSH service. Valid values: `username_password`, `border0_certificate`, `ssh_private_key`. Defaults to `border0_certificate`.
+- `authentication_type` (String) The upstream authentication type for standard SSH service. Valid values: `username_and_password`, `border0_certificate`, `ssh_private_key`. Defaults to `border0_certificate`.
 - `aws_credentials` (Block List) The upstream service's AWS credentials. (see [below for nested schema](#nestedblock--ssh_configuration--aws_credentials))
 - `ec2_instance_id` (String) The upstream EC2 instance id.
 - `ec2_instance_region` (String) The upstream EC2 instance region.

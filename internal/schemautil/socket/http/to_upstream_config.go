@@ -11,7 +11,7 @@ import (
 func ToUpstreamConfig(d *schema.ResourceData, config *service.HttpServiceConfiguration) diag.Diagnostics {
 	data := make(map[string]any)
 
-	if v, ok := d.GetOk("database_configuration"); ok {
+	if v, ok := d.GetOk("http_configuration"); ok {
 		if httpConfigsList := v.([]any); len(httpConfigsList) > 0 {
 			data = httpConfigsList[0].(map[string]any)
 		}

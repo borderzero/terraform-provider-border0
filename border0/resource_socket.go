@@ -142,7 +142,7 @@ func resourceSocket() *schema.Resource {
 							Type:        schema.TypeString,
 							Optional:    true,
 							Computed:    true,
-							Description: "The upstream authentication type for standard SSH service. Valid values: `username_password`, `border0_certificate`, `ssh_private_key`. Defaults to `border0_certificate`.",
+							Description: "The upstream authentication type for standard SSH service. Valid values: `username_and_password`, `border0_certificate`, `ssh_private_key`. Defaults to `border0_certificate`.",
 						},
 						"username_provider": {
 							Type:        schema.TypeString,
@@ -235,7 +235,7 @@ func resourceSocket() *schema.Resource {
 							Type:        schema.TypeString,
 							Optional:    true,
 							Default:     service.DatabaseAuthenticationTypeUsernameAndPassword,
-							Description: "The upstream authentication type. Valid values: `username_password`, `tls`, `iam`. Defaults to `username_password`.",
+							Description: "The upstream authentication type. Valid values: `username_and_password`, `tls`, `iam`. Defaults to `username_and_password`.",
 						},
 						"username": {
 							Type:        schema.TypeString,
