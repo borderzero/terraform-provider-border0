@@ -1,6 +1,9 @@
 package http
 
 import (
+	"fmt"
+
+	border0client "github.com/borderzero/border0-go/client"
 	"github.com/borderzero/border0-go/types/service"
 	"github.com/borderzero/terraform-provider-border0/internal/diagnostics"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -9,7 +12,7 @@ import (
 
 // FromUpstreamConfig converts a socket's HTTP service configuration into terraform resource data for
 // the "http_configuration" attribute on the "border0_socket" resource.
-func FromUpstreamConfig(d *schema.ResourceData, config *service.HttpServiceConfiguration) diag.Diagnostics {
+func FromUpstreamConfig(d *schema.ResourceData, socket *border0client.Socket, config *service.HttpServiceConfiguration) diag.Diagnostics {
 	if config == nil {
 		return diag.Errorf(`got a socket with service type "http" but HTTP service configuration was not present`)
 	}
@@ -22,7 +25,7 @@ func FromUpstreamConfig(d *schema.ResourceData, config *service.HttpServiceConfi
 
 	switch config.HttpServiceType {
 	case service.HttpServiceTypeStandard:
-		diags = standardFromUpstreamConfig(&data, config.StandardHttpServiceConfiguration)
+		diags = standardFromUpstreamConfig(&data, socket, config.StandardHttpServiceConfiguration)
 	case service.HttpServiceTypeConnectorFileServer:
 		diags = connectorFileServerFromUpstreamConfig(&data, config.FileServerHttpServiceConfiguration)
 	default:
@@ -40,14 +43,23 @@ func FromUpstreamConfig(d *schema.ResourceData, config *service.HttpServiceConfi
 	return nil
 }
 
-func standardFromUpstreamConfig(data *map[string]any, config *service.StandardHttpServiceConfiguration) diag.Diagnostics {
+func standardFromUpstreamConfig(data *map[string]any, socket *border0client.Socket, config *service.StandardHttpServiceConfiguration) diag.Diagnostics {
 	if config == nil {
 		return diag.Errorf(`got a socket with HTTP service type "standard" but standard HTTP service configuration was not present`)
 	}
 
-	(*data)["hostname"] = config.Hostname
-	(*data)["port"] = config.Port
-	(*data)["host_header"] = config.HostHeader
+	port := fmt.Sprintf(":%d", config.Port)
+	if (socket.UpstreamType == "https" && config.Port == 443) ||
+		(socket.UpstreamType == "http" && config.Port == 80) {
+		port = "" // omit port if it's the default for the upstream type
+	}
+	(*data)["upstream_url"] = fmt.Sprintf("%s://%s%s", socket.UpstreamType, config.Hostname, port)
+
+	var hostHeader string
+	if config.Hostname != config.HostHeader {
+		hostHeader = config.HostHeader
+	}
+	(*data)["host_header"] = hostHeader
 
 	return nil
 }

@@ -27,7 +27,7 @@ resource "border0_connector_token" "test_tf_connector_token_never_expires" {
   name         = "test-tf-connector-token-never-expires"
 
   provisioner "local-exec" {
-    command = "echo ${self.token} > ./connector-token-never-expires"
+    command = "echo 'token: ${self.token}' > ./border0.yaml"
   }
 }
 
@@ -37,7 +37,7 @@ resource "border0_connector_token" "test_tf_connector_token_expires" {
   expires_at   = "2023-12-31T23:59:59Z"
 
   provisioner "local-exec" {
-    command = "echo ${self.token} > ./connector-token-expires"
+    command = "echo 'token: ${self.token}' > ./border0-connector-token-expires.yaml"
   }
 }
 
@@ -95,12 +95,17 @@ resource "border0_policy" "another_test_tf_policy" {
 }
 
 resource "border0_socket" "test_tf_http" {
-  name        = "test-tf-http"
-  socket_type = "http"
+  name         = "test-tf-http"
+  socket_type  = "http"
+  connector_id = border0_connector.test_tf_connector.id
+
+  http_configuration {
+    upstream_url = "https://www.bbc.com"
+  }
+
   tags = {
     "test_key_1" = "test_value_1"
   }
-  upstream_type = "https"
 }
 
 resource "border0_socket" "test_tf_ssh" {
@@ -115,6 +120,16 @@ resource "border0_socket" "test_tf_ssh" {
     username            = "test_user"
     authentication_type = "border0_certificate"
   }
+}
+
+resource "border0_policy_attachment" "test_tf_policy_builtin_ssh" {
+  policy_id = border0_policy.test_tf_policy.id
+  socket_id = border0_connector.test_tf_connector.built_in_ssh_service_id
+}
+
+resource "border0_policy_attachment" "another_test_tf_policy_builtin_ssh" {
+  policy_id = border0_policy.another_test_tf_policy.id
+  socket_id = border0_connector.test_tf_connector.built_in_ssh_service_id
 }
 
 resource "border0_policy_attachment" "test_tf_policy_http_socket" {
@@ -150,8 +165,10 @@ resource "border0_socket" "test_tf_mysql" {
 output "managed_resources" {
   value = {
     connector = {
-      id   = border0_connector.test_tf_connector.id
-      name = border0_connector.test_tf_connector.name
+      id                           = border0_connector.test_tf_connector.id
+      name                         = border0_connector.test_tf_connector.name
+      built_in_ssh_service_enabled = border0_connector.test_tf_connector.built_in_ssh_service_enabled
+      built_in_ssh_service_id      = border0_connector.test_tf_connector.built_in_ssh_service_id
     }
     connector_token = {
       id           = border0_connector_token.test_tf_connector_token_never_expires.id

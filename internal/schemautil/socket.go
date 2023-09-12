@@ -14,7 +14,6 @@ import (
 // - socket_type
 // - description
 // - upstream_type
-// - upstream_http_hostname
 // - recording_enabled
 // - connector_authentication_enabled
 func FromSocket(d *schema.ResourceData, socket *border0client.Socket) diag.Diagnostics {
@@ -31,7 +30,6 @@ func FromSocket(d *schema.ResourceData, socket *border0client.Socket) diag.Diagn
 		"socket_type":                      socket.SocketType,
 		"description":                      socket.Description,
 		"upstream_type":                    socket.UpstreamType,
-		"upstream_http_hostname":           socket.UpstreamHTTPHostname,
 		"recording_enabled":                socket.RecordingEnabled,
 		"connector_authentication_enabled": socket.ConnectorAuthenticationEnabled,
 	})

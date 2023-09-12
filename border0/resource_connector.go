@@ -37,6 +37,11 @@ func resourceConnector() *schema.Resource {
 				Optional:    true,
 				Description: "Whether to expose the connector as an ssh service.",
 			},
+			"built_in_ssh_service_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The socket id of the built-in ssh service.",
+			},
 		},
 	}
 }
@@ -53,10 +58,16 @@ func resourceConnectorRead(ctx context.Context, d *schema.ResourceData, m interf
 		return diagnostics.Error(err, "Failed to fetch connector")
 	}
 
+	var builtInSshServiceID string
+	if connector.BuiltInSshServiceEnabled && connector.BuiltInSshService != nil {
+		builtInSshServiceID = connector.BuiltInSshService.SocketID
+	}
+
 	return schemautil.SetValues(d, map[string]any{
 		"name":                         connector.Name,
 		"description":                  connector.Description,
 		"built_in_ssh_service_enabled": connector.BuiltInSshServiceEnabled,
+		"built_in_ssh_service_id":      builtInSshServiceID,
 	})
 }
 

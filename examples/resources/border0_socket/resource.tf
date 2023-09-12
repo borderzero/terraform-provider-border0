@@ -6,11 +6,8 @@ resource "border0_socket" "example_http" {
   connector_id = border0_connector.example.id // link to a connector that was created with terraform
 
   http_configuration {
-    hostname    = "www.bbc.com"
-    port        = 443
-    host_header = "www.bbc.com"
+    upstream_url = "https://www.bbc.com"
   }
-  upstream_type = "https"
 
   tags = {
     "user"        = "Bilbo Baggins"

@@ -14,8 +14,12 @@ import (
 
 // FromUpstreamConfig translates a socket's upstream service config to terraform resource data.
 // In short: *border0client.SocketUpstreamConfigs -> *schema.ResourceData
-func FromUpstreamConfig(d *schema.ResourceData, configs *border0client.SocketUpstreamConfigs) diag.Diagnostics {
-	// no-op if upstream config is not set
+func FromUpstreamConfig(
+	d *schema.ResourceData,
+	socket *border0client.Socket,
+	configs *border0client.SocketUpstreamConfigs,
+) diag.Diagnostics {
+	// noop if upstream config is not set
 	if len(configs.List) == 0 {
 		return nil
 	}
@@ -29,7 +33,7 @@ func FromUpstreamConfig(d *schema.ResourceData, configs *border0client.SocketUps
 	case service.ServiceTypeDatabase:
 		return database.FromUpstreamConfig(d, config.DatabaseServiceConfiguration)
 	case service.ServiceTypeHttp:
-		return http.FromUpstreamConfig(d, config.HttpServiceConfiguration)
+		return http.FromUpstreamConfig(d, socket, config.HttpServiceConfiguration)
 	case service.ServiceTypeTls:
 		return tls.FromUpstreamConfig(d, config.TlsServiceConfiguration)
 	default:
@@ -71,7 +75,7 @@ func ToUpstreamConfig(d *schema.ResourceData, socket *border0client.Socket) diag
 		if socket.UpstreamConfig.HttpServiceConfiguration == nil {
 			socket.UpstreamConfig.HttpServiceConfiguration = new(service.HttpServiceConfiguration)
 		}
-		diags = http.ToUpstreamConfig(d, socket.UpstreamConfig.HttpServiceConfiguration)
+		diags = http.ToUpstreamConfig(d, socket, socket.UpstreamConfig.HttpServiceConfiguration)
 
 	case service.ServiceTypeTls:
 		if socket.UpstreamConfig.TlsServiceConfiguration == nil {

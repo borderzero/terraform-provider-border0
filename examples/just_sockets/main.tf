@@ -22,11 +22,8 @@ resource "border0_socket" "test_tf_http" {
   connector_id = "a7de4cc3-d977-4c4b-82e7-dedb6e7b74a1" // replace with your connector ID
 
   http_configuration {
-    hostname    = "www.bbc.com"
-    port        = 443
-    host_header = "www.bbc.com"
+    upstream_url = "https://www.bbc.com"
   }
-  upstream_type = "https"
 
   tags = {
     "test_key_1" = "test_value_1"
