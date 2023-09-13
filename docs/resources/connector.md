@@ -34,4 +34,5 @@ resource "border0_connector" "example" {
 
 ### Read-Only
 
+- `built_in_ssh_service_id` (String) The socket id of the built-in ssh service.
 - `id` (String) The ID of this resource.

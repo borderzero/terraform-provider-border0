@@ -76,11 +76,6 @@ func resourceSocket() *schema.Resource {
 				},
 				Description: "The upstream type of the socket.",
 			},
-			"upstream_http_hostname": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "The upstream http hostname of the socket.",
-			},
 
 			"http_configuration": {
 				Type:     schema.TypeList,
@@ -93,20 +88,15 @@ func resourceSocket() *schema.Resource {
 							Default:     service.HttpServiceTypeStandard,
 							Description: "The upstream service type. Valid values: `standard`, `connector_file_server`. Defaults to `standard`.",
 						},
-						"hostname": {
+						"upstream_url": {
 							Type:        schema.TypeString,
 							Optional:    true,
-							Description: "The upstream HTTP hostname.",
-						},
-						"port": {
-							Type:        schema.TypeInt,
-							Optional:    true,
-							Description: "The upstream HTTP port number.",
+							Description: "The upstream HTTP URL. Format: `http(s)://<hostname>:<port>`. Example: `https://example.com` or `http://another.example.com:8080`. Only used when service type is `standard`.",
 						},
 						"host_header": {
 							Type:        schema.TypeString,
 							Optional:    true,
-							Description: "The upstream host header.",
+							Description: "The upstream host header. Only used when service type is `standard`, and it's different from the hostname in `upstream_url`.",
 						},
 						"file_server_directory": {
 							Type:        schema.TypeString,
@@ -372,7 +362,7 @@ func resourceSocketRead(ctx context.Context, d *schema.ResourceData, m interface
 	if diags := schemautil.FromConnector(d, connectors); diags.HasError() {
 		return diags
 	}
-	return schemautil.FromUpstreamConfig(d, upstreamConfigs)
+	return schemautil.FromUpstreamConfig(d, socket, upstreamConfigs)
 }
 
 func resourceSocketCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {

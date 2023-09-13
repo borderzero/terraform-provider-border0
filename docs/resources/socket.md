@@ -21,11 +21,8 @@ resource "border0_socket" "example_http" {
   connector_id = border0_connector.example.id // link to a connector that was created with terraform
 
   http_configuration {
-    hostname    = "www.bbc.com"
-    port        = 443
-    host_header = "www.bbc.com"
+    upstream_url = "https://www.bbc.com"
   }
-  upstream_type = "https"
 
   tags = {
     "user"        = "Bilbo Baggins"
@@ -35,9 +32,9 @@ resource "border0_socket" "example_http" {
   }
 }
 
-// create an SSH socket and link it to a connector that's not managed by Terraform
-resource "border0_socket" "example_ssh" {
-  name              = "example-ssh"
+// create an SSH socket and link it to a connector that's not managed by terraform
+resource "border0_socket" "example_ssh_password_auth" {
+  name              = "example-ssh-password-auth"
   recording_enabled = true
   socket_type       = "ssh"
   connector_id      = "a7de4cc3-d977-4c4b-82e7-dedb6e7b74a1" // replace with your connector ID
@@ -45,14 +42,15 @@ resource "border0_socket" "example_ssh" {
   ssh_configuration {
     hostname            = "127.0.0.1"
     port                = 22
+    authentication_type = "username_and_password"
     username            = "some_user"
-    authentication_type = "border0_certificate"
+    password            = "from:file:/path/to/password/file"
   }
 }
 
-// create another SSH socket and link it to a connector that was created with Terraform
-resource "border0_socket" "example_another_ssh" {
-  name              = "example-another-ssh"
+// create another SSH socket and link it to a connector that was created with terraform
+resource "border0_socket" "example_ssh_border0_certificate_auth" {
+  name              = "example-ssh-border0-certificate-auth"
   recording_enabled = true
   socket_type       = "ssh"
   connector_id      = border0_connector.example.id // link to a connector that was created with terraform
@@ -60,13 +58,12 @@ resource "border0_socket" "example_another_ssh" {
   ssh_configuration {
     hostname            = "127.0.0.1"
     port                = 22
+    authentication_type = "border0_certificate"
     username            = "some_user"
-    password            = "some_password"
-    authentication_type = "username_and_password"
   }
 }
 
-// create a database socket and link it to a connector that was created with Terraform
+// create a database socket and link it to a connector that was created with terraform
 // this socket will be used to connect to an AWS RDS instance with IAM authentication
 // https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/UsingWithRDS.IAMDBAuth.html
 resource "border0_socket" "example_aws_rds_with_iam_auth" {
@@ -86,7 +83,7 @@ resource "border0_socket" "example_aws_rds_with_iam_auth" {
   }
 }
 
-// create an SSH socket and link it to a connector that was created with Terraform
+// create an SSH socket and link it to a connector that was created with terraform
 // this socket will be used to connect to an AWS EC2 instance with EC2 Instance Connect
 // https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-connect-set-up.html
 resource "border0_socket" "example_aws_ec2_instance_connect" {
@@ -106,7 +103,7 @@ resource "border0_socket" "example_aws_ec2_instance_connect" {
   }
 }
 
-// create an SSH socket and link it to a connector that was created with Terraform
+// create an SSH socket and link it to a connector that was created with terraform
 // this socket will be used to connect to an AWS ECS service with SSM Session Manager
 // https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-exec.html
 // https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html
@@ -145,7 +142,6 @@ resource "border0_socket" "example_connect_to_ecs_with_ssm" {
 - `ssh_configuration` (Block List) (see [below for nested schema](#nestedblock--ssh_configuration))
 - `tags` (Map of String) The tags of the socket.
 - `tls_configuration` (Block List) (see [below for nested schema](#nestedblock--tls_configuration))
-- `upstream_http_hostname` (String) The upstream http hostname of the socket.
 - `upstream_type` (String) The upstream type of the socket.
 
 ### Read-Only
@@ -191,10 +187,9 @@ Optional:
 Optional:
 
 - `file_server_directory` (String) The upstream file server directory. Only used when service type is `connector_file_server`.
-- `host_header` (String) The upstream host header.
-- `hostname` (String) The upstream HTTP hostname.
-- `port` (Number) The upstream HTTP port number.
+- `host_header` (String) The upstream host header. Only used when service type is `standard`, and it's different from the hostname in `upstream_url`.
 - `service_type` (String) The upstream service type. Valid values: `standard`, `connector_file_server`. Defaults to `standard`.
+- `upstream_url` (String) The upstream HTTP URL. Format: `http(s)://<hostname>:<port>`. Example: `https://example.com` or `http://another.example.com:8080`. Only used when service type is `standard`.
 
 
 <a id="nestedblock--ssh_configuration"></a>

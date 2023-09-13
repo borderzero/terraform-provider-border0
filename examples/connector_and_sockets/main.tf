@@ -25,21 +25,20 @@ resource "border0_connector" "test_tf_connector" {
 resource "border0_connector_token" "test_tf_connector_token_never_expires" {
   connector_id = border0_connector.test_tf_connector.id
   name         = "test-tf-connector-token-never-expires"
+
+  provisioner "local-exec" {
+    command = "echo 'token: ${self.token}' > ./border0.yaml"
+  }
 }
 
 resource "border0_connector_token" "test_tf_connector_token_expires" {
   connector_id = border0_connector.test_tf_connector.id
   name         = "test-tf-connector-token-never-expires"
   expires_at   = "2023-12-31T23:59:59Z"
-}
 
-resource "border0_socket" "test_tf_http" {
-  name        = "test-tf-http"
-  socket_type = "http"
-  tags = {
-    "test_key_1" = "test_value_1"
+  provisioner "local-exec" {
+    command = "echo 'token: ${self.token}' > ./border0-connector-token-expires.yaml"
   }
-  upstream_type = "https"
 }
 
 resource "border0_socket" "test_tf_http" {
@@ -48,11 +47,8 @@ resource "border0_socket" "test_tf_http" {
   connector_id = border0_connector.test_tf_connector.id
 
   http_configuration {
-    hostname    = "www.bbc.com"
-    port        = 443
-    host_header = "www.bbc.com"
+    upstream_url = "https://www.bbc.com"
   }
-  upstream_type = "https"
 
   tags = {
     "test_key_1" = "test_value_1"
