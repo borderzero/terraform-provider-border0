@@ -29,7 +29,7 @@ provider "border0" {
   //
   // You can generate a Border0 access token one by going to:
   // portal.border0.com -> Organization Settings -> Access Tokens
-  // and then create a token in Admin permission groups.
+  // and then create a token in Member permission groups.
   token = "_my_access_token_"
 }
 ```

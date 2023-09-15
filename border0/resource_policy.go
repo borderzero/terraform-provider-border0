@@ -56,9 +56,10 @@ func resourcePolicyRead(ctx context.Context, d *schema.ResourceData, m interface
 	client := m.(border0client.Requester)
 	policy, err := client.Policy(ctx, d.Id())
 	if !d.IsNewResource() && border0client.NotFound(err) {
+		// in case if the policy was deleted without Terraform knowing about it, we need to remove it from the state
 		log.Printf("[WARN] Policy (%s) not found, removing from state", d.Id())
 		d.SetId("")
-		return diag.Diagnostics{}
+		return nil
 	}
 	if err != nil {
 		return diagnostics.Error(err, "Failed to fetch policy")

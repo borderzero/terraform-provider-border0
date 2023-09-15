@@ -50,9 +50,10 @@ func resourceConnectorRead(ctx context.Context, d *schema.ResourceData, m interf
 	client := m.(border0client.Requester)
 	connector, err := client.Connector(ctx, d.Id())
 	if !d.IsNewResource() && border0client.NotFound(err) {
+		// in case if the connector was deleted without Terraform knowing about it, we need to remove it from the state
 		log.Printf("[WARN] Connector (%s) not found, removing from state", d.Id())
 		d.SetId("")
-		return diag.Diagnostics{}
+		return nil
 	}
 	if err != nil {
 		return diagnostics.Error(err, "Failed to fetch connector")
