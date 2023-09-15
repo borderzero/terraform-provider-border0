@@ -18,7 +18,7 @@ terraform {
   required_providers {
     border0 = {
       source  = "borderzero/border0"
-      version = "0.1.10"
+      version = "1.0.0"
     }
   }
 }
@@ -29,14 +29,15 @@ provider "border0" {
   //
   // You can generate a Border0 access token one by going to:
   // portal.border0.com -> Organization Settings -> Access Tokens
-  // and then create a token in Member or Admin permission groups.
+  // and then create a token in Admin permission groups.
   token = "_my_access_token_"
 }
 ```
 
-And explore the [examples](./examples) folder for additional use cases and examples.
+And explore the [examples](./examples) folder for additional use cases and examples. For a comprehensive step-by-step guide,
+check out our [Quickstart Guide on docs.border0.com](https://docs.border0.com/docs/manage-border0-resources-with-terraform).
 
-## Terraform docs
+## Terraform docs generation
 
 To (re)generate docs, install `tfplugindocs` first:
 

@@ -27,7 +27,7 @@ provider "border0" {
   //
   // You can generate a Border0 access token one by going to:
   // portal.border0.com -> Organization Settings -> Access Tokens
-  // and then create a token in Member or Admin permission groups.
+  // and then create a token in Admin permission groups.
   token = "_my_access_token_"
 }
 ```
@@ -38,4 +38,4 @@ provider "border0" {
 ### Optional
 
 - `api_url` (String) The URL of the Border0 API. Can also be set with the `BORDER0_API` environment variable. Defaults to `https://api.border0.com/api/v1`.
-- `token` (String, Sensitive) The auth token used to authenticate with the Border0 API. Can also be set with the `BORDER0_TOKEN` environment variable. If you need to generate a Border0 access token, go to [Border0 Admin Portal](https://portal.border0.com) -> Organization Settings -> Access Tokens, create a token in `Member` or `Admin` permission groups.
+- `token` (String, Sensitive) The auth token used to authenticate with the Border0 API. Can also be set with the `BORDER0_TOKEN` environment variable. If you need to generate a Border0 access token, go to [Border0 Admin Portal](https://portal.border0.com) -> Organization Settings -> Access Tokens, create a token in `Admin` permission groups.
