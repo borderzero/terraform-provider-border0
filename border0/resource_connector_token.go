@@ -55,15 +55,16 @@ func resourceConnectorTokenRead(ctx context.Context, d *schema.ResourceData, m i
 	client := m.(border0client.Requester)
 
 	connectorID, connectorTokenID, diags := determineConnectorIDAndConnectorTokenID(d)
-	if diags != nil && diags.HasError() {
+	if diags.HasError() {
 		return diags
 	}
 
 	connectorTokens, err := client.ConnectorTokens(ctx, connectorID)
 	if !d.IsNewResource() && border0client.NotFound(err) {
+		// in case if the connector was deleted without Terraform knowing about it, we need to remove it from the state
 		log.Printf("[WARN] No tokens found for connector (%s), removing from state", connectorID)
 		d.SetId("")
-		return diag.Diagnostics{}
+		return nil
 	}
 	if err != nil {
 		return diagnostics.Error(err, "Failed to fetch connector tokens")
@@ -78,9 +79,14 @@ func resourceConnectorTokenRead(ctx context.Context, d *schema.ResourceData, m i
 	}
 
 	if connectorToken == nil {
-		log.Printf("[WARN] Token (%s) not found, removing from state", d.Id())
-		d.SetId("")
-		return diag.Diagnostics{}
+		if !d.IsNewResource() {
+			// in case if the connector token was deleted without Terraform knowing about it, we need to remove it from the state
+			log.Printf("[WARN] Token (%s) not found, removing from state", d.Id())
+			d.SetId("")
+			return nil
+		}
+		// otherwise, we need to fail the read
+		return diag.Errorf("Connector token not found (connector id: %s, connector token id: %s)", connectorID, connectorTokenID)
 	}
 
 	return schemautil.SetValues(d, map[string]any{
@@ -112,11 +118,10 @@ func resourceConnectorTokenCreate(ctx context.Context, d *schema.ResourceData, m
 
 	d.SetId(fmt.Sprintf("%s:%s", connectorID, created.ID))
 
-	diags := schemautil.SetValues(d, map[string]any{
+	if diags := schemautil.SetValues(d, map[string]any{
 		"connector_id": connectorID,
 		"token":        created.Token,
-	})
-	if diags != nil && diags.HasError() {
+	}); diags.HasError() {
 		return diags
 	}
 
@@ -126,7 +131,7 @@ func resourceConnectorTokenCreate(ctx context.Context, d *schema.ResourceData, m
 func resourceConnectorTokenDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	client := m.(border0client.Requester)
 	connectorID, connectorTokenID, diags := determineConnectorIDAndConnectorTokenID(d)
-	if diags != nil && diags.HasError() {
+	if diags.HasError() {
 		return diags
 	}
 	if err := client.DeleteConnectorToken(ctx, connectorID, connectorTokenID); err != nil {

@@ -334,16 +334,27 @@ func resourceSocket() *schema.Resource {
 func resourceSocketRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	client := m.(border0client.Requester)
 
-	// get socket details
-	socket, err := client.Socket(ctx, d.Id())
-	if !d.IsNewResource() && border0client.NotFound(err) {
-		log.Printf("[WARN] Socket (%s) not found, removing from state", d.Id())
-		d.SetId("")
-		return diag.Diagnostics{}
+	// first let's try to get the socket by id
+	// this api call may return socket that's soft deleted
+	// we will try to fetch the same socket again by its name to make sure it's not deleted
+	socket, diags := fetchSocket(ctx, d, m, d.Id())
+	if diags.HasError() {
+		return diags
 	}
-	if err != nil {
-		return diagnostics.Error(err, "Failed to fetch socket")
+	if socket == nil {
+		return nil
 	}
+
+	// and then get the socket by its name, in case if the socket is deleted
+	// api only returns 404 error when the socket is fetched by name
+	socket, diags = fetchSocket(ctx, d, m, socket.Name)
+	if diags.HasError() {
+		return diags
+	}
+	if socket == nil {
+		return nil
+	}
+
 	// get socket linked connectors and their ids
 	connectors, err := client.SocketConnectors(ctx, d.Id())
 	if err != nil {
@@ -363,6 +374,26 @@ func resourceSocketRead(ctx context.Context, d *schema.ResourceData, m interface
 		return diags
 	}
 	return schemautil.FromUpstreamConfig(d, socket, upstreamConfigs)
+}
+
+func fetchSocket(ctx context.Context, d *schema.ResourceData, m interface{}, idOrName string) (*border0client.Socket, diag.Diagnostics) {
+	client := m.(border0client.Requester)
+
+	// get socket by id or by name
+	// when getting socket by id, api returns the socket even if it's soft deleted
+	// when getting socket by name, api returns 404 error when the socket is deleted
+	socket, err := client.Socket(ctx, idOrName)
+	if !d.IsNewResource() && border0client.NotFound(err) {
+		// in case if the socket was deleted without Terraform knowing about it, we need to remove it from the state
+		log.Printf("[WARN] Socket (%s) not found, removing from state", d.Id())
+		d.SetId("")
+		return nil, nil
+	}
+	if err != nil {
+		return nil, diagnostics.Error(err, "Failed to fetch socket")
+	}
+
+	return socket, nil
 }
 
 func resourceSocketCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
