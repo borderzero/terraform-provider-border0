@@ -53,7 +53,7 @@ func Test_Resource_Border0Connector(t *testing.T) {
 		// this read is needed because of the update
 		clientMock.EXPECT().Connector(matchContext, "unit-test-id-1").Return(&initialOutput, nil).Call,
 
-		// terraform aplly (update + read + read)
+		// terraform apply (update + read + read)
 		clientMock.EXPECT().UpdateConnector(matchContext, &updateInputOutput).Return(&updateInputOutput, nil).Call,
 		clientMock.EXPECT().Connector(matchContext, "unit-test-id-1").Return(&updateInputOutput, nil).Call,
 		clientMock.EXPECT().Connector(matchContext, "unit-test-id-1").Return(&updateInputOutput, nil).Call,
