@@ -76,24 +76,42 @@ func resourceConnectorCreate(ctx context.Context, d *schema.ResourceData, m inte
 	client := m.(border0client.Requester)
 	connector := &border0client.Connector{
 		Name: d.Get("name").(string),
+		// we need to create the connector first and then enable the built-in ssh service
+		// otherwise we may end up creating an orphaned connector if the built-in ssh service creation fails
+		BuiltInSshServiceEnabled: false,
 	}
 
 	if v, ok := d.GetOk("description"); ok {
 		connector.Description = v.(string)
 	}
 
+	var enableBuiltInSSHService bool
 	if v, ok := d.GetOk("built_in_ssh_service_enabled"); ok {
-		connector.BuiltInSshServiceEnabled = v.(bool)
+		enableBuiltInSSHService = v.(bool)
 	}
 
+	// first create the connector
+	// the built-in ssh service will not be created at this step to avoid orphaned connectors
 	created, err := client.CreateConnector(ctx, connector)
 	if err != nil {
 		return diagnostics.Error(err, "Failed to create connector")
 	}
-
 	d.SetId(created.ConnectorID)
+	if diags := resourceConnectorRead(ctx, d, m); diags.HasError() {
+		return diags
+	}
 
-	return resourceConnectorRead(ctx, d, m)
+	// and then update the connector to create the built-in ssh service, if enabled
+	if enableBuiltInSSHService {
+		created.BuiltInSshServiceEnabled = true
+		_, err := client.UpdateConnector(ctx, created)
+		if err != nil {
+			return diagnostics.Error(err, "Failed to enable built-in ssh service")
+		}
+		return resourceConnectorRead(ctx, d, m)
+	}
+
+	return nil
 }
 
 func resourceConnectorUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {

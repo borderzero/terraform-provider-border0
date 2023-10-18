@@ -27,8 +27,8 @@ github.com/autarch/testify v1.2.2 h1:9Q9V6zqhP7R6dv+zRUddv6kXKLo6ecQhnFRFWM71i1c
 github.com/autarch/testify v1.2.2/go.mod h1:oDbHKfFv2/D5UtVrxkk90OKcb6P4/AqF1Pcf6ZbvDQo=
 github.com/bgentry/speakeasy v0.1.0 h1:ByYyxL9InA1OWqxJqqp2A5pYHUrCiAL6K3J+LKSsQkY=
 github.com/bgentry/speakeasy v0.1.0/go.mod h1:+zsyZBPWlz7T6j88CTgSN5bM796AkVf0kBD4zp0CCIs=
-github.com/borderzero/border0-go v1.3.14 h1:uUb09dvE2oXA2D1mcQKkTppVtKvXSKi1HO+niL/1Wtw=
-github.com/borderzero/border0-go v1.3.14/go.mod h1:Yll5qVCxLLICOwODQEG3O/D5Q7AtuLgbbDoj06shFaQ=
+github.com/borderzero/border0-go v1.3.15 h1:DayLxCGacaQqsLHS2nK0vIIJyttmby8nGdopDAqU0aQ=
+github.com/borderzero/border0-go v1.3.15/go.mod h1:Yll5qVCxLLICOwODQEG3O/D5Q7AtuLgbbDoj06shFaQ=
 github.com/bwesterb/go-ristretto v1.2.0/go.mod h1:fUIoIZaG73pV5biE2Blr2xEzDoMj7NFEuV9ekS419A0=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
 github.com/client9/misspell v0.3.4/go.mod h1:qj6jICC3Q7zFZvVWo7KLAzC3yx5G7kyvSDkc90ppPyw=
