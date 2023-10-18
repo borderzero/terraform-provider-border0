@@ -156,18 +156,18 @@ Optional:
 - `authentication_type` (String) The upstream authentication type. Valid values: `username_and_password`, `tls`, `iam`. Defaults to `username_and_password`.
 - `aws_credentials` (Block List) The upstream service's AWS credentials. (see [below for nested schema](#nestedblock--database_configuration--aws_credentials))
 - `ca_certificate` (String, Sensitive) The upstream CA certificate.
-- `certificate` (String, Sensitive) The upstream certificate.
+- `certificate` (String, Sensitive) The upstream certificate. Only used when authentication type is `tls`.
 - `cloudsql_connector_enabled` (Boolean) Indicates if CloudSQL connector is enabled. Only used when service type is `gcp_cloud_sql`.
-- `cloudsql_instance_id` (String) The upstream CloudSQL instance id.
+- `cloudsql_instance_id` (String) The upstream CloudSQL instance id. Only used when service type is `gcp_cloud_sql`.
 - `gcp_credentials` (String, Sensitive) The upstream GCP credentials.
 - `hostname` (String) The upstream database hostname.
-- `password` (String, Sensitive) The upstream password.
+- `password` (String, Sensitive) The upstream password. Used when authentication type is either `username_and_password` or `tls`.
 - `port` (Number) The upstream database port number.
-- `private_key` (String, Sensitive) The upstream private key.
+- `private_key` (String, Sensitive) The upstream private key. Only used when authentication type is `tls`.
 - `protocol` (String) The upstream database protocol. Valid values: `mysql`, `postgres`. Defaults to `mysql`.
-- `rds_instance_region` (String) The upstream RDS database region.
+- `rds_instance_region` (String) The upstream RDS database region. Only used when service type is `aws_rds`, and authentication type is `iam`.
 - `service_type` (String) The upstream service type. Valid values: `standard`, `aws_rds`, `gcp_cloud_sql`. Defaults to `standard`.
-- `username` (String, Sensitive) The upstream username.
+- `username` (String, Sensitive) The upstream username. Used when authentication type is either `username_and_password` or `tls`.
 
 <a id="nestedblock--database_configuration--aws_credentials"></a>
 ### Nested Schema for `database_configuration.aws_credentials`
@@ -199,17 +199,17 @@ Optional:
 
 - `authentication_type` (String) The upstream authentication type for standard SSH service. Valid values: `username_and_password`, `border0_certificate`, `ssh_private_key`. Defaults to `border0_certificate`.
 - `aws_credentials` (Block List) The upstream service's AWS credentials. (see [below for nested schema](#nestedblock--ssh_configuration--aws_credentials))
-- `ec2_instance_id` (String) The upstream EC2 instance id.
-- `ec2_instance_region` (String) The upstream EC2 instance region.
-- `ecs_cluster_name` (String) The upstream ECS cluster name.
-- `ecs_cluster_region` (String) The upstream ECS cluster region.
-- `ecs_service_name` (String) The upstream ECS service name.
+- `ec2_instance_id` (String) The upstream EC2 instance id. Used when service type is either `aws_ec2_instance_connect` or `aws_ssm`.
+- `ec2_instance_region` (String) The upstream EC2 instance region. Used when service type is either `aws_ec2_instance_connect` or `aws_ssm` (SSM target type is `ec2`).
+- `ecs_cluster_name` (String) The upstream ECS cluster name. Only used when service type is `aws_ssm`, and SSM target type is `ecs`.
+- `ecs_cluster_region` (String) The upstream ECS cluster region. Only used when service type is `aws_ssm`, and SSM target type is `ecs`.
+- `ecs_service_name` (String) The upstream ECS service name. Only used when service type is `aws_ssm`, and SSM target type is `ecs`.
 - `hostname` (String) The upstream SSH hostname.
-- `password` (String, Sensitive) The upstream password.
+- `password` (String, Sensitive) The upstream password. Only used when authentication type is `username_and_password`.
 - `port` (Number) The upstream SSH port number.
-- `private_key` (String, Sensitive) The upstream private key.
+- `private_key` (String, Sensitive) The upstream private key. Only used when authentication type is `private_key`.
 - `service_type` (String) The upstream service type. Valid values: `standard`, `aws_ec2_instance_connect`, `aws_ssm`. Defaults to `standard`.
-- `ssm_target_type` (String) The upstream SSM target type. Valid values: `ec2`, `ecs`. Defaults to `ec2`.
+- `ssm_target_type` (String) The upstream SSM target type. Valid values: `ec2`, `ecs`. Defaults to `ec2`. Only used when service type is `aws_ssm`.
 - `username` (String, Sensitive) The upstream username.
 - `username_provider` (String) The upstream username provider. Valid values: `defined`, `prompt_client`, `use_connector_user`. Defaults to `prompt_client`.
 
