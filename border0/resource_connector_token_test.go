@@ -3,10 +3,10 @@ package border0_test
 import (
 	"testing"
 
-	"github.com/autarch/testify/require"
 	border0client "github.com/borderzero/border0-go/client"
 	"github.com/borderzero/terraform-provider-border0/mocks"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/stretchr/testify/require"
 )
 
 var connectorTokenNeverExpiresConfig = `
