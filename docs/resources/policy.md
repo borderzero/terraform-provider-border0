@@ -22,6 +22,7 @@ resource "border0_policy" "example" {
     "condition" : {
       "who" : {
         "email" : ["johndoe@example.com"],
+        "group" : [],
         "domain" : ["example.com"]
       },
       "where" : {

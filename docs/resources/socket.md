@@ -133,7 +133,6 @@ resource "border0_socket" "example_connect_to_ecs_with_ssm" {
 
 ### Optional
 
-- `connector_authentication_enabled` (Boolean) Indicates if connector authentication is enabled for the socket.
 - `connector_id` (String) The connector id that the socket is associated with.
 - `database_configuration` (Block List) (see [below for nested schema](#nestedblock--database_configuration))
 - `description` (String) The description of the socket.
@@ -155,18 +154,24 @@ Optional:
 
 - `authentication_type` (String) The upstream authentication type. Valid values: `username_and_password`, `tls`, `iam`. Defaults to `username_and_password`.
 - `aws_credentials` (Block List) The upstream service's AWS credentials. (see [below for nested schema](#nestedblock--database_configuration--aws_credentials))
+- `azure_ad_auth` (Boolean) Indicates if Azure AD authentication is enabled. Only used when service type is `azure_sql`.
+- `azure_ad_integrated` (Boolean) Indicates if Azure integrated authentication is enabled. Only used when service type is `azure_sql`.
 - `ca_certificate` (String, Sensitive) The upstream CA certificate.
 - `certificate` (String, Sensitive) The upstream certificate. Only used when authentication type is `tls`.
 - `cloudsql_connector_enabled` (Boolean) Indicates if CloudSQL connector is enabled. Only used when service type is `gcp_cloud_sql`.
+- `cloudsql_iam_auth` (Boolean) Indicates if GCP IAM authentication is enabled. Only used when service type is `gcp_cloud_sql`.
 - `cloudsql_instance_id` (String) The upstream CloudSQL instance id. Only used when service type is `gcp_cloud_sql`.
 - `gcp_credentials` (String, Sensitive) The upstream GCP credentials.
 - `hostname` (String) The upstream database hostname.
+- `kerberos_auth` (Boolean) Indicates if Kerberos authentication is enabled. Only used when service type is `azure_sql`.
 - `password` (String, Sensitive) The upstream password. Used when authentication type is either `username_and_password` or `tls`.
 - `port` (Number) The upstream database port number.
 - `private_key` (String, Sensitive) The upstream private key. Only used when authentication type is `tls`.
 - `protocol` (String) The upstream database protocol. Valid values: `mysql`, `postgres`. Defaults to `mysql`.
 - `rds_instance_region` (String) The upstream RDS database region. Only used when service type is `aws_rds`, and authentication type is `iam`.
-- `service_type` (String) The upstream service type. Valid values: `standard`, `aws_rds`, `gcp_cloud_sql`. Defaults to `standard`.
+- `service_type` (String) The upstream service type. Valid values: `standard`, `aws_rds`, `gcp_cloud_sql`, `azure_sql`. Defaults to `standard`.
+- `sql_auth` (Boolean) Indicates if standard SQL authentication (username and password) is enabled. Only used when service type is `azure_sql`.
+- `tls_auth` (Boolean) Indicates if TLS authentication is enabled. Only used when service type is `gcp_cloud_sql`.
 - `username` (String, Sensitive) The upstream username. Used when authentication type is either `username_and_password` or `tls`.
 
 <a id="nestedblock--database_configuration--aws_credentials"></a>

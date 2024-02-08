@@ -50,6 +50,7 @@ resource "border0_policy" "test_tf_policy" {
     "condition" : {
       "who" : {
         "email" : ["johndoe@example.com"],
+        "group" : [],
         "domain" : ["example.com"]
       },
       "where" : {
@@ -73,6 +74,7 @@ data "border0_policy_document" "test_tf_policy_document" {
   condition {
     who {
       email  = ["johndoe@example.com"]
+      group = []
       domain = ["example.com"]
     }
     where {

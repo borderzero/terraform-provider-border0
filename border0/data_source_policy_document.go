@@ -49,6 +49,12 @@ func dataSourcePolicyDocument() *schema.Resource {
 										Optional:    true,
 										Description: "The email address of the user who is allowed to perform the actions.",
 									},
+									"group": {
+										Type:        schema.TypeSet,
+										Elem:        &schema.Schema{Type: schema.TypeString},
+										Optional:    true,
+										Description: "The group uuid of the group which is allowed to perform the actions.",
+									},
 									"domain": {
 										Type:        schema.TypeSet,
 										Elem:        &schema.Schema{Type: schema.TypeString},
@@ -143,6 +149,9 @@ func dataSourcePolicyDocumentRead(ctx context.Context, d *schema.ResourceData, m
 					}
 					if v, ok := who["domain"]; ok {
 						policyData.Condition.Who.Domain = policyDecodeStringList(v.(*schema.Set).List())
+					}
+					if v, ok := who["group"]; ok {
+						policyData.Condition.Who.Group = policyDecodeStringList(v.(*schema.Set).List())
 					}
 				}
 			}

@@ -19,6 +19,7 @@ data "border0_policy_document" "example" {
   condition {
     who {
       email  = ["johndoe@example.com"]
+      group  = []
       domain = ["example.com"]
     }
     where {
@@ -86,3 +87,4 @@ Optional:
 
 - `domain` (Set of String) The domain of the user who is allowed to perform the actions.
 - `email` (Set of String) The email address of the user who is allowed to perform the actions.
+- `group` (Set of String) The group uuid of the group which is allowed to perform the actions.

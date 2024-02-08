@@ -28,6 +28,8 @@ func FromUpstreamConfig(d *schema.ResourceData, config *service.DatabaseServiceC
 		diags = awsRdsFromUpstreamConfig(&data, config.AwsRds)
 	case service.DatabaseServiceTypeGcpCloudSql:
 		diags = gcpCloudSqlFromUpstreamConfig(&data, config.GcpCloudSql)
+	case service.DatabaseServiceTypeAzureSql:
+		diags = azureSqlFromUpstreamConfig(&data, config.AzureSql)
 	default:
 		return diag.Errorf(`sockets with database service type "%s" not yet supported`, config.DatabaseServiceType)
 	}
@@ -114,61 +116,19 @@ func gcpCloudSqlFromUpstreamConfig(data *map[string]any, config *service.GcpClou
 		return diag.Errorf(`got a socket with database service type "gcp_cloudsql" but GCP Cloud SQL database service configuration was not present`)
 	}
 
-	if config.CloudSqlConnectorEnabled {
-		return gcpCloudSqlConnectorFromUpstreamConfig(data, config.Connector)
-	}
-	return gcpCloudSqlStandardFromUpstreamConfig(data, config.Standard)
-}
-
-func gcpCloudSqlConnectorFromUpstreamConfig(data *map[string]any, config *service.GcpCloudSqlConnectorConfiguration) diag.Diagnostics {
-	if config == nil {
-		return diag.Errorf(`got a socket with database service type "gcp_cloudsql" and Cloud SQL Connector enabled but Cloud SQL Connector configuration was not present`)
-	}
-
-	(*data)["authentication_type"] = config.AuthenticationType
-	(*data)["protocol"] = config.DatabaseProtocol
-
-	switch config.AuthenticationType {
-	case service.DatabaseAuthenticationTypeUsernameAndPassword:
-		if config.UsernameAndPasswordAuth == nil {
-			return diag.Errorf(`got a socket with database authentication type "username_and_password" but username and password auth configuration was not present`)
-		}
-		(*data)["username"] = config.UsernameAndPasswordAuth.Username
-		(*data)["password"] = config.UsernameAndPasswordAuth.Password
-		(*data)["cloudsql_instance_id"] = config.UsernameAndPasswordAuth.InstanceId
-		(*data)["gcp_credentials"] = config.UsernameAndPasswordAuth.GcpCredentialsJson
-	case service.DatabaseAuthenticationTypeIam:
-		if config.IamAuth == nil {
-			return diag.Errorf(`got a socket with database authentication type "iam" but IAM auth configuration was not present`)
-		}
-		(*data)["username"] = config.IamAuth.Username
-		(*data)["cloudsql_instance_id"] = config.IamAuth.InstanceId
-		(*data)["gcp_credentials"] = config.IamAuth.GcpCredentialsJson
-	default:
-		return diag.Errorf(`database authentication type "%s" is invalid`, config.AuthenticationType)
-	}
-
-	return nil
-}
-
-func gcpCloudSqlStandardFromUpstreamConfig(data *map[string]any, config *service.GcpCloudSqlStandardConfiguration) diag.Diagnostics {
-	if data == nil {
-		return diag.Errorf(`got a socket with database service type "gcp_cloudsql" but standard Cloud SQL database service configuration was not present`)
-	}
-
-	(*data)["authentication_type"] = config.AuthenticationType
 	(*data)["protocol"] = config.DatabaseProtocol
 	(*data)["hostname"] = config.Hostname
 	(*data)["port"] = config.Port
 
-	switch config.AuthenticationType {
-	case service.DatabaseAuthenticationTypeUsernameAndPassword:
+	switch {
+	case config.UsernameAndPasswordAuth != nil:
 		if config.UsernameAndPasswordAuth == nil {
 			return diag.Errorf(`got a socket with database authentication type "username_and_password" but username and password auth configuration was not present`)
 		}
 		(*data)["username"] = config.UsernameAndPasswordAuth.Username
 		(*data)["password"] = config.UsernameAndPasswordAuth.Password
-	case service.DatabaseAuthenticationTypeTls:
+
+	case config.TlsAuth != nil:
 		if config.TlsAuth == nil {
 			return diag.Errorf(`got a socket with database authentication type "tls" but TLS auth configuration was not present`)
 		}
@@ -176,9 +136,61 @@ func gcpCloudSqlStandardFromUpstreamConfig(data *map[string]any, config *service
 		(*data)["password"] = config.TlsAuth.Password
 		(*data)["certificate"] = config.TlsAuth.Certificate
 		(*data)["private_key"] = config.TlsAuth.Key
-		(*data)["ca_certificate"] = config.TlsAuth.CaCertificate
+		if config.TlsAuth.CaCertificate != "" {
+			(*data)["ca_certificate"] = config.TlsAuth.CaCertificate
+		}
+		(*data)["tls_auth"] = true
+
+	case config.GcpCloudSQLConnectorAuth != nil:
+		(*data)["username"] = config.GcpCloudSQLConnectorAuth.Username
+		(*data)["password"] = config.GcpCloudSQLConnectorAuth.Password
+		(*data)["cloudsql_instance_id"] = config.GcpCloudSQLConnectorAuth.InstanceId
+		(*data)["gcp_credentials"] = config.GcpCloudSQLConnectorAuth.GcpCredentialsJson
+		(*data)["cloudsql_connector_enabled"] = true
+
+	case config.GcpCloudSQLConnectorIAMAuth != nil:
+		(*data)["username"] = config.GcpCloudSQLConnectorIAMAuth.Username
+		(*data)["cloudsql_instance_id"] = config.GcpCloudSQLConnectorIAMAuth.InstanceId
+		(*data)["gcp_credentials"] = config.GcpCloudSQLConnectorIAMAuth.GcpCredentialsJson
+		(*data)["cloudsql_iam_auth"] = true
+
 	default:
-		return diag.Errorf(`database authentication type "%s" is invalid`, config.AuthenticationType)
+		return diag.Errorf("gcp cloud sql database configuration had no authentication configured")
+	}
+
+	return nil
+}
+
+func azureSqlFromUpstreamConfig(data *map[string]any, config *service.AzureSqlDatabaseServiceConfiguration) diag.Diagnostics {
+	if config == nil {
+		return diag.Errorf(`got a socket with database service type "azure_sql" but Azure SQL database service configuration was not present`)
+	}
+
+	(*data)["protocol"] = config.DatabaseProtocol
+	(*data)["hostname"] = config.Hostname
+	(*data)["port"] = config.Port
+
+	switch {
+	case config.AzureActiveDirectoryIntegrated != nil:
+		(*data)["azure_ad_integrated"] = true
+
+	case config.AzureActiveDirectoryPassword != nil:
+		(*data)["username"] = config.AzureActiveDirectoryPassword.Username
+		(*data)["password"] = config.AzureActiveDirectoryPassword.Password
+		(*data)["azure_ad_auth"] = true
+
+	case config.Kerberos != nil:
+		(*data)["username"] = config.Kerberos.Username
+		(*data)["password"] = config.Kerberos.Password
+		(*data)["kerberos_auth"] = true
+
+	case config.SqlAuthentication != nil:
+		(*data)["username"] = config.SqlAuthentication.Username
+		(*data)["password"] = config.SqlAuthentication.Password
+		(*data)["sql_auth"] = true
+
+	default:
+		return diag.Errorf("gcp cloud sql database configuration had no authentication configured")
 	}
 
 	return nil

@@ -20,6 +20,7 @@ resource "border0_policy" "unit_test" {
     "condition": {
       "who": {
         "email": [ "johndoe@example.com" ],
+        "group": [ "db5c2352-b689-4135-babc-e97a8893128b" ],
         "domain": [ "example.com" ]
       },
       "where": {
@@ -48,6 +49,7 @@ resource "border0_policy" "unit_test" {
     "condition": {
       "who": {
         "email": [ "johndoe@example.com", "another@example.com" ],
+        "group": [ "db5c2352-b689-4135-babc-e97a8893128b" ],
         "domain": [ "example.com" ]
       },
       "where": {
@@ -73,6 +75,7 @@ func Test_Resource_Border0Policy(t *testing.T) {
 		Condition: border0client.PolicyCondition{
 			Who: border0client.PolicyWho{
 				Email:  []string{"johndoe@example.com"},
+				Group:  []string{"db5c2352-b689-4135-babc-e97a8893128b"},
 				Domain: []string{"example.com"},
 			},
 			Where: border0client.PolicyWhere{
@@ -109,6 +112,7 @@ func Test_Resource_Border0Policy(t *testing.T) {
 					"johndoe@example.com",
 					"another@example.com",
 				},
+				Group:  []string{"db5c2352-b689-4135-babc-e97a8893128b"},
 				Domain: []string{"example.com"},
 			},
 			Where: border0client.PolicyWhere{

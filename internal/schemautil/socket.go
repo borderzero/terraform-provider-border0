@@ -15,7 +15,6 @@ import (
 // - description
 // - upstream_type
 // - recording_enabled
-// - connector_authentication_enabled
 func FromSocket(d *schema.ResourceData, socket *border0client.Socket) diag.Diagnostics {
 	if socket.Tags != nil && len(socket.Tags) > 0 {
 		// only set tags if there are any, this prevents a drift in the state
@@ -26,12 +25,11 @@ func FromSocket(d *schema.ResourceData, socket *border0client.Socket) diag.Diagn
 	}
 
 	return SetValues(d, map[string]any{
-		"name":                             socket.Name,
-		"socket_type":                      socket.SocketType,
-		"description":                      socket.Description,
-		"upstream_type":                    socket.UpstreamType,
-		"recording_enabled":                socket.RecordingEnabled,
-		"connector_authentication_enabled": socket.ConnectorAuthenticationEnabled,
+		"name":              socket.Name,
+		"socket_type":       socket.SocketType,
+		"description":       socket.Description,
+		"upstream_type":     socket.UpstreamType,
+		"recording_enabled": socket.RecordingEnabled,
 	})
 }
 
@@ -56,7 +54,6 @@ func FromConnector(d *schema.ResourceData, connectors *border0client.SocketConne
 // - upstream_http_hostname
 // - tags
 // - recording_enabled
-// - connector_authentication_enabled
 // - connector_id
 func ToSocket(d *schema.ResourceData, socket *border0client.Socket) diag.Diagnostics {
 	if v, ok := d.GetOk("description"); ok {
@@ -90,10 +87,6 @@ func ToSocket(d *schema.ResourceData, socket *border0client.Socket) diag.Diagnos
 
 	if v, ok := d.GetOk("recording_enabled"); ok {
 		socket.RecordingEnabled = v.(bool)
-	}
-
-	if v, ok := d.GetOk("connector_authentication_enabled"); ok {
-		socket.ConnectorAuthenticationEnabled = v.(bool)
 	}
 
 	if v, ok := d.GetOk("connector_id"); ok {

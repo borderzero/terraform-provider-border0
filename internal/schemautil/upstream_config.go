@@ -87,7 +87,7 @@ func ToUpstreamConfig(d *schema.ResourceData, socket *border0client.Socket) diag
 		return diag.Errorf(`sockets with service type "%s" not yet supported`, socket.UpstreamConfig.ServiceType)
 	}
 
-	if err := socket.UpstreamConfig.Validate(); err != nil {
+	if err := socket.UpstreamConfig.Validate(false); err != nil {
 		return diagnostics.Error(err, "Upstream configuration is invalid")
 	}
 
