@@ -29,6 +29,10 @@ func (_m *APIClientRequester) EXPECT() *APIClientRequester_Expecter {
 func (_m *APIClientRequester) AttachPoliciesToSocket(ctx context.Context, policyIDs []string, socketID string) error {
 	ret := _m.Called(ctx, policyIDs, socketID)
 
+	if len(ret) == 0 {
+		panic("no return value specified for AttachPoliciesToSocket")
+	}
+
 	var r0 error
 	if rf, ok := ret.Get(0).(func(context.Context, []string, string) error); ok {
 		r0 = rf(ctx, policyIDs, socketID)
@@ -73,6 +77,10 @@ func (_c *APIClientRequester_AttachPoliciesToSocket_Call) RunAndReturn(run func(
 func (_m *APIClientRequester) AttachPolicyToSocket(ctx context.Context, policyID string, socketID string) error {
 	ret := _m.Called(ctx, policyID, socketID)
 
+	if len(ret) == 0 {
+		panic("no return value specified for AttachPolicyToSocket")
+	}
+
 	var r0 error
 	if rf, ok := ret.Get(0).(func(context.Context, string, string) error); ok {
 		r0 = rf(ctx, policyID, socketID)
@@ -116,6 +124,10 @@ func (_c *APIClientRequester_AttachPolicyToSocket_Call) RunAndReturn(run func(co
 // Connector provides a mock function with given fields: ctx, id
 func (_m *APIClientRequester) Connector(ctx context.Context, id string) (*client.Connector, error) {
 	ret := _m.Called(ctx, id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Connector")
+	}
 
 	var r0 *client.Connector
 	var r1 error
@@ -172,6 +184,10 @@ func (_c *APIClientRequester_Connector_Call) RunAndReturn(run func(context.Conte
 func (_m *APIClientRequester) ConnectorTokens(ctx context.Context, connectorID string) (*client.ConnectorTokens, error) {
 	ret := _m.Called(ctx, connectorID)
 
+	if len(ret) == 0 {
+		panic("no return value specified for ConnectorTokens")
+	}
+
 	var r0 *client.ConnectorTokens
 	var r1 error
 	if rf, ok := ret.Get(0).(func(context.Context, string) (*client.ConnectorTokens, error)); ok {
@@ -227,6 +243,10 @@ func (_c *APIClientRequester_ConnectorTokens_Call) RunAndReturn(run func(context
 func (_m *APIClientRequester) Connectors(ctx context.Context) ([]client.Connector, error) {
 	ret := _m.Called(ctx)
 
+	if len(ret) == 0 {
+		panic("no return value specified for Connectors")
+	}
+
 	var r0 []client.Connector
 	var r1 error
 	if rf, ok := ret.Get(0).(func(context.Context) ([]client.Connector, error)); ok {
@@ -280,6 +300,10 @@ func (_c *APIClientRequester_Connectors_Call) RunAndReturn(run func(context.Cont
 // CreateConnector provides a mock function with given fields: ctx, in
 func (_m *APIClientRequester) CreateConnector(ctx context.Context, in *client.Connector) (*client.Connector, error) {
 	ret := _m.Called(ctx, in)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CreateConnector")
+	}
 
 	var r0 *client.Connector
 	var r1 error
@@ -336,6 +360,10 @@ func (_c *APIClientRequester_CreateConnector_Call) RunAndReturn(run func(context
 func (_m *APIClientRequester) CreateConnectorToken(ctx context.Context, in *client.ConnectorToken) (*client.ConnectorToken, error) {
 	ret := _m.Called(ctx, in)
 
+	if len(ret) == 0 {
+		panic("no return value specified for CreateConnectorToken")
+	}
+
 	var r0 *client.ConnectorToken
 	var r1 error
 	if rf, ok := ret.Get(0).(func(context.Context, *client.ConnectorToken) (*client.ConnectorToken, error)); ok {
@@ -390,6 +418,10 @@ func (_c *APIClientRequester_CreateConnectorToken_Call) RunAndReturn(run func(co
 // CreatePolicy provides a mock function with given fields: ctx, in
 func (_m *APIClientRequester) CreatePolicy(ctx context.Context, in *client.Policy) (*client.Policy, error) {
 	ret := _m.Called(ctx, in)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CreatePolicy")
+	}
 
 	var r0 *client.Policy
 	var r1 error
@@ -446,6 +478,10 @@ func (_c *APIClientRequester_CreatePolicy_Call) RunAndReturn(run func(context.Co
 func (_m *APIClientRequester) CreateSocket(ctx context.Context, in *client.Socket) (*client.Socket, error) {
 	ret := _m.Called(ctx, in)
 
+	if len(ret) == 0 {
+		panic("no return value specified for CreateSocket")
+	}
+
 	var r0 *client.Socket
 	var r1 error
 	if rf, ok := ret.Get(0).(func(context.Context, *client.Socket) (*client.Socket, error)); ok {
@@ -501,6 +537,10 @@ func (_c *APIClientRequester_CreateSocket_Call) RunAndReturn(run func(context.Co
 func (_m *APIClientRequester) DeleteConnector(ctx context.Context, id string) error {
 	ret := _m.Called(ctx, id)
 
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteConnector")
+	}
+
 	var r0 error
 	if rf, ok := ret.Get(0).(func(context.Context, string) error); ok {
 		r0 = rf(ctx, id)
@@ -543,6 +583,10 @@ func (_c *APIClientRequester_DeleteConnector_Call) RunAndReturn(run func(context
 // DeleteConnectorToken provides a mock function with given fields: ctx, connectorID, tokenID
 func (_m *APIClientRequester) DeleteConnectorToken(ctx context.Context, connectorID string, tokenID string) error {
 	ret := _m.Called(ctx, connectorID, tokenID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteConnectorToken")
+	}
 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(context.Context, string, string) error); ok {
@@ -588,6 +632,10 @@ func (_c *APIClientRequester_DeleteConnectorToken_Call) RunAndReturn(run func(co
 func (_m *APIClientRequester) DeletePolicy(ctx context.Context, id string) error {
 	ret := _m.Called(ctx, id)
 
+	if len(ret) == 0 {
+		panic("no return value specified for DeletePolicy")
+	}
+
 	var r0 error
 	if rf, ok := ret.Get(0).(func(context.Context, string) error); ok {
 		r0 = rf(ctx, id)
@@ -631,6 +679,10 @@ func (_c *APIClientRequester_DeletePolicy_Call) RunAndReturn(run func(context.Co
 func (_m *APIClientRequester) DeleteSocket(ctx context.Context, idOrName string) error {
 	ret := _m.Called(ctx, idOrName)
 
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteSocket")
+	}
+
 	var r0 error
 	if rf, ok := ret.Get(0).(func(context.Context, string) error); ok {
 		r0 = rf(ctx, idOrName)
@@ -673,6 +725,10 @@ func (_c *APIClientRequester_DeleteSocket_Call) RunAndReturn(run func(context.Co
 // Policies provides a mock function with given fields: ctx
 func (_m *APIClientRequester) Policies(ctx context.Context) ([]client.Policy, error) {
 	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Policies")
+	}
 
 	var r0 []client.Policy
 	var r1 error
@@ -734,6 +790,10 @@ func (_m *APIClientRequester) PoliciesByNames(ctx context.Context, names ...stri
 	_ca = append(_ca, ctx)
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for PoliciesByNames")
+	}
 
 	var r0 []client.Policy
 	var r1 error
@@ -797,6 +857,10 @@ func (_c *APIClientRequester_PoliciesByNames_Call) RunAndReturn(run func(context
 func (_m *APIClientRequester) Policy(ctx context.Context, id string) (*client.Policy, error) {
 	ret := _m.Called(ctx, id)
 
+	if len(ret) == 0 {
+		panic("no return value specified for Policy")
+	}
+
 	var r0 *client.Policy
 	var r1 error
 	if rf, ok := ret.Get(0).(func(context.Context, string) (*client.Policy, error)); ok {
@@ -852,6 +916,10 @@ func (_c *APIClientRequester_Policy_Call) RunAndReturn(run func(context.Context,
 func (_m *APIClientRequester) RemovePoliciesFromSocket(ctx context.Context, policyIDs []string, socketID string) error {
 	ret := _m.Called(ctx, policyIDs, socketID)
 
+	if len(ret) == 0 {
+		panic("no return value specified for RemovePoliciesFromSocket")
+	}
+
 	var r0 error
 	if rf, ok := ret.Get(0).(func(context.Context, []string, string) error); ok {
 		r0 = rf(ctx, policyIDs, socketID)
@@ -896,6 +964,10 @@ func (_c *APIClientRequester_RemovePoliciesFromSocket_Call) RunAndReturn(run fun
 func (_m *APIClientRequester) RemovePolicyFromSocket(ctx context.Context, policyID string, socketID string) error {
 	ret := _m.Called(ctx, policyID, socketID)
 
+	if len(ret) == 0 {
+		panic("no return value specified for RemovePolicyFromSocket")
+	}
+
 	var r0 error
 	if rf, ok := ret.Get(0).(func(context.Context, string, string) error); ok {
 		r0 = rf(ctx, policyID, socketID)
@@ -939,6 +1011,10 @@ func (_c *APIClientRequester_RemovePolicyFromSocket_Call) RunAndReturn(run func(
 // SignSocketKey provides a mock function with given fields: ctx, idOrName, in
 func (_m *APIClientRequester) SignSocketKey(ctx context.Context, idOrName string, in *client.SocketKeyToSign) (*client.SignedSocketKey, error) {
 	ret := _m.Called(ctx, idOrName, in)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SignSocketKey")
+	}
 
 	var r0 *client.SignedSocketKey
 	var r1 error
@@ -996,6 +1072,10 @@ func (_c *APIClientRequester_SignSocketKey_Call) RunAndReturn(run func(context.C
 func (_m *APIClientRequester) Socket(ctx context.Context, idOrName string) (*client.Socket, error) {
 	ret := _m.Called(ctx, idOrName)
 
+	if len(ret) == 0 {
+		panic("no return value specified for Socket")
+	}
+
 	var r0 *client.Socket
 	var r1 error
 	if rf, ok := ret.Get(0).(func(context.Context, string) (*client.Socket, error)); ok {
@@ -1050,6 +1130,10 @@ func (_c *APIClientRequester_Socket_Call) RunAndReturn(run func(context.Context,
 // SocketConnectors provides a mock function with given fields: ctx, idOrName
 func (_m *APIClientRequester) SocketConnectors(ctx context.Context, idOrName string) (*client.SocketConnectors, error) {
 	ret := _m.Called(ctx, idOrName)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SocketConnectors")
+	}
 
 	var r0 *client.SocketConnectors
 	var r1 error
@@ -1106,6 +1190,10 @@ func (_c *APIClientRequester_SocketConnectors_Call) RunAndReturn(run func(contex
 func (_m *APIClientRequester) SocketUpstreamConfigs(ctx context.Context, idOrName string) (*client.SocketUpstreamConfigs, error) {
 	ret := _m.Called(ctx, idOrName)
 
+	if len(ret) == 0 {
+		panic("no return value specified for SocketUpstreamConfigs")
+	}
+
 	var r0 *client.SocketUpstreamConfigs
 	var r1 error
 	if rf, ok := ret.Get(0).(func(context.Context, string) (*client.SocketUpstreamConfigs, error)); ok {
@@ -1161,6 +1249,10 @@ func (_c *APIClientRequester_SocketUpstreamConfigs_Call) RunAndReturn(run func(c
 func (_m *APIClientRequester) Sockets(ctx context.Context) ([]client.Socket, error) {
 	ret := _m.Called(ctx)
 
+	if len(ret) == 0 {
+		panic("no return value specified for Sockets")
+	}
+
 	var r0 []client.Socket
 	var r1 error
 	if rf, ok := ret.Get(0).(func(context.Context) ([]client.Socket, error)); ok {
@@ -1215,6 +1307,10 @@ func (_c *APIClientRequester_Sockets_Call) RunAndReturn(run func(context.Context
 func (_m *APIClientRequester) TokenClaims() (jwt.MapClaims, error) {
 	ret := _m.Called()
 
+	if len(ret) == 0 {
+		panic("no return value specified for TokenClaims")
+	}
+
 	var r0 jwt.MapClaims
 	var r1 error
 	if rf, ok := ret.Get(0).(func() (jwt.MapClaims, error)); ok {
@@ -1267,6 +1363,10 @@ func (_c *APIClientRequester_TokenClaims_Call) RunAndReturn(run func() (jwt.MapC
 // UpdateConnector provides a mock function with given fields: ctx, in
 func (_m *APIClientRequester) UpdateConnector(ctx context.Context, in *client.Connector) (*client.Connector, error) {
 	ret := _m.Called(ctx, in)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateConnector")
+	}
 
 	var r0 *client.Connector
 	var r1 error
@@ -1323,6 +1423,10 @@ func (_c *APIClientRequester_UpdateConnector_Call) RunAndReturn(run func(context
 func (_m *APIClientRequester) UpdatePolicy(ctx context.Context, id string, in *client.Policy) (*client.Policy, error) {
 	ret := _m.Called(ctx, id, in)
 
+	if len(ret) == 0 {
+		panic("no return value specified for UpdatePolicy")
+	}
+
 	var r0 *client.Policy
 	var r1 error
 	if rf, ok := ret.Get(0).(func(context.Context, string, *client.Policy) (*client.Policy, error)); ok {
@@ -1378,6 +1482,10 @@ func (_c *APIClientRequester_UpdatePolicy_Call) RunAndReturn(run func(context.Co
 // UpdateSocket provides a mock function with given fields: ctx, idOrName, in
 func (_m *APIClientRequester) UpdateSocket(ctx context.Context, idOrName string, in *client.Socket) (*client.Socket, error) {
 	ret := _m.Called(ctx, idOrName, in)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateSocket")
+	}
 
 	var r0 *client.Socket
 	var r1 error

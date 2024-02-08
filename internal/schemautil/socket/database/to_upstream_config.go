@@ -44,6 +44,12 @@ func ToUpstreamConfig(d *schema.ResourceData, config *service.DatabaseServiceCon
 		}
 		return gcpCloudSqlToUpstreamConfig(data, config.GcpCloudSql)
 
+	case service.DatabaseServiceTypeAzureSql:
+		if config.AzureSql == nil {
+			config.AzureSql = new(service.AzureSqlDatabaseServiceConfiguration)
+		}
+		return azureSqlToUpstreamConfig(data, config.AzureSql)
+
 	default:
 		return diag.Errorf(`sockets with database service type "%s" not yet supported`, databaseServiceType)
 	}
@@ -164,112 +170,24 @@ func awsRdsToUpstreamConfig(data map[string]any, config *service.AwsRdsDatabaseS
 }
 
 func gcpCloudSqlToUpstreamConfig(data map[string]any, config *service.GcpCloudSqlDatabaseServiceConfiguration) diag.Diagnostics {
-	var connectorEnabled bool // default to false
+	tlsAuthEnabled := false
+	cloudSqlConnectorEnabled := false
+	cloudSqlIamEnabled := false
 
+	if v, ok := data["tls_auth"]; ok {
+		tlsAuthEnabled = v.(bool)
+	}
 	if v, ok := data["cloudsql_connector_enabled"]; ok {
-		connectorEnabled = v.(bool)
+		cloudSqlConnectorEnabled = v.(bool)
 	}
-	config.CloudSqlConnectorEnabled = connectorEnabled
-
-	if connectorEnabled {
-		if config.Connector == nil {
-			config.Connector = new(service.GcpCloudSqlConnectorConfiguration)
-		}
-		return gcpCloudSqlConnectorToUpstreamConfig(data, config.Connector)
+	if v, ok := data["cloudsql_iam_auth"]; ok {
+		cloudSqlIamEnabled = v.(bool)
 	}
 
-	if config.Standard == nil {
-		config.Standard = new(service.GcpCloudSqlStandardConfiguration)
-	}
-	return gcpCloudSqlStandardToUpstreamConfig(data, config.Standard)
-}
-
-func gcpCloudSqlConnectorToUpstreamConfig(data map[string]any, config *service.GcpCloudSqlConnectorConfiguration) diag.Diagnostics {
-	authType := service.DatabaseAuthenticationTypeUsernameAndPassword // default to "username_and_password"
-
-	if v, ok := data["authentication_type"]; ok {
-		authType = v.(string)
-	}
-	config.AuthenticationType = authType
-
-	if v, ok := data["protocol"]; ok {
-		config.DatabaseProtocol = v.(string)
-	}
-
-	switch authType {
-	case service.DatabaseAuthenticationTypeUsernameAndPassword:
-		if config.UsernameAndPasswordAuth == nil {
-			config.UsernameAndPasswordAuth = new(service.GcpCloudSqlUsernameAndPasswordAuthConfiguration)
-		}
-
-		if v, ok := data["username"]; ok {
-			config.UsernameAndPasswordAuth.Username = v.(string)
-		}
-		if v, ok := data["password"]; ok {
-			config.UsernameAndPasswordAuth.Password = v.(string)
-		}
-		if v, ok := data["cloudsql_instance_id"]; ok {
-			config.UsernameAndPasswordAuth.InstanceId = v.(string)
-		}
-		if v, ok := data["gcp_credentials"]; ok {
-			config.UsernameAndPasswordAuth.GcpCredentialsJson = v.(string)
-		}
-	case service.DatabaseAuthenticationTypeIam:
-		if config.IamAuth == nil {
-			config.IamAuth = new(service.GcpCloudSqlIamAuthConfiguration)
-		}
-
-		if v, ok := data["username"]; ok {
-			config.IamAuth.Username = v.(string)
-		}
-		if v, ok := data["cloudsql_instance_id"]; ok {
-			config.IamAuth.InstanceId = v.(string)
-		}
-		if v, ok := data["gcp_credentials"]; ok {
-			config.IamAuth.GcpCredentialsJson = v.(string)
-		}
-	default:
-		return diag.Errorf(`database authentication type "%s" is invalid`, authType)
-	}
-
-	return nil
-}
-
-func gcpCloudSqlStandardToUpstreamConfig(data map[string]any, config *service.GcpCloudSqlStandardConfiguration) diag.Diagnostics {
-	authType := service.DatabaseAuthenticationTypeUsernameAndPassword // default to "username_and_password"
-
-	if v, ok := data["authentication_type"]; ok {
-		authType = v.(string)
-	}
-	config.AuthenticationType = authType
-
-	if v, ok := data["protocol"]; ok {
-		config.DatabaseProtocol = v.(string)
-	}
-	if v, ok := data["hostname"]; ok {
-		config.Hostname = v.(string)
-	}
-	if v, ok := data["port"]; ok {
-		config.Port = uint16(v.(int))
-	}
-
-	switch authType {
-	case service.DatabaseAuthenticationTypeUsernameAndPassword:
-		if config.UsernameAndPasswordAuth == nil {
-			config.UsernameAndPasswordAuth = new(service.DatabaseUsernameAndPasswordAuthConfiguration)
-		}
-
-		if v, ok := data["username"]; ok {
-			config.UsernameAndPasswordAuth.Username = v.(string)
-		}
-		if v, ok := data["password"]; ok {
-			config.UsernameAndPasswordAuth.Password = v.(string)
-		}
-	case service.DatabaseAuthenticationTypeTls:
+	if tlsAuthEnabled {
 		if config.TlsAuth == nil {
 			config.TlsAuth = new(service.DatabaseTlsAuthConfiguration)
 		}
-
 		if v, ok := data["username"]; ok {
 			config.TlsAuth.Username = v.(string)
 		}
@@ -283,10 +201,135 @@ func gcpCloudSqlStandardToUpstreamConfig(data map[string]any, config *service.Gc
 			config.TlsAuth.Key = v.(string)
 		}
 		if v, ok := data["ca_certificate"]; ok {
-			config.TlsAuth.CaCertificate = v.(string)
+			if ca_cert := v.(string); ca_cert != "" {
+				config.TlsAuth.CaCertificate = ca_cert
+			}
 		}
+		return nil
+	}
+
+	if cloudSqlConnectorEnabled {
+		if config.GcpCloudSQLConnectorAuth == nil {
+			config.GcpCloudSQLConnectorAuth = new(service.GcpCloudSqlConnectorAuthConfiguration)
+		}
+		if v, ok := data["username"]; ok {
+			config.GcpCloudSQLConnectorAuth.Username = v.(string)
+		}
+		if v, ok := data["password"]; ok {
+			config.GcpCloudSQLConnectorAuth.Password = v.(string)
+		}
+		if v, ok := data["cloudsql_instance_id"]; ok {
+			config.GcpCloudSQLConnectorAuth.InstanceId = v.(string)
+		}
+		if v, ok := data["gcp_credentials"]; ok {
+			config.GcpCloudSQLConnectorAuth.GcpCredentialsJson = v.(string)
+		}
+		return nil
+	}
+
+	if cloudSqlIamEnabled {
+		if config.GcpCloudSQLConnectorIAMAuth == nil {
+			config.GcpCloudSQLConnectorIAMAuth = new(service.GcpCloudSqlConnectorIamAuthConfiguration)
+		}
+		if v, ok := data["username"]; ok {
+			config.GcpCloudSQLConnectorIAMAuth.Username = v.(string)
+		}
+		if v, ok := data["certificate"]; ok {
+			config.TlsAuth.Certificate = v.(string)
+		}
+		if v, ok := data["private_key"]; ok {
+			config.TlsAuth.Key = v.(string)
+		}
+		if v, ok := data["ca_certificate"]; ok {
+			if ca_cert := v.(string); ca_cert != "" {
+				config.TlsAuth.CaCertificate = ca_cert
+			}
+		}
+		return nil
+	}
+
+	if config.UsernameAndPasswordAuth == nil {
+		config.UsernameAndPasswordAuth = new(service.DatabaseUsernameAndPasswordAuthConfiguration)
+	}
+	if v, ok := data["username"]; ok {
+		config.UsernameAndPasswordAuth.Username = v.(string)
+	}
+	if v, ok := data["password"]; ok {
+		config.UsernameAndPasswordAuth.Password = v.(string)
+	}
+	return nil
+}
+
+func azureSqlToUpstreamConfig(data map[string]any, config *service.AzureSqlDatabaseServiceConfiguration) diag.Diagnostics {
+	if v, ok := data["protocol"]; ok {
+		config.DatabaseProtocol = v.(string)
+	}
+	if v, ok := data["hostname"]; ok {
+		config.Hostname = v.(string)
+	}
+	if v, ok := data["port"]; ok {
+		config.Port = uint16(v.(int))
+	}
+
+	integratedAuth := false
+	azureAdAuth := false
+	kerberosAuth := false
+	sqlAuth := false
+
+	if v, ok := data["azure_ad_integrated"]; ok {
+		integratedAuth = v.(bool)
+	}
+	if v, ok := data["azure_ad_auth"]; ok {
+		azureAdAuth = v.(bool)
+	}
+	if v, ok := data["kerberos_auth"]; ok {
+		kerberosAuth = v.(bool)
+	}
+	if v, ok := data["sql_auth"]; ok {
+		sqlAuth = v.(bool)
+	}
+
+	switch {
+	case integratedAuth:
+		if config.AzureActiveDirectoryIntegrated == nil {
+			config.AzureActiveDirectoryIntegrated = &struct{}{}
+		}
+
+	case azureAdAuth:
+		if config.AzureActiveDirectoryPassword == nil {
+			config.AzureActiveDirectoryPassword = new(service.DatabaseUsernameAndPasswordAuthConfiguration)
+		}
+		if v, ok := data["username"]; ok {
+			config.AzureActiveDirectoryPassword.Username = v.(string)
+		}
+		if v, ok := data["password"]; ok {
+			config.AzureActiveDirectoryPassword.Password = v.(string)
+		}
+
+	case kerberosAuth:
+		if config.Kerberos == nil {
+			config.Kerberos = new(service.DatabaseKerberosAuthConfiguration)
+		}
+		if v, ok := data["username"]; ok {
+			config.Kerberos.Username = v.(string)
+		}
+		if v, ok := data["password"]; ok {
+			config.Kerberos.Password = v.(string)
+		}
+
+	case sqlAuth:
+		if config.SqlAuthentication == nil {
+			config.SqlAuthentication = new(service.DatabaseSqlAuthConfiguration)
+		}
+		if v, ok := data["username"]; ok {
+			config.SqlAuthentication.Username = v.(string)
+		}
+		if v, ok := data["password"]; ok {
+			config.SqlAuthentication.Password = v.(string)
+		}
+
 	default:
-		return diag.Errorf(`database authentication type "%s" is invalid`, authType)
+		return diag.Errorf(`database with no authentication configuration`)
 	}
 
 	return nil

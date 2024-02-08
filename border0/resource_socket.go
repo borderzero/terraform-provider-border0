@@ -46,12 +46,6 @@ func resourceSocket() *schema.Resource {
 				Default:     false,
 				Description: "Indicates if session recording is enabled for the socket.",
 			},
-			"connector_authentication_enabled": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Default:     false,
-				Description: "Indicates if connector authentication is enabled for the socket.",
-			},
 			"tags": {
 				Type: schema.TypeMap,
 				Elem: &schema.Schema{
@@ -203,7 +197,7 @@ func resourceSocket() *schema.Resource {
 							Type:        schema.TypeString,
 							Optional:    true,
 							Default:     service.DatabaseServiceTypeStandard,
-							Description: "The upstream service type. Valid values: `standard`, `aws_rds`, `gcp_cloud_sql`. Defaults to `standard`.",
+							Description: "The upstream service type. Valid values: `standard`, `aws_rds`, `gcp_cloud_sql`, `azure_sql`. Defaults to `standard`.",
 						},
 						"protocol": {
 							Type:        schema.TypeString,
@@ -263,10 +257,21 @@ func resourceSocket() *schema.Resource {
 							Optional:    true,
 							Description: "The upstream RDS database region. Only used when service type is `aws_rds`, and authentication type is `iam`.",
 						},
+						// gcp_cloud_sql only
 						"cloudsql_connector_enabled": {
 							Type:        schema.TypeBool,
 							Optional:    true,
 							Description: "Indicates if CloudSQL connector is enabled. Only used when service type is `gcp_cloud_sql`.",
+						},
+						"tls_auth": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: "Indicates if TLS authentication is enabled. Only used when service type is `gcp_cloud_sql`.",
+						},
+						"cloudsql_iam_auth": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: "Indicates if GCP IAM authentication is enabled. Only used when service type is `gcp_cloud_sql`.",
 						},
 						"gcp_credentials": {
 							Type:        schema.TypeString,
@@ -278,6 +283,27 @@ func resourceSocket() *schema.Resource {
 							Type:        schema.TypeString,
 							Optional:    true,
 							Description: "The upstream CloudSQL instance id. Only used when service type is `gcp_cloud_sql`.",
+						},
+						// azure_sql only
+						"azure_ad_integrated": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: "Indicates if Azure integrated authentication is enabled. Only used when service type is `azure_sql`.",
+						},
+						"azure_ad_auth": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: "Indicates if Azure AD authentication is enabled. Only used when service type is `azure_sql`.",
+						},
+						"kerberos_auth": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: "Indicates if Kerberos authentication is enabled. Only used when service type is `azure_sql`.",
+						},
+						"sql_auth": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: "Indicates if standard SQL authentication (username and password) is enabled. Only used when service type is `azure_sql`.",
 						},
 					},
 				},

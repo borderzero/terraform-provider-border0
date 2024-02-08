@@ -4,6 +4,7 @@ data "border0_policy_document" "example" {
   condition {
     who {
       email  = ["johndoe@example.com"]
+      group  = []
       domain = ["example.com"]
     }
     where {

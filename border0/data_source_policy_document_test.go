@@ -14,6 +14,7 @@ data "border0_policy_document" "unit_test" {
   condition {
     who {
       email = [ "johndoe@example.com" ]
+      group = [ "db5c2352-b689-4135-babc-e97a8893128b" ]
       domain = [ "example.com" ]
     }
     where {
@@ -45,6 +46,7 @@ func Test_DataSource_PolicyDocument(t *testing.T) {
 					resource.TestCheckResourceAttr("data.border0_policy_document.unit_test", "action.2", "ssh"),
 					resource.TestCheckResourceAttr("data.border0_policy_document.unit_test", "action.3", "tls"),
 					resource.TestCheckResourceAttr("data.border0_policy_document.unit_test", "condition.0.who.0.email.0", "johndoe@example.com"),
+					resource.TestCheckResourceAttr("data.border0_policy_document.unit_test", "condition.0.who.0.group.0", "db5c2352-b689-4135-babc-e97a8893128b"),
 					resource.TestCheckResourceAttr("data.border0_policy_document.unit_test", "condition.0.who.0.domain.0", "example.com"),
 					resource.TestCheckResourceAttr("data.border0_policy_document.unit_test", "condition.0.where.0.allowed_ip.0", "0.0.0.0/0"),
 					resource.TestCheckResourceAttr("data.border0_policy_document.unit_test", "condition.0.where.0.allowed_ip.1", "::/0"),
