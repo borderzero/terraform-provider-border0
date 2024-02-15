@@ -40,9 +40,6 @@ func Test_Resource_Border0ConnectorToken_NeverExpires(t *testing.T) {
 		CreatedBy:   "bilbo.baggins@border0.com",
 		CreatedAt:   createdAt,
 	}
-	tokensOutput := border0client.ConnectorTokens{
-		List: []border0client.ConnectorToken{output},
-	}
 
 	clientMock := mocks.APIClientRequester{}
 	mockCallsInOrder(
@@ -52,11 +49,11 @@ func Test_Resource_Border0ConnectorToken_NeverExpires(t *testing.T) {
 
 		// terraform apply (create + read + read)
 		clientMock.EXPECT().CreateConnectorToken(matchContext, &input).Return(&output, nil).Call,
-		clientMock.EXPECT().ConnectorTokens(matchContext, "unit-test-connector-id").Return(&tokensOutput, nil).Call,
-		clientMock.EXPECT().ConnectorTokens(matchContext, "unit-test-connector-id").Return(&tokensOutput, nil).Call,
+		clientMock.EXPECT().ConnectorToken(matchContext, "unit-test-connector-id", "unit-test-connector-token-id").Return(&output, nil).Call,
+		clientMock.EXPECT().ConnectorToken(matchContext, "unit-test-connector-id", "unit-test-connector-token-id").Return(&output, nil).Call,
 
 		// terraform import (read)
-		clientMock.EXPECT().ConnectorTokens(matchContext, "unit-test-connector-id").Return(&tokensOutput, nil).Call,
+		clientMock.EXPECT().ConnectorToken(matchContext, "unit-test-connector-id", "unit-test-connector-token-id").Return(&output, nil).Call,
 
 		// terraform destroy (delete)
 		clientMock.EXPECT().DeleteConnectorToken(matchContext, "unit-test-connector-id", "unit-test-connector-token-id").Return(nil).Call,
@@ -104,9 +101,6 @@ func Test_Resource_Border0ConnectorToken_Expires(t *testing.T) {
 		CreatedBy:   "bilbo.baggins@border0.com",
 		CreatedAt:   createdAt,
 	}
-	tokensOutput := border0client.ConnectorTokens{
-		List: []border0client.ConnectorToken{output},
-	}
 
 	clientMock := mocks.APIClientRequester{}
 	mockCallsInOrder(
@@ -116,11 +110,11 @@ func Test_Resource_Border0ConnectorToken_Expires(t *testing.T) {
 
 		// terraform apply (create + read + read)
 		clientMock.EXPECT().CreateConnectorToken(matchContext, &input).Return(&output, nil).Call,
-		clientMock.EXPECT().ConnectorTokens(matchContext, "unit-test-connector-id").Return(&tokensOutput, nil).Call,
-		clientMock.EXPECT().ConnectorTokens(matchContext, "unit-test-connector-id").Return(&tokensOutput, nil).Call,
+		clientMock.EXPECT().ConnectorToken(matchContext, "unit-test-connector-id", "unit-test-connector-token-id").Return(&output, nil).Call,
+		clientMock.EXPECT().ConnectorToken(matchContext, "unit-test-connector-id", "unit-test-connector-token-id").Return(&output, nil).Call,
 
 		// terraform import (read)
-		clientMock.EXPECT().ConnectorTokens(matchContext, "unit-test-connector-id").Return(&tokensOutput, nil).Call,
+		clientMock.EXPECT().ConnectorToken(matchContext, "unit-test-connector-id", "unit-test-connector-token-id").Return(&output, nil).Call,
 
 		// terraform destroy (delete)
 		clientMock.EXPECT().DeleteConnectorToken(matchContext, "unit-test-connector-id", "unit-test-connector-token-id").Return(nil).Call,

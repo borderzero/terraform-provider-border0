@@ -180,6 +180,66 @@ func (_c *APIClientRequester_Connector_Call) RunAndReturn(run func(context.Conte
 	return _c
 }
 
+// ConnectorToken provides a mock function with given fields: ctx, connectorID, tokenID
+func (_m *APIClientRequester) ConnectorToken(ctx context.Context, connectorID string, tokenID string) (*client.ConnectorToken, error) {
+	ret := _m.Called(ctx, connectorID, tokenID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ConnectorToken")
+	}
+
+	var r0 *client.ConnectorToken
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) (*client.ConnectorToken, error)); ok {
+		return rf(ctx, connectorID, tokenID)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) *client.ConnectorToken); ok {
+		r0 = rf(ctx, connectorID, tokenID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*client.ConnectorToken)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string, string) error); ok {
+		r1 = rf(ctx, connectorID, tokenID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// APIClientRequester_ConnectorToken_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ConnectorToken'
+type APIClientRequester_ConnectorToken_Call struct {
+	*mock.Call
+}
+
+// ConnectorToken is a helper method to define mock.On call
+//   - ctx context.Context
+//   - connectorID string
+//   - tokenID string
+func (_e *APIClientRequester_Expecter) ConnectorToken(ctx interface{}, connectorID interface{}, tokenID interface{}) *APIClientRequester_ConnectorToken_Call {
+	return &APIClientRequester_ConnectorToken_Call{Call: _e.mock.On("ConnectorToken", ctx, connectorID, tokenID)}
+}
+
+func (_c *APIClientRequester_ConnectorToken_Call) Run(run func(ctx context.Context, connectorID string, tokenID string)) *APIClientRequester_ConnectorToken_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string), args[2].(string))
+	})
+	return _c
+}
+
+func (_c *APIClientRequester_ConnectorToken_Call) Return(out *client.ConnectorToken, err error) *APIClientRequester_ConnectorToken_Call {
+	_c.Call.Return(out, err)
+	return _c
+}
+
+func (_c *APIClientRequester_ConnectorToken_Call) RunAndReturn(run func(context.Context, string, string) (*client.ConnectorToken, error)) *APIClientRequester_ConnectorToken_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // ConnectorTokens provides a mock function with given fields: ctx, connectorID
 func (_m *APIClientRequester) ConnectorTokens(ctx context.Context, connectorID string) (*client.ConnectorTokens, error) {
 	ret := _m.Called(ctx, connectorID)

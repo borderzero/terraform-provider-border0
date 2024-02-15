@@ -59,34 +59,15 @@ func resourceConnectorTokenRead(ctx context.Context, d *schema.ResourceData, m i
 		return diags
 	}
 
-	connectorTokens, err := client.ConnectorTokens(ctx, connectorID)
+	connectorToken, err := client.ConnectorToken(ctx, connectorID, connectorTokenID)
 	if !d.IsNewResource() && border0client.NotFound(err) {
-		// in case if the connector was deleted without Terraform knowing about it, we need to remove it from the state
-		log.Printf("[WARN] No tokens found for connector (%s), removing from state", connectorID)
+		// in case if the connector token was deleted without Terraform knowing about it, we need to remove it from the state
+		log.Printf("[WARN] Token (%s) for connector (%s) not found, removing from state", connectorTokenID, connectorID)
 		d.SetId("")
 		return nil
 	}
 	if err != nil {
 		return diagnostics.Error(err, "Failed to fetch connector tokens")
-	}
-
-	var connectorToken *border0client.ConnectorToken
-	for _, token := range connectorTokens.List {
-		if token.ID == connectorTokenID {
-			connectorToken = &token
-			break
-		}
-	}
-
-	if connectorToken == nil {
-		if !d.IsNewResource() {
-			// in case if the connector token was deleted without Terraform knowing about it, we need to remove it from the state
-			log.Printf("[WARN] Token (%s) not found, removing from state", d.Id())
-			d.SetId("")
-			return nil
-		}
-		// otherwise, we need to fail the read
-		return diag.Errorf("Connector token not found (connector id: %s, connector token id: %s)", connectorID, connectorTokenID)
 	}
 
 	return schemautil.SetValues(d, map[string]any{
