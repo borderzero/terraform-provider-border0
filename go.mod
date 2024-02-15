@@ -3,7 +3,7 @@ module github.com/borderzero/terraform-provider-border0
 go 1.21
 
 require (
-	github.com/borderzero/border0-go v1.4.17
+	github.com/borderzero/border0-go v1.4.18-0.20240215215332-f9768bf1ac6e
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/hashicorp/terraform-plugin-docs v0.16.0
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.26.1
