@@ -68,6 +68,50 @@ resource "border0_socket" "test_tf_ssh" {
   }
 }
 
+resource "border0_socket" "example_tls" {
+  name         = "example-tls"
+  socket_type  = "tls"
+  connector_id = border0_connector.test_tf_connector.id
+
+  tls_configuration {
+    hostname = "127.0.0.1"
+    port     = 4242
+  }
+}
+
+resource "border0_socket" "example_vnc" {
+  name         = "example-vnc"
+  socket_type  = "vnc"
+  connector_id = border0_connector.test_tf_connector.id
+
+  vnc_configuration {
+    hostname = "127.0.0.1"
+    port     = 5900
+  }
+}
+
+resource "border0_socket" "example_rdp" {
+  name         = "example-rdp"
+  socket_type  = "rdp"
+  connector_id = border0_connector.test_tf_connector.id
+
+  rdp_configuration {
+    hostname = "127.0.0.1"
+    port     = 3389
+  }
+}
+
+resource "border0_socket" "example_vpn" {
+  name         = "example-vpn"
+  socket_type  = "vpn"
+  connector_id = border0_connector.test_tf_connector.id
+
+  vpn_configuration {
+    dhcp_pool_subnet  = "10.42.0.0/22"
+    advertised_routes = ["0.0.0.0/0"]
+  }
+}
+
 // create a database socket and link it to a connector that was created with Terraform
 // this socket will be used to connect to an AWS RDS instance with IAM authentication
 resource "border0_socket" "test_tf_aws_rds_with_iam_auth" {

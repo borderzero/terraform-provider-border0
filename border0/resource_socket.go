@@ -33,7 +33,7 @@ func resourceSocket() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: "The type of the socket. Valid values: `ssh`, `http`, `database`, `tls`.",
+				Description: "The type of the socket. Valid values: `ssh`, `http`, `database`, `tls`, `vnc`, `rdp`, `vpn`.",
 			},
 			"description": {
 				Type:        schema.TypeString,
@@ -317,38 +317,78 @@ func resourceSocket() *schema.Resource {
 						"service_type": {
 							Type:        schema.TypeString,
 							Optional:    true,
-							Description: "The upstream service type. Valid values: `standard`, `vpn`, http_proxy`. Defaults to `standard`.",
+							Default:     service.TlsServiceTypeStandard,
+							Description: "The upstream service type. Valid values: `standard`. Defaults to `standard`.",
 						},
 						"hostname": {
 							Type:        schema.TypeString,
 							Optional:    true,
-							Description: "The upstream TLS hostname. Only used when service type is `standard`.",
+							Description: "The upstream TLS hostname.",
 						},
 						"port": {
 							Type:        schema.TypeInt,
 							Optional:    true,
-							Description: "The upstream TLS port number. Only used when service type is `standard`.",
+							Description: "The upstream TLS port number.",
 						},
-						"vpn_subnet": {
+					},
+				},
+			},
+
+			"vnc_configuration": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"hostname": {
 							Type:        schema.TypeString,
 							Optional:    true,
-							Description: "The VPN subnet. Only used when service type is `vpn`.",
+							Description: "The upstream VNC hostname.",
 						},
-						"vpn_routes": {
-							Type: schema.TypeList,
+						"port": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Description: "The upstream VNC port number.",
+						},
+					},
+				},
+			},
+
+			"rdp_configuration": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"hostname": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The upstream RDP hostname.",
+						},
+						"port": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Description: "The upstream RDP port number.",
+						},
+					},
+				},
+			},
+
+			"vpn_configuration": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"dhcp_pool_subnet": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The subnet in IPv4 CIDR notation to use for VPN client IP allocations (DHCP pool)",
+						},
+						"advertised_routes": {
+							Type:        schema.TypeSet,
+							Optional:    true,
+							Description: "Set of routes to advertise to VPN clients in IPv4 CIDR notation",
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
-							Optional:    true,
-							Description: "The VPN routes. Only used when service type is `vpn`.",
-						},
-						"http_proxy_host_allowlist": {
-							Type: schema.TypeList,
-							Elem: &schema.Schema{
-								Type: schema.TypeString,
-							},
-							Optional:    true,
-							Description: "The HTTP proxy host allowlist. Only used when service type is `http_proxy`.",
 						},
 					},
 				},

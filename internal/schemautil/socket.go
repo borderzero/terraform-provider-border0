@@ -66,7 +66,14 @@ func ToSocket(d *schema.ResourceData, socket *border0client.Socket) diag.Diagnos
 		// if upstream type is not set, use socket type as default upstream type
 		// except for database sockets, which use mysql as default upstream type
 		switch socket.SocketType {
-		case enum.SocketTypeHTTP, enum.SocketTypeSSH, enum.SocketTypeTLS:
+		case
+			enum.SocketTypeHTTP,
+			enum.SocketTypeSSH,
+			enum.SocketTypeTLS,
+			enum.SocketTypeVNC,
+			enum.SocketTypeRDP,
+			enum.SocketTypeVPN:
+
 			socket.UpstreamType = socket.SocketType
 		case enum.SocketTypeDatabase:
 			socket.UpstreamType = "mysql"

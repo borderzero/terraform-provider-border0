@@ -50,6 +50,40 @@ And then run:
 make docs
 ```
 
+## Local development
+
+Make the changes you'd like!
+
+Then, navigate to the [examples/development](./examples/development) directory:
+
+```shell
+cd examples/development
+```
+
+Install a border0 terraform provider (which includes your local changes):
+
+```shell
+make init
+```
+
+Log in to border0
+
+```shell
+make token
+```
+
+Apply the development setup:
+
+```shell
+make apply
+```
+
+Destroy the development setup:
+
+```shell
+make destroy
+```
+
 ## Local release build
 
 Install goreleaser:

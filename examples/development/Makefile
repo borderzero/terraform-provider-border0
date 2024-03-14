@@ -1,6 +1,6 @@
 .PHONY: init token apply destroy
 
-env ?= dev
+env ?= prod
 api ?= http://localhost:8080/api/v1
 portal ?= http://localhost:8081
 tunnel ?=

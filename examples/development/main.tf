@@ -34,7 +34,7 @@ resource "border0_connector_token" "test_tf_connector_token_never_expires" {
 resource "border0_connector_token" "test_tf_connector_token_expires" {
   connector_id = border0_connector.test_tf_connector.id
   name         = "test-tf-connector-token-expires"
-  expires_at   = "2023-12-31T23:59:59Z"
+  expires_at   = "2024-12-31T23:59:59Z"
 
   provisioner "local-exec" {
     command = "echo 'token: ${self.token}' > ./border0-connector-token-expires.yaml"
@@ -74,7 +74,7 @@ data "border0_policy_document" "test_tf_policy_document" {
   condition {
     who {
       email  = ["johndoe@example.com"]
-      group = []
+      group  = []
       domain = ["example.com"]
     }
     where {
@@ -161,6 +161,50 @@ resource "border0_socket" "test_tf_mysql" {
     port     = 3307
     username = "root"
     password = "test"
+  }
+}
+
+resource "border0_socket" "test_tf_tls" {
+  name         = "test-tf-tls"
+  socket_type  = "tls"
+  connector_id = border0_connector.test_tf_connector.id
+
+  tls_configuration {
+    hostname = "127.0.0.1"
+    port     = 4242
+  }
+}
+
+resource "border0_socket" "test_tf_vnc" {
+  name         = "test-tf-vnc"
+  socket_type  = "vnc"
+  connector_id = border0_connector.test_tf_connector.id
+
+  vnc_configuration {
+    hostname = "127.0.0.1"
+    port     = 5900
+  }
+}
+
+resource "border0_socket" "test_tf_rdp" {
+  name         = "test-tf-rdp"
+  socket_type  = "rdp"
+  connector_id = border0_connector.test_tf_connector.id
+
+  rdp_configuration {
+    hostname = "127.0.0.1"
+    port     = 3389
+  }
+}
+
+resource "border0_socket" "test_tf_vpn" {
+  name         = "test-tf-vpn"
+  socket_type  = "vpn"
+  connector_id = border0_connector.test_tf_connector.id
+
+  vpn_configuration {
+    dhcp_pool_subnet  = "10.42.0.0/22"
+    advertised_routes = ["0.0.0.0/0"]
   }
 }
 

@@ -6,8 +6,11 @@ import (
 	"github.com/borderzero/terraform-provider-border0/internal/diagnostics"
 	"github.com/borderzero/terraform-provider-border0/internal/schemautil/socket/database"
 	"github.com/borderzero/terraform-provider-border0/internal/schemautil/socket/http"
+	"github.com/borderzero/terraform-provider-border0/internal/schemautil/socket/rdp"
 	"github.com/borderzero/terraform-provider-border0/internal/schemautil/socket/ssh"
 	"github.com/borderzero/terraform-provider-border0/internal/schemautil/socket/tls"
+	"github.com/borderzero/terraform-provider-border0/internal/schemautil/socket/vnc"
+	"github.com/borderzero/terraform-provider-border0/internal/schemautil/socket/vpn"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -36,6 +39,12 @@ func FromUpstreamConfig(
 		return http.FromUpstreamConfig(d, socket, config.HttpServiceConfiguration)
 	case service.ServiceTypeTls:
 		return tls.FromUpstreamConfig(d, config.TlsServiceConfiguration)
+	case service.ServiceTypeVnc:
+		return vnc.FromUpstreamConfig(d, config.VncServiceConfiguration)
+	case service.ServiceTypeRdp:
+		return rdp.FromUpstreamConfig(d, config.RdpServiceConfiguration)
+	case service.ServiceTypeVpn:
+		return vpn.FromUpstreamConfig(d, config.VpnServiceConfiguration)
 	default:
 		return diag.Errorf(`sockets with service type "%s" not yet supported`, config.ServiceType)
 	}
@@ -83,11 +92,29 @@ func ToUpstreamConfig(d *schema.ResourceData, socket *border0client.Socket) diag
 		}
 		diags = tls.ToUpstreamConfig(d, socket.UpstreamConfig.TlsServiceConfiguration)
 
+	case service.ServiceTypeVnc:
+		if socket.UpstreamConfig.VncServiceConfiguration == nil {
+			socket.UpstreamConfig.VncServiceConfiguration = new(service.VncServiceConfiguration)
+		}
+		diags = vnc.ToUpstreamConfig(d, socket.UpstreamConfig.VncServiceConfiguration)
+
+	case service.ServiceTypeRdp:
+		if socket.UpstreamConfig.RdpServiceConfiguration == nil {
+			socket.UpstreamConfig.RdpServiceConfiguration = new(service.RdpServiceConfiguration)
+		}
+		diags = rdp.ToUpstreamConfig(d, socket.UpstreamConfig.RdpServiceConfiguration)
+
+	case service.ServiceTypeVpn:
+		if socket.UpstreamConfig.VpnServiceConfiguration == nil {
+			socket.UpstreamConfig.VpnServiceConfiguration = new(service.VpnServiceConfiguration)
+		}
+		diags = vpn.ToUpstreamConfig(d, socket.UpstreamConfig.VpnServiceConfiguration)
+
 	default:
 		return diag.Errorf(`sockets with service type "%s" not yet supported`, socket.UpstreamConfig.ServiceType)
 	}
 
-	if err := socket.UpstreamConfig.Validate(false); err != nil {
+	if err := socket.UpstreamConfig.Validate(); err != nil {
 		return diagnostics.Error(err, "Upstream configuration is invalid")
 	}
 
