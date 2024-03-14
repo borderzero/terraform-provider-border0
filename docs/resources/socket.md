@@ -129,7 +129,7 @@ resource "border0_socket" "example_connect_to_ecs_with_ssm" {
 ### Required
 
 - `name` (String) The name of the socket. Must be unique within your Border0 organization. Socket name can have alphanumerics and hyphens, but it must start or end with alphanumeric.
-- `socket_type` (String) The type of the socket. Valid values: `ssh`, `http`, `database`, `tls`.
+- `socket_type` (String) The type of the socket. Valid values: `ssh`, `http`, `database`, `tls`, `vnc`, `rdp`, `vpn`.
 
 ### Optional
 
@@ -137,11 +137,14 @@ resource "border0_socket" "example_connect_to_ecs_with_ssm" {
 - `database_configuration` (Block List) (see [below for nested schema](#nestedblock--database_configuration))
 - `description` (String) The description of the socket.
 - `http_configuration` (Block List) (see [below for nested schema](#nestedblock--http_configuration))
+- `rdp_configuration` (Block List) (see [below for nested schema](#nestedblock--rdp_configuration))
 - `recording_enabled` (Boolean) Indicates if session recording is enabled for the socket.
 - `ssh_configuration` (Block List) (see [below for nested schema](#nestedblock--ssh_configuration))
 - `tags` (Map of String) The tags of the socket.
 - `tls_configuration` (Block List) (see [below for nested schema](#nestedblock--tls_configuration))
 - `upstream_type` (String) The upstream type of the socket.
+- `vnc_configuration` (Block List) (see [below for nested schema](#nestedblock--vnc_configuration))
+- `vpn_configuration` (Block List) (see [below for nested schema](#nestedblock--vpn_configuration))
 
 ### Read-Only
 
@@ -197,6 +200,15 @@ Optional:
 - `upstream_url` (String) The upstream HTTP URL. Format: `http(s)://<hostname>:<port>`. Example: `https://example.com` or `http://another.example.com:8080`. Only used when service type is `standard`.
 
 
+<a id="nestedblock--rdp_configuration"></a>
+### Nested Schema for `rdp_configuration`
+
+Optional:
+
+- `hostname` (String) The upstream RDP hostname.
+- `port` (Number) The upstream RDP port number.
+
+
 <a id="nestedblock--ssh_configuration"></a>
 ### Nested Schema for `ssh_configuration`
 
@@ -235,9 +247,24 @@ Optional:
 
 Optional:
 
-- `hostname` (String) The upstream TLS hostname. Only used when service type is `standard`.
-- `http_proxy_host_allowlist` (List of String) The HTTP proxy host allowlist. Only used when service type is `http_proxy`.
-- `port` (Number) The upstream TLS port number. Only used when service type is `standard`.
-- `service_type` (String) The upstream service type. Valid values: `standard`, `vpn`, http_proxy`. Defaults to `standard`.
-- `vpn_routes` (List of String) The VPN routes. Only used when service type is `vpn`.
-- `vpn_subnet` (String) The VPN subnet. Only used when service type is `vpn`.
+- `hostname` (String) The upstream TLS hostname.
+- `port` (Number) The upstream TLS port number.
+- `service_type` (String) The upstream service type. Valid values: `standard`. Defaults to `standard`.
+
+
+<a id="nestedblock--vnc_configuration"></a>
+### Nested Schema for `vnc_configuration`
+
+Optional:
+
+- `hostname` (String) The upstream VNC hostname.
+- `port` (Number) The upstream VNC port number.
+
+
+<a id="nestedblock--vpn_configuration"></a>
+### Nested Schema for `vpn_configuration`
+
+Optional:
+
+- `advertised_routes` (Set of String) Set of routes to advertise to VPN clients in IPv4 CIDR notation
+- `dhcp_pool_subnet` (String) The subnet in IPv4 CIDR notation to use for VPN client IP allocations (DHCP pool)

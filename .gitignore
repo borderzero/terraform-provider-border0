@@ -28,5 +28,6 @@ terraform-provider-border0
 terraform.tfstate*
 examples/**/.terraform/
 examples/**/.terraform.lock.hcl
-examples/development/connector-token-never-expires
-examples/development/connector-token-expires
+examples/development/connector-token-expires*
+examples/development/connector-token-never-expires*
+examples/development/border0*

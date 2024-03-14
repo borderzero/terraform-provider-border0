@@ -23,10 +23,6 @@ func FromUpstreamConfig(d *schema.ResourceData, config *service.TlsServiceConfig
 	switch config.TlsServiceType {
 	case service.TlsServiceTypeStandard:
 		diags = standardFromUpstreamConfig(&data, config.StandardTlsServiceConfiguration)
-	case service.TlsServiceTypeVpn:
-		diags = vpnFromUpstreamConfig(&data, config.VpnTlsServiceConfiguration)
-	case service.TlsServiceTypeHttpProxy:
-		diags = httpProxyFromUpstreamConfig(&data, config.HttpProxyTlsServiceConfiguration)
 	default:
 		return diag.Errorf(`sockets with TLS service type "%s" not yet supported`, config.TlsServiceType)
 	}
@@ -49,27 +45,6 @@ func standardFromUpstreamConfig(data *map[string]any, config *service.StandardTl
 
 	(*data)["hostname"] = config.Hostname
 	(*data)["port"] = config.Port
-
-	return nil
-}
-
-func vpnFromUpstreamConfig(data *map[string]any, config *service.VpnTlsServiceConfiguration) diag.Diagnostics {
-	if config == nil {
-		return diag.Errorf(`got a socket with TLS service type "vpn" but VPN TLS service configuration was not present`)
-	}
-
-	(*data)["vpn_subnet"] = config.VpnSubnet
-	(*data)["vpn_routes"] = config.Routes
-
-	return nil
-}
-
-func httpProxyFromUpstreamConfig(data *map[string]any, config *service.HttpProxyTlsServiceConfiguration) diag.Diagnostics {
-	if config == nil {
-		return diag.Errorf(`got a socket with TLS service type "http_proxy" but HTTP proxy TLS service configuration was not present`)
-	}
-
-	(*data)["http_proxy_host_allowlist"] = config.HostAllowlist
 
 	return nil
 }
