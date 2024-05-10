@@ -7,6 +7,7 @@ import (
 	border0client "github.com/borderzero/border0-go/client"
 	"github.com/borderzero/terraform-provider-border0/internal/diagnostics"
 	"github.com/borderzero/terraform-provider-border0/internal/schemautil"
+	"github.com/borderzero/terraform-provider-border0/internal/schemautil/socket/ssh"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -42,6 +43,35 @@ func resourceConnector() *schema.Resource {
 				Computed:    true,
 				Description: "The socket id of the built-in ssh service.",
 			},
+			"built_in_ssh_service_configuration": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "Optional configuration for the connector's built-in ssh service.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"tags": {
+							Type: schema.TypeMap,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+							Optional:    true,
+							Description: "The tags of the socket.",
+						},
+						"username_provider": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							Description: "The upstream username provider. Valid values: `defined`, `prompt_client`, `use_connector_user`. Defaults to `use_connector_user`.",
+						},
+						"username": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Sensitive:   true,
+							Description: "The upstream username.",
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -62,6 +92,31 @@ func resourceConnectorRead(ctx context.Context, d *schema.ResourceData, m interf
 	var builtInSshServiceID string
 	if connector.BuiltInSshServiceEnabled && connector.BuiltInSshService != nil {
 		builtInSshServiceID = connector.BuiltInSshService.SocketID
+
+		builtInSshServiceConfiguration := make(map[string]any)
+
+		if connector.BuiltInSshService.Tags != nil && len(connector.BuiltInSshService.Tags) > 0 {
+			// only set tags if there are any, this prevents a drift in the state
+			// if no tags are set in the terraform resource border0_socket
+			builtInSshServiceConfiguration["tags"] = connector.BuiltInSshService.Tags
+		}
+
+		if connector.BuiltInSshService.UpstreamConfig != nil {
+			if connector.BuiltInSshService.UpstreamConfig.SshServiceConfiguration != nil {
+				if connector.BuiltInSshService.UpstreamConfig.SshServiceConfiguration.BuiltInSshServiceConfiguration != nil {
+					ssh.ConnectorBuiltInFromUpstreamConfig(
+						&builtInSshServiceConfiguration,
+						connector.BuiltInSshService.UpstreamConfig.SshServiceConfiguration.BuiltInSshServiceConfiguration,
+					)
+				}
+			}
+		}
+
+		if len(builtInSshServiceConfiguration) > 0 {
+			if err := d.Set("built_in_ssh_service_configuration", builtInSshServiceConfiguration); err != nil {
+				return diagnostics.Error(err, "Failed to set built in ssh socket configuration")
+			}
+		}
 	}
 
 	return schemautil.SetValues(d, map[string]any{
@@ -88,6 +143,13 @@ func resourceConnectorCreate(ctx context.Context, d *schema.ResourceData, m inte
 	var enableBuiltInSSHService bool
 	if v, ok := d.GetOk("built_in_ssh_service_enabled"); ok {
 		enableBuiltInSSHService = v.(bool)
+	}
+
+	if enableBuiltInSSHService {
+		if v, ok := d.GetOk("built_in_ssh_service_configuration"); ok {
+			connector.BuiltInSshService = &border0client.Socket{}
+			enableBuiltInSSHService = v.(bool)
+		}
 	}
 
 	// first create the connector

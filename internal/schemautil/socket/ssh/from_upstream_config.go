@@ -29,7 +29,7 @@ func FromUpstreamConfig(d *schema.ResourceData, config *service.SshServiceConfig
 	case service.SshServiceTypeAwsSsm:
 		diags = awsSsmFromUpstreamConfig(&data, config.AwsSsmSshServiceConfiguration)
 	case service.SshServiceTypeConnectorBuiltIn:
-		diags = connectorBuiltInFromUpstreamConfig(&data, config.BuiltInSshServiceConfiguration)
+		diags = ConnectorBuiltInFromUpstreamConfig(&data, config.BuiltInSshServiceConfiguration)
 	default:
 		return diag.Errorf(`sockets with SSH service type "%s" not yet supported`, config.SshServiceType)
 	}
@@ -128,7 +128,7 @@ func awsSsmFromUpstreamConfig(data *map[string]any, config *service.AwsSsmSshSer
 	return nil
 }
 
-func connectorBuiltInFromUpstreamConfig(data *map[string]any, config *service.BuiltInSshServiceConfiguration) diag.Diagnostics {
+func ConnectorBuiltInFromUpstreamConfig(data *map[string]any, config *service.BuiltInSshServiceConfiguration) diag.Diagnostics {
 	if config == nil {
 		return diag.Errorf(`got a socket with SSH service type "connector_built_in" but built-in connector SSH service configuration was not present`)
 	}
