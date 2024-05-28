@@ -49,7 +49,7 @@ resource "border0_policy" "test_tf_policy" {
     "action" : ["database", "ssh", "http", "tls"],
     "condition" : {
       "who" : {
-        "email" : ["johndoe@example.com"],
+        "email" : [], # your email goes here
         "group" : [],
         "domain" : ["example.com"]
       },
@@ -73,7 +73,7 @@ data "border0_policy_document" "test_tf_policy_document" {
   action  = ["database", "ssh", "http", "tls"]
   condition {
     who {
-      email  = ["johndoe@example.com"]
+      email  = [] # your email goes here
       group  = []
       domain = ["example.com"]
     }

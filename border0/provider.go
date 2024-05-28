@@ -36,6 +36,7 @@ func Provider(options ...ProviderOption) *schema.Provider {
 			"border0_policy_attachment": resourcePolicyAttachment(),
 			"border0_connector":         resourceConnector(),
 			"border0_connector_token":   resourceConnectorToken(),
+			"border0_user":              resourceUser(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"border0_policy_document": dataSourcePolicyDocument(),

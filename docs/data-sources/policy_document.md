@@ -18,7 +18,7 @@ data "border0_policy_document" "example" {
   action  = ["database", "ssh", "http", "tls"]
   condition {
     who {
-      email  = ["johndoe@example.com"]
+      email  = [] # your email goes here
       group  = []
       domain = ["example.com"]
     }
