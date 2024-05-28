@@ -21,7 +21,7 @@ resource "border0_policy" "example" {
     "action" : ["database", "ssh", "http", "tls"],
     "condition" : {
       "who" : {
-        "email" : ["johndoe@example.com"],
+        "email" : [],
         "group" : [],
         "domain" : ["example.com"]
       },
