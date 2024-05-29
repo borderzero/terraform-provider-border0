@@ -2,6 +2,7 @@ package vpn
 
 import (
 	"github.com/borderzero/border0-go/types/service"
+	"github.com/borderzero/terraform-provider-border0/internal/schemautil/schemaconvert"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -25,16 +26,8 @@ func ToUpstreamConfig(d *schema.ResourceData, config *service.VpnServiceConfigur
 		config.DHCPPoolSubnet = v.(string)
 	}
 	if v, ok := data["advertised_routes"]; ok {
-		config.AdvertisedRoutes = schemaSetToSlice[string](v.(*schema.Set))
+		config.AdvertisedRoutes = schemaconvert.SetToSlice[string](v.(*schema.Set))
 	}
 
 	return nil
-}
-
-func schemaSetToSlice[T any](s *schema.Set) []T {
-	slice := []T{}
-	for _, elem := range s.List() {
-		slice = append(slice, elem.(T))
-	}
-	return slice
 }
