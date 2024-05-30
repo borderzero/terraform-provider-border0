@@ -3,12 +3,12 @@
 page_title: "border0_connector_token Resource - terraform-provider-border0"
 subcategory: ""
 description: |-
-  The connector resource allows you to create and delete a token for a Border0 connector.
+  The connector token resource allows you to create and delete a token for a Border0 connector.
 ---
 
 # border0_connector_token (Resource)
 
-The connector resource allows you to create and delete a token for a Border0 connector.
+The connector token resource allows you to create and delete a token for a Border0 connector.
 
 ## Example Usage
 

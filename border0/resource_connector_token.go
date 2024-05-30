@@ -2,9 +2,7 @@ package border0
 
 import (
 	"context"
-	"fmt"
 	"log"
-	"strings"
 
 	border0client "github.com/borderzero/border0-go/client"
 	"github.com/borderzero/terraform-provider-border0/internal/diagnostics"
@@ -15,7 +13,7 @@ import (
 
 func resourceConnectorToken() *schema.Resource {
 	return &schema.Resource{
-		Description:   "The connector resource allows you to create and delete a token for a Border0 connector.",
+		Description:   "The connector token resource allows you to create and delete a token for a Border0 connector.",
 		ReadContext:   resourceConnectorTokenRead,
 		CreateContext: resourceConnectorTokenCreate,
 		DeleteContext: resourceConnectorTokenDelete,
@@ -54,9 +52,13 @@ func resourceConnectorToken() *schema.Resource {
 func resourceConnectorTokenRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	client := m.(border0client.Requester)
 
-	connectorID, connectorTokenID, diags := determineConnectorIDAndConnectorTokenID(d)
+	var connectorID, connectorTokenID string
+	diags := schemautil.LoadMultipartID(d, &connectorID, &connectorTokenID)
 	if diags.HasError() {
 		return diags
+	}
+	if connectorID == "" {
+		connectorID = d.Get("connector_id").(string)
 	}
 
 	connectorToken, err := client.ConnectorToken(ctx, connectorID, connectorTokenID)
@@ -96,8 +98,7 @@ func resourceConnectorTokenCreate(ctx context.Context, d *schema.ResourceData, m
 	if err != nil {
 		return diagnostics.Error(err, "Failed to create connector token")
 	}
-
-	d.SetId(fmt.Sprintf("%s:%s", connectorID, created.ID))
+	schemautil.SetMultipartID(d, connectorID, created.ID)
 
 	if diags := schemautil.SetValues(d, map[string]any{
 		"connector_id": connectorID,
@@ -111,27 +112,20 @@ func resourceConnectorTokenCreate(ctx context.Context, d *schema.ResourceData, m
 
 func resourceConnectorTokenDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	client := m.(border0client.Requester)
-	connectorID, connectorTokenID, diags := determineConnectorIDAndConnectorTokenID(d)
+
+	var connectorID, connectorTokenID string
+	diags := schemautil.LoadMultipartID(d, &connectorID, &connectorTokenID)
 	if diags.HasError() {
 		return diags
 	}
+
+	if connectorID == "" {
+		connectorID = d.Get("connector_id").(string)
+	}
+
 	if err := client.DeleteConnectorToken(ctx, connectorID, connectorTokenID); err != nil {
 		return diagnostics.Error(err, "Failed to delete connector token")
 	}
 	d.SetId("")
 	return nil
-}
-
-func determineConnectorIDAndConnectorTokenID(d *schema.ResourceData) (connectorID string, connectorTokenID string, diags diag.Diagnostics) {
-	ids := strings.Split(d.Id(), ":")
-	if len(ids) == 1 {
-		connectorID = d.Get("connector_id").(string)
-		connectorTokenID = ids[0]
-	} else if len(ids) == 2 {
-		connectorID = ids[0]
-		connectorTokenID = ids[1]
-	} else {
-		diags = diag.Errorf("Invalid ID format: %s", d.Id())
-	}
-	return connectorID, connectorTokenID, diags
 }
