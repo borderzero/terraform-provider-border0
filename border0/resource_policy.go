@@ -12,6 +12,7 @@ import (
 	"github.com/borderzero/terraform-provider-border0/internal/schemautil"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourcePolicy() *schema.Resource {
@@ -29,6 +30,13 @@ func resourcePolicy() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The name of the policy. Policy name must contain only lowercase letters, numbers and dashes.",
+			},
+			"version": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Default:      "v1",
+				Description:  "The version of the policy. The default value is 'v1', the other valid value is 'v2'.",
+				ValidateFunc: validation.StringInSlice([]string{"v1", "v2"}, false),
 			},
 			"policy_data": {
 				Type:                  schema.TypeString,
@@ -75,20 +83,33 @@ func resourcePolicyRead(ctx context.Context, d *schema.ResourceData, m interface
 		"policy_data": string(policyData),
 		"description": policy.Description,
 		"org_wide":    policy.OrgWide,
+		"version":     policy.Version,
 	})
 }
 
 func resourcePolicyCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	client := m.(border0client.Requester)
 	policy := &border0client.Policy{
-		Name: d.Get("name").(string),
+		Name:    d.Get("name").(string),
+		Version: d.Get("version").(string),
 	}
 
-	var policyData border0client.PolicyData
-	if err := json.Unmarshal([]byte(d.Get("policy_data").(string)), &policyData); err != nil {
-		return diagnostics.Error(err, "Failed to unmarshal policy data")
+	switch policy.Version {
+	case "v1":
+		var policyData border0client.PolicyData
+		if err := json.Unmarshal([]byte(d.Get("policy_data").(string)), &policyData); err != nil {
+			return diagnostics.Error(err, "Failed to unmarshal policy data")
+		}
+		policy.PolicyData = policyData
+	case "v2":
+		var policyData border0client.PolicyDataV2
+		if err := json.Unmarshal([]byte(d.Get("policy_data").(string)), &policyData); err != nil {
+			return diagnostics.Error(err, "Failed to unmarshal policy data")
+		}
+		policy.PolicyData = policyData
+	default:
+		return diag.Errorf("Invalid policy version: %s", policy.Version)
 	}
-	policy.PolicyData = policyData
 
 	if v, ok := d.GetOk("description"); ok {
 		policy.Description = v.(string)
@@ -115,11 +136,22 @@ func resourcePolicyUpdate(ctx context.Context, d *schema.ResourceData, m interfa
 			Name: d.Get("name").(string),
 		}
 
-		var policyData border0client.PolicyData
-		if err := json.Unmarshal([]byte(d.Get("policy_data").(string)), &policyData); err != nil {
-			return diagnostics.Error(err, "Failed to unmarshal policy data")
+		switch d.Get("version").(string) {
+		case "v1":
+			var policyData border0client.PolicyData
+			if err := json.Unmarshal([]byte(d.Get("policy_data").(string)), &policyData); err != nil {
+				return diagnostics.Error(err, "Failed to unmarshal policy data")
+			}
+			policyUpdate.PolicyData = policyData
+		case "v2":
+			var policyData border0client.PolicyDataV2
+			if err := json.Unmarshal([]byte(d.Get("policy_data").(string)), &policyData); err != nil {
+				return diagnostics.Error(err, "Failed to unmarshal policy data")
+			}
+			policyUpdate.PolicyData = policyData
+		default:
+			return diag.Errorf("Invalid policy version: %s", policyUpdate.Version)
 		}
-		policyUpdate.PolicyData = policyData
 
 		if v, ok := d.GetOk("description"); ok {
 			policyUpdate.Description = v.(string)
@@ -144,6 +176,7 @@ func resourcePolicyDelete(ctx context.Context, d *schema.ResourceData, m interfa
 }
 
 func suppressEquivalentPolicyDiffs(k, old, new string, d *schema.ResourceData) bool {
+
 	if strings.TrimSpace(old) == "" && strings.TrimSpace(new) == "" {
 		return true
 	}
@@ -160,15 +193,30 @@ func suppressEquivalentPolicyDiffs(k, old, new string, d *schema.ResourceData) b
 		return true
 	}
 
-	var oldJSONAsPolicyData, newJSONAsPolicyData border0client.PolicyData
+	switch d.Get("version").(string) {
+	case "v1":
+		var oldJSONAsPolicyData, newJSONAsPolicyData border0client.PolicyData
 
-	if err := json.Unmarshal([]byte(old), &oldJSONAsPolicyData); err != nil {
+		if err := json.Unmarshal([]byte(old), &oldJSONAsPolicyData); err != nil {
+			return false
+		}
+
+		if err := json.Unmarshal([]byte(new), &newJSONAsPolicyData); err != nil {
+			return false
+		}
+		return reflect.DeepEqual(oldJSONAsPolicyData, newJSONAsPolicyData)
+	case "v2":
+		var oldJSONAsPolicyData, newJSONAsPolicyData border0client.PolicyDataV2
+
+		if err := json.Unmarshal([]byte(old), &oldJSONAsPolicyData); err != nil {
+			return false
+		}
+
+		if err := json.Unmarshal([]byte(new), &newJSONAsPolicyData); err != nil {
+			return false
+		}
+		return reflect.DeepEqual(oldJSONAsPolicyData, newJSONAsPolicyData)
+	default:
 		return false
 	}
-
-	if err := json.Unmarshal([]byte(new), &newJSONAsPolicyData); err != nil {
-		return false
-	}
-
-	return reflect.DeepEqual(oldJSONAsPolicyData, newJSONAsPolicyData)
 }

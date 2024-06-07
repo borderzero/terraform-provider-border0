@@ -43,6 +43,9 @@ data "border0_policy_document" "example" {
 
 - `action` (Set of String) The actions that you want to allow.
 - `condition` (Block Set, Min: 1) The conditions under which you want to allow the actions. (see [below for nested schema](#nestedblock--condition))
+
+### Optional
+
 - `version` (String) The policy language version.
 
 ### Read-Only
@@ -88,3 +91,4 @@ Optional:
 - `domain` (Set of String) The domain of the user who is allowed to perform the actions.
 - `email` (Set of String) The email address of the user who is allowed to perform the actions.
 - `group` (Set of String) The group uuid of the group which is allowed to perform the actions.
+- `service_account` (Set of String) The service account name which is allowed to perform the actions.

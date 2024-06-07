@@ -24,7 +24,7 @@ func dataSourcePolicyDocument() *schema.Resource {
 			},
 			"version": {
 				Type:        schema.TypeString,
-				Required:    true,
+				Optional:    true,
 				Description: "The policy language version.",
 			},
 			"action": {
@@ -60,6 +60,12 @@ func dataSourcePolicyDocument() *schema.Resource {
 										Elem:        &schema.Schema{Type: schema.TypeString},
 										Optional:    true,
 										Description: "The domain of the user who is allowed to perform the actions.",
+									},
+									"service_account": {
+										Type:        schema.TypeSet,
+										Elem:        &schema.Schema{Type: schema.TypeString},
+										Optional:    true,
+										Description: "The service account name which is allowed to perform the actions.",
 									},
 								},
 							},
@@ -132,9 +138,6 @@ func dataSourcePolicyDocument() *schema.Resource {
 func dataSourcePolicyDocumentRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	var policyData border0client.PolicyData
 
-	if v, ok := d.GetOk("version"); ok {
-		policyData.Version = v.(string)
-	}
 	if v, ok := d.GetOk("action"); ok {
 		policyData.Action = policyDecodeStringList(v.(*schema.Set).List())
 	}
@@ -152,6 +155,9 @@ func dataSourcePolicyDocumentRead(ctx context.Context, d *schema.ResourceData, m
 					}
 					if v, ok := who["group"]; ok {
 						policyData.Condition.Who.Group = policyDecodeStringList(v.(*schema.Set).List())
+					}
+					if v, ok := who["service_account"]; ok {
+						policyData.Condition.Who.ServiceAccount = policyDecodeStringList(v.(*schema.Set).List())
 					}
 				}
 			}
