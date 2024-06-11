@@ -53,6 +53,7 @@ resource "border0_policy" "example" {
 
 - `description` (String) The description of the policy.
 - `org_wide` (Boolean) Whether the policy should be applied to all sockets in the organization.
+- `version` (String) The version of the policy. The default value is 'v1', the other valid value is 'v2'.
 
 ### Read-Only
 
