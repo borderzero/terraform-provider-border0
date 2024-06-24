@@ -73,6 +73,7 @@ Optional:
 
 - `database` (Block Set) The Database permissions that you want to allow. (see [below for nested schema](#nestedblock--permissions--database))
 - `http` (Block Set) The HTTP permissions that you want to allow. (see [below for nested schema](#nestedblock--permissions--http))
+- `kubernetes` (Block Set) The Kubernetes permissions that you want to allow. (see [below for nested schema](#nestedblock--permissions--kubernetes))
 - `rdp` (Block Set) The RDP permissions that you want to allow. (see [below for nested schema](#nestedblock--permissions--rdp))
 - `ssh` (Block Set) The SSH permissions that you want to allow. (see [below for nested schema](#nestedblock--permissions--ssh))
 - `tls` (Block Set) The TLS permissions that you want to allow. (see [below for nested schema](#nestedblock--permissions--tls))
@@ -111,7 +112,15 @@ Optional:
 
 Required:
 
-- `allowed` (Boolean) Whether vpn access is allowed.
+- `allowed` (Boolean) Whether http access is allowed.
+
+
+<a id="nestedblock--permissions--kubernetes"></a>
+### Nested Schema for `permissions.kubernetes`
+
+Required:
+
+- `allowed` (Boolean) Whether kubernetes access is allowed.
 
 
 <a id="nestedblock--permissions--rdp"></a>
@@ -119,7 +128,7 @@ Required:
 
 Required:
 
-- `allowed` (Boolean) Whether vpn access is allowed.
+- `allowed` (Boolean) Whether rdp access is allowed.
 
 
 <a id="nestedblock--permissions--ssh"></a>
@@ -237,7 +246,7 @@ Required:
 
 Required:
 
-- `allowed` (Boolean) Whether vpn access is allowed.
+- `allowed` (Boolean) Whether tls access is allowed.
 
 
 <a id="nestedblock--permissions--vnc"></a>
@@ -245,7 +254,7 @@ Required:
 
 Required:
 
-- `allowed` (Boolean) Whether vpn access is allowed.
+- `allowed` (Boolean) Whether vnc access is allowed.
 
 
 <a id="nestedblock--permissions--vpn"></a>

@@ -298,7 +298,21 @@ func dataSourcePolicyV2Document() *schema.Resource {
 									"allowed": {
 										Type:        schema.TypeBool,
 										Required:    true,
-										Description: "Whether vpn access is allowed.",
+										Description: "Whether http access is allowed.",
+									},
+								},
+							},
+						},
+						"kubernetes": {
+							Type:        schema.TypeSet,
+							Optional:    true,
+							Description: "The Kubernetes permissions that you want to allow.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"allowed": {
+										Type:        schema.TypeBool,
+										Required:    true,
+										Description: "Whether kubernetes access is allowed.",
 									},
 								},
 							},
@@ -312,7 +326,7 @@ func dataSourcePolicyV2Document() *schema.Resource {
 									"allowed": {
 										Type:        schema.TypeBool,
 										Required:    true,
-										Description: "Whether vpn access is allowed.",
+										Description: "Whether tls access is allowed.",
 									},
 								},
 							},
@@ -326,7 +340,7 @@ func dataSourcePolicyV2Document() *schema.Resource {
 									"allowed": {
 										Type:        schema.TypeBool,
 										Required:    true,
-										Description: "Whether vpn access is allowed.",
+										Description: "Whether vnc access is allowed.",
 									},
 								},
 							},
@@ -340,7 +354,7 @@ func dataSourcePolicyV2Document() *schema.Resource {
 									"allowed": {
 										Type:        schema.TypeBool,
 										Required:    true,
-										Description: "Whether vpn access is allowed.",
+										Description: "Whether rdp access is allowed.",
 									},
 								},
 							},
@@ -463,6 +477,16 @@ func dataSourcePolicyV2DocumentRead(ctx context.Context, d *schema.ResourceData,
 					if v, ok := httpPerm["allowed"]; ok {
 						if allowed, ok := v.(bool); ok && allowed {
 							policyData.Permissions.HTTP = &border0client.HTTPPermissions{}
+						}
+					}
+				}
+			}
+			if v, ok := permMap["kubernetes"]; ok {
+				if kubernetesPerms := v.(*schema.Set).List(); len(kubernetesPerms) > 0 {
+					kubernetesPerm := kubernetesPerms[0].(map[string]interface{})
+					if v, ok := kubernetesPerm["allowed"]; ok {
+						if allowed, ok := v.(bool); ok && allowed {
+							policyData.Permissions.Kubernetes = &border0client.KubernetesPermissions{}
 						}
 					}
 				}
