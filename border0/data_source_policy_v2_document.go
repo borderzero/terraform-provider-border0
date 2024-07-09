@@ -854,10 +854,19 @@ func parseSSHTCPForwardingConnections(allowedConnections []interface{}) *[]borde
 
 	for _, conn := range allowedConnections {
 		connMap := conn.(map[string]interface{})
-		connection := border0client.SSHTcpForwardingConnection{
-			DestinationAddress: connMap["destination_address"].(string),
-			DestinationPort:    connMap["destination_port"].(string),
+
+		var destAddress, destPort string
+		if addr, ok := connMap["destination_address"]; ok && addr != nil {
+			destAddress = addr.(string)
 		}
+		if port, ok := connMap["destination_port"]; ok && port != nil {
+			destPort = port.(string)
+		}
+		connection := border0client.SSHTcpForwardingConnection{
+			DestinationAddress: &destAddress,
+			DestinationPort:    &destPort,
+		}
+
 		connections = append(connections, connection)
 	}
 
