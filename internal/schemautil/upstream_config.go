@@ -8,6 +8,7 @@ import (
 	"github.com/borderzero/terraform-provider-border0/internal/schemautil/socket/http"
 	"github.com/borderzero/terraform-provider-border0/internal/schemautil/socket/rdp"
 	"github.com/borderzero/terraform-provider-border0/internal/schemautil/socket/ssh"
+	"github.com/borderzero/terraform-provider-border0/internal/schemautil/socket/subnet_routes"
 	"github.com/borderzero/terraform-provider-border0/internal/schemautil/socket/tls"
 	"github.com/borderzero/terraform-provider-border0/internal/schemautil/socket/vnc"
 	"github.com/borderzero/terraform-provider-border0/internal/schemautil/socket/vpn"
@@ -45,6 +46,8 @@ func FromUpstreamConfig(
 		return rdp.FromUpstreamConfig(d, config.RdpServiceConfiguration)
 	case service.ServiceTypeVpn:
 		return vpn.FromUpstreamConfig(d, config.VpnServiceConfiguration)
+	case service.ServiceTypeSubnetRoutes:
+		return subnet_routes.FromUpstreamConfig(d, config.SubnetRoutesServiceConfiguration)
 	default:
 		return diag.Errorf(`sockets with service type "%s" not yet supported`, config.ServiceType)
 	}
@@ -109,6 +112,12 @@ func ToUpstreamConfig(d *schema.ResourceData, socket *border0client.Socket) diag
 			socket.UpstreamConfig.VpnServiceConfiguration = new(service.VpnServiceConfiguration)
 		}
 		diags = vpn.ToUpstreamConfig(d, socket.UpstreamConfig.VpnServiceConfiguration)
+
+	case service.ServiceTypeSubnetRoutes:
+		if socket.UpstreamConfig.SubnetRoutesServiceConfiguration == nil {
+			socket.UpstreamConfig.SubnetRoutesServiceConfiguration = new(service.SubnetRoutesServiceConfiguration)
+		}
+		diags = subnet_routes.ToUpstreamConfig(d, socket.UpstreamConfig.SubnetRoutesServiceConfiguration)
 
 	default:
 		return diag.Errorf(`sockets with service type "%s" not yet supported`, socket.UpstreamConfig.ServiceType)

@@ -393,6 +393,27 @@ func resourceSocket() *schema.Resource {
 					},
 				},
 			},
+
+			"subnet_routes_configuration": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"ipv4_cidr_ranges": {
+							Type:        schema.TypeSet,
+							Optional:    true,
+							Description: "Set of IPv4 routes to advertise to VPN clients in CIDR notation",
+							Elem:        &schema.Schema{Type: schema.TypeString},
+						},
+						"ipv6_cidr_ranges": {
+							Type:        schema.TypeSet,
+							Optional:    true,
+							Description: "Set of IPv6 routes to advertise to VPN clients in CIDR notation",
+							Elem:        &schema.Schema{Type: schema.TypeString},
+						},
+					},
+				},
+			},
 		},
 	}
 }
