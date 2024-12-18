@@ -24,8 +24,8 @@ github.com/autarch/testify v1.2.2 h1:9Q9V6zqhP7R6dv+zRUddv6kXKLo6ecQhnFRFWM71i1c
 github.com/autarch/testify v1.2.2/go.mod h1:oDbHKfFv2/D5UtVrxkk90OKcb6P4/AqF1Pcf6ZbvDQo=
 github.com/bgentry/speakeasy v0.1.0 h1:ByYyxL9InA1OWqxJqqp2A5pYHUrCiAL6K3J+LKSsQkY=
 github.com/bgentry/speakeasy v0.1.0/go.mod h1:+zsyZBPWlz7T6j88CTgSN5bM796AkVf0kBD4zp0CCIs=
-github.com/borderzero/border0-go v1.4.58 h1:KlTRUaux1tSXFqEZ8jcrkdPnqJsMb4oOxZey69UODHE=
-github.com/borderzero/border0-go v1.4.58/go.mod h1:YWx9fxbfWHHDiMLcV5vthIu67RycDNu6Rjvyui7gLd8=
+github.com/borderzero/border0-go v1.4.61 h1:8eQbQ/3+0BeQ2HKlMsTr7dWZUIdCf5qrLDIKFm6/7Ew=
+github.com/borderzero/border0-go v1.4.61/go.mod h1:F/2lWlEKu0jEZjIdZo9vxnNj92yrUBcBriffarVm7nU=
 github.com/bufbuild/protocompile v0.4.0 h1:LbFKd2XowZvQ/kajzguUp2DC9UEIQhIq77fZZlaQsNA=
 github.com/bufbuild/protocompile v0.4.0/go.mod h1:3v93+mbWn/v3xzN+31nwkJfrEpAUwp+BagBSZWx+TP8=
 github.com/cenkalti/backoff v2.2.1+incompatible h1:tNowT99t7UNflLxfYYSlKYsBpXdEet03Pg2g16Swow4=

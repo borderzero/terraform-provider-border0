@@ -136,6 +136,7 @@ resource "border0_socket" "example_connect_to_ecs_with_ssm" {
 - `connector_id` (String) The connector id that the socket is associated with.
 - `database_configuration` (Block List) (see [below for nested schema](#nestedblock--database_configuration))
 - `description` (String) The description of the socket.
+- `exit_node_configuration` (Block List) (see [below for nested schema](#nestedblock--exit_node_configuration))
 - `http_configuration` (Block List) (see [below for nested schema](#nestedblock--http_configuration))
 - `rdp_configuration` (Block List) (see [below for nested schema](#nestedblock--rdp_configuration))
 - `recording_enabled` (Boolean) Indicates if session recording is enabled for the socket.
@@ -188,6 +189,10 @@ Optional:
 - `secret_access_key` (String, Sensitive) The upstream AWS secret access key.
 - `session_token` (String, Sensitive) The upstream AWS session token.
 
+
+
+<a id="nestedblock--exit_node_configuration"></a>
+### Nested Schema for `exit_node_configuration`
 
 
 <a id="nestedblock--http_configuration"></a>

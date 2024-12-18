@@ -414,6 +414,18 @@ func resourceSocket() *schema.Resource {
 					},
 				},
 			},
+
+			"exit_node_configuration": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						// NOTE(@adrianosela): currently exit_node_configuration and the config object itself have
+						// no attributes, so there is nothing to do here. If that ever changes, follow the pattern
+						// used for subnet_routes above.
+					},
+				},
+			},
 		},
 	}
 }
