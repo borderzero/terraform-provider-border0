@@ -5,6 +5,7 @@ import (
 	"github.com/borderzero/border0-go/types/service"
 	"github.com/borderzero/terraform-provider-border0/internal/diagnostics"
 	"github.com/borderzero/terraform-provider-border0/internal/schemautil/socket/database"
+	"github.com/borderzero/terraform-provider-border0/internal/schemautil/socket/exit_node"
 	"github.com/borderzero/terraform-provider-border0/internal/schemautil/socket/http"
 	"github.com/borderzero/terraform-provider-border0/internal/schemautil/socket/rdp"
 	"github.com/borderzero/terraform-provider-border0/internal/schemautil/socket/ssh"
@@ -48,6 +49,8 @@ func FromUpstreamConfig(
 		return vpn.FromUpstreamConfig(d, config.VpnServiceConfiguration)
 	case service.ServiceTypeSubnetRoutes:
 		return subnet_routes.FromUpstreamConfig(d, config.SubnetRoutesServiceConfiguration)
+	case service.ServiceTypeExitNode:
+		return exit_node.FromUpstreamConfig(d, config.ExitNodeServiceConfiguration)
 	default:
 		return diag.Errorf(`sockets with service type "%s" not yet supported`, config.ServiceType)
 	}
@@ -118,6 +121,12 @@ func ToUpstreamConfig(d *schema.ResourceData, socket *border0client.Socket) diag
 			socket.UpstreamConfig.SubnetRoutesServiceConfiguration = new(service.SubnetRoutesServiceConfiguration)
 		}
 		diags = subnet_routes.ToUpstreamConfig(d, socket.UpstreamConfig.SubnetRoutesServiceConfiguration)
+
+	case service.ServiceTypeExitNode:
+		if socket.UpstreamConfig.ExitNodeServiceConfiguration == nil {
+			socket.UpstreamConfig.ExitNodeServiceConfiguration = new(service.ExitNodeServiceConfiguration)
+		}
+		diags = exit_node.ToUpstreamConfig(d, socket.UpstreamConfig.ExitNodeServiceConfiguration)
 
 	default:
 		return diag.Errorf(`sockets with service type "%s" not yet supported`, socket.UpstreamConfig.ServiceType)
