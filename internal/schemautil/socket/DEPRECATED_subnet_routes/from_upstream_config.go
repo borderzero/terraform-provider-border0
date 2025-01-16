@@ -1,4 +1,4 @@
-package subnet_routes
+package DEPRECATED_subnet_routes
 
 import (
 	"github.com/borderzero/border0-go/types/service"
@@ -9,7 +9,7 @@ import (
 
 // FromUpstreamConfig converts a socket's subnet routes service configuration into terraform resource
 // data for the "subnet_routes_configuration" attribute on the "border0_socket" resource.
-func FromUpstreamConfig(d *schema.ResourceData, config *service.SubnetRoutesServiceConfiguration) diag.Diagnostics {
+func FromUpstreamConfig(d *schema.ResourceData, config *service.SubnetRouterServiceConfiguration) diag.Diagnostics {
 	if config == nil {
 		return diag.Errorf(`got a socket with service type "subnet_routes" but Subnet Routes service configuration was not present`)
 	}

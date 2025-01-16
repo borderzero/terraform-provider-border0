@@ -33,7 +33,7 @@ func resourceSocket() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: "The type of the socket. Valid values: `ssh`, `http`, `database`, `tls`, `vnc`, `rdp`, `vpn`.",
+				Description: "The type of the socket. Valid values: `ssh`, `http`, `database`, `tls`, `vnc`, `rdp`, `vpn`, `subnet_router`, `exit_node`.",
 			},
 			"description": {
 				Type:        schema.TypeString,
@@ -394,7 +394,30 @@ func resourceSocket() *schema.Resource {
 				},
 			},
 
+			// DEPRECATED: will be removed after February 2025
 			"subnet_routes_configuration": {
+				Type:        schema.TypeList,
+				Description: "THIS FIELD IS DEPRECATED, USE subnet_router_configuration",
+				Optional:    true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"ipv4_cidr_ranges": {
+							Type:        schema.TypeSet,
+							Optional:    true,
+							Description: "Set of IPv4 routes to advertise to VPN clients in CIDR notation",
+							Elem:        &schema.Schema{Type: schema.TypeString},
+						},
+						"ipv6_cidr_ranges": {
+							Type:        schema.TypeSet,
+							Optional:    true,
+							Description: "Set of IPv6 routes to advertise to VPN clients in CIDR notation",
+							Elem:        &schema.Schema{Type: schema.TypeString},
+						},
+					},
+				},
+			},
+
+			"subnet_router_configuration": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem: &schema.Resource{
@@ -422,7 +445,7 @@ func resourceSocket() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						// NOTE(@adrianosela): currently exit_node_configuration and the config object itself have
 						// no attributes, so there is nothing to do here. If that ever changes, follow the pattern
-						// used for subnet_routes above.
+						// used for subnet_router above.
 					},
 				},
 			},

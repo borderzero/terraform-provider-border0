@@ -129,7 +129,7 @@ resource "border0_socket" "example_connect_to_ecs_with_ssm" {
 ### Required
 
 - `name` (String) The name of the socket. Must be unique within your Border0 organization. Socket name can have alphanumerics and hyphens, but it must start or end with alphanumeric.
-- `socket_type` (String) The type of the socket. Valid values: `ssh`, `http`, `database`, `tls`, `vnc`, `rdp`, `vpn`.
+- `socket_type` (String) The type of the socket. Valid values: `ssh`, `http`, `database`, `tls`, `vnc`, `rdp`, `vpn`, `subnet_router`, `exit_node`.
 
 ### Optional
 
@@ -141,7 +141,8 @@ resource "border0_socket" "example_connect_to_ecs_with_ssm" {
 - `rdp_configuration` (Block List) (see [below for nested schema](#nestedblock--rdp_configuration))
 - `recording_enabled` (Boolean) Indicates if session recording is enabled for the socket.
 - `ssh_configuration` (Block List) (see [below for nested schema](#nestedblock--ssh_configuration))
-- `subnet_routes_configuration` (Block List) (see [below for nested schema](#nestedblock--subnet_routes_configuration))
+- `subnet_router_configuration` (Block List) (see [below for nested schema](#nestedblock--subnet_router_configuration))
+- `subnet_routes_configuration` (Block List) THIS FIELD IS DEPRECATED, USE subnet_router_configuration (see [below for nested schema](#nestedblock--subnet_routes_configuration))
 - `tags` (Map of String) The tags of the socket.
 - `tls_configuration` (Block List) (see [below for nested schema](#nestedblock--tls_configuration))
 - `upstream_type` (String) The upstream type of the socket.
@@ -246,6 +247,15 @@ Optional:
 - `secret_access_key` (String, Sensitive) The upstream AWS secret access key.
 - `session_token` (String, Sensitive) The upstream AWS session token.
 
+
+
+<a id="nestedblock--subnet_router_configuration"></a>
+### Nested Schema for `subnet_router_configuration`
+
+Optional:
+
+- `ipv4_cidr_ranges` (Set of String) Set of IPv4 routes to advertise to VPN clients in CIDR notation
+- `ipv6_cidr_ranges` (Set of String) Set of IPv6 routes to advertise to VPN clients in CIDR notation
 
 
 <a id="nestedblock--subnet_routes_configuration"></a>
