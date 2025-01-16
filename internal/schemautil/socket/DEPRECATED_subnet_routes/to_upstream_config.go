@@ -1,4 +1,4 @@
-package subnet_routes
+package DEPRECATED_subnet_routes
 
 import (
 	"github.com/borderzero/border0-go/types/service"
@@ -9,7 +9,7 @@ import (
 
 // ToUpstreamConfig converts a "border0_socket" resource data from "subnet_routes_configuration"
 // attribute into a socket's Subnet Routes service upstream configuration.
-func ToUpstreamConfig(d *schema.ResourceData, config *service.SubnetRoutesServiceConfiguration) diag.Diagnostics {
+func ToUpstreamConfig(d *schema.ResourceData, config *service.SubnetRouterServiceConfiguration) diag.Diagnostics {
 	data := make(map[string]any)
 
 	if v, ok := d.GetOk("subnet_routes_configuration"); ok {
@@ -19,7 +19,7 @@ func ToUpstreamConfig(d *schema.ResourceData, config *service.SubnetRoutesServic
 	}
 
 	if config == nil {
-		config = new(service.SubnetRoutesServiceConfiguration)
+		config = new(service.SubnetRouterServiceConfiguration)
 	}
 
 	if v, ok := data["ipv4_cidr_ranges"]; ok {
