@@ -195,6 +195,10 @@ Optional:
 <a id="nestedblock--exit_node_configuration"></a>
 ### Nested Schema for `exit_node_configuration`
 
+Optional:
+
+- `mode` (String) The mode of operation of the exit node. Must be one of [ DUAL_STACK, IPV4_ONLY, IPV6_ONLY ]
+
 
 <a id="nestedblock--http_configuration"></a>
 ### Nested Schema for `http_configuration`

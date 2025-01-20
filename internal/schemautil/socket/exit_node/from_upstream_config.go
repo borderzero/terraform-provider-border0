@@ -10,11 +10,15 @@ import (
 // FromUpstreamConfig converts a socket's exit node service configuration into terraform resource
 // data for the "exit_node_configuration" attribute on the "border0_socket" resource.
 func FromUpstreamConfig(d *schema.ResourceData, config *service.ExitNodeServiceConfiguration) diag.Diagnostics {
-	// NOTE(@adrianosela): currently exit_node_configuration and the config object itself have
-	// no attributes, so there is nothing to do here. If that ever changes, follow the pattern
-	// in subnet_routes package in the parent directory.
-	if err := d.Set("exit_node_configuration", []map[string]any{}); err != nil {
-		return diagnostics.Error(err, `Failed to set "exit_node_configuration"`)
+	if config == nil {
+		return diag.Errorf(`got a socket with service type "exit_node" but Exit Node service configuration was not present`)
+	}
+	data := make(map[string]any)
+	if config.Mode != "" {
+		data["mode"] = config.Mode
+	}
+	if err := d.Set("exit_node_configuration", []map[string]any{data}); err != nil {
+		return diagnostics.Error(err, `Failed to set "subnet_router_configuration"`)
 	}
 	return nil
 }

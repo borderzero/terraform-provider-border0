@@ -2,7 +2,9 @@ package border0
 
 import (
 	"context"
+	"fmt"
 	"log"
+	"strings"
 
 	border0client "github.com/borderzero/border0-go/client"
 	"github.com/borderzero/border0-go/types/service"
@@ -443,9 +445,12 @@ func resourceSocket() *schema.Resource {
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						// NOTE(@adrianosela): currently exit_node_configuration and the config object itself have
-						// no attributes, so there is nothing to do here. If that ever changes, follow the pattern
-						// used for subnet_router above.
+						"mode": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  fmt.Sprintf("The mode of operation of the exit node. Must be one of [ %s ]", strings.Join(service.ExitNodeModes.Slice(), ", ")),
+							ExactlyOneOf: service.ExitNodeModes.Slice(),
+						},
 					},
 				},
 			},
