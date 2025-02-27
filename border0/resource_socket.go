@@ -33,7 +33,7 @@ func resourceSocket() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: "The type of the socket. Valid values: `ssh`, `http`, `database`, `tls`, `vnc`, `rdp`, `vpn`, `subnet_router`, `exit_node`.",
+				Description: "The type of the socket. Valid values: `ssh`, `http`, `database`, `tls`, `vnc`, `rdp`, `subnet_router`, `exit_node`.",
 			},
 			"description": {
 				Type:        schema.TypeString,
@@ -367,51 +367,6 @@ func resourceSocket() *schema.Resource {
 							Type:        schema.TypeInt,
 							Optional:    true,
 							Description: "The upstream RDP port number.",
-						},
-					},
-				},
-			},
-
-			"vpn_configuration": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"dhcp_pool_subnet": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: "The subnet in IPv4 CIDR notation to use for VPN client IP allocations (DHCP pool)",
-						},
-						"advertised_routes": {
-							Type:        schema.TypeSet,
-							Optional:    true,
-							Description: "Set of routes to advertise to VPN clients in IPv4 CIDR notation",
-							Elem: &schema.Schema{
-								Type: schema.TypeString,
-							},
-						},
-					},
-				},
-			},
-
-			// DEPRECATED: will be removed after February 2025
-			"subnet_routes_configuration": {
-				Type:        schema.TypeList,
-				Description: "THIS FIELD IS DEPRECATED, USE subnet_router_configuration",
-				Optional:    true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"ipv4_cidr_ranges": {
-							Type:        schema.TypeSet,
-							Optional:    true,
-							Description: "Set of IPv4 routes to advertise to VPN clients in CIDR notation",
-							Elem:        &schema.Schema{Type: schema.TypeString},
-						},
-						"ipv6_cidr_ranges": {
-							Type:        schema.TypeSet,
-							Optional:    true,
-							Description: "Set of IPv6 routes to advertise to VPN clients in CIDR notation",
-							Elem:        &schema.Schema{Type: schema.TypeString},
 						},
 					},
 				},

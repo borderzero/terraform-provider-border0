@@ -12,7 +12,7 @@ import (
 func FromUpstreamConfig(d *schema.ResourceData, config *service.ExitNodeServiceConfiguration) diag.Diagnostics {
 	// NOTE(@adrianosela): currently exit_node_configuration and the config object itself have
 	// no attributes, so there is nothing to do here. If that ever changes, follow the pattern
-	// in subnet_routes package in the parent directory.
+	// in subnet_router package in the parent directory.
 	if err := d.Set("exit_node_configuration", []map[string]any{}); err != nil {
 		return diagnostics.Error(err, `Failed to set "exit_node_configuration"`)
 	}

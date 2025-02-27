@@ -4,7 +4,6 @@ import (
 	border0client "github.com/borderzero/border0-go/client"
 	"github.com/borderzero/border0-go/types/service"
 	"github.com/borderzero/terraform-provider-border0/internal/diagnostics"
-	"github.com/borderzero/terraform-provider-border0/internal/schemautil/socket/DEPRECATED_subnet_routes"
 	"github.com/borderzero/terraform-provider-border0/internal/schemautil/socket/database"
 	"github.com/borderzero/terraform-provider-border0/internal/schemautil/socket/exit_node"
 	"github.com/borderzero/terraform-provider-border0/internal/schemautil/socket/http"
@@ -13,7 +12,6 @@ import (
 	"github.com/borderzero/terraform-provider-border0/internal/schemautil/socket/subnet_router"
 	"github.com/borderzero/terraform-provider-border0/internal/schemautil/socket/tls"
 	"github.com/borderzero/terraform-provider-border0/internal/schemautil/socket/vnc"
-	"github.com/borderzero/terraform-provider-border0/internal/schemautil/socket/vpn"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -46,10 +44,6 @@ func FromUpstreamConfig(
 		return vnc.FromUpstreamConfig(d, config.VncServiceConfiguration)
 	case service.ServiceTypeRdp:
 		return rdp.FromUpstreamConfig(d, config.RdpServiceConfiguration)
-	case service.ServiceTypeVpn:
-		return vpn.FromUpstreamConfig(d, config.VpnServiceConfiguration)
-	case service.DEPRECATED_ServiceTypeSubnetRoutes:
-		return DEPRECATED_subnet_routes.FromUpstreamConfig(d, config.DEPRECATED_SubnetRoutesServiceConfiguration)
 	case service.ServiceTypeSubnetRouter:
 		return subnet_router.FromUpstreamConfig(d, config.SubnetRouterServiceConfiguration)
 	case service.ServiceTypeExitNode:
@@ -112,18 +106,6 @@ func ToUpstreamConfig(d *schema.ResourceData, socket *border0client.Socket) diag
 			socket.UpstreamConfig.RdpServiceConfiguration = new(service.RdpServiceConfiguration)
 		}
 		diags = rdp.ToUpstreamConfig(d, socket.UpstreamConfig.RdpServiceConfiguration)
-
-	case service.ServiceTypeVpn:
-		if socket.UpstreamConfig.VpnServiceConfiguration == nil {
-			socket.UpstreamConfig.VpnServiceConfiguration = new(service.VpnServiceConfiguration)
-		}
-		diags = vpn.ToUpstreamConfig(d, socket.UpstreamConfig.VpnServiceConfiguration)
-
-	case service.DEPRECATED_ServiceTypeSubnetRoutes:
-		if socket.UpstreamConfig.DEPRECATED_SubnetRoutesServiceConfiguration == nil {
-			socket.UpstreamConfig.DEPRECATED_SubnetRoutesServiceConfiguration = new(service.SubnetRouterServiceConfiguration)
-		}
-		diags = DEPRECATED_subnet_routes.ToUpstreamConfig(d, socket.UpstreamConfig.DEPRECATED_SubnetRoutesServiceConfiguration)
 
 	case service.ServiceTypeSubnetRouter:
 		if socket.UpstreamConfig.SubnetRouterServiceConfiguration == nil {

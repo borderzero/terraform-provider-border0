@@ -275,20 +275,6 @@ func dataSourcePolicyV2Document() *schema.Resource {
 								},
 							},
 						},
-						"vpn": {
-							Type:        schema.TypeSet,
-							Optional:    true,
-							Description: "The VPN permissions that you want to allow.",
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"allowed": {
-										Type:        schema.TypeBool,
-										Required:    true,
-										Description: "Whether vpn access is allowed.",
-									},
-								},
-							},
-						},
 						"http": {
 							Type:        schema.TypeSet,
 							Optional:    true,
@@ -355,6 +341,20 @@ func dataSourcePolicyV2Document() *schema.Resource {
 										Type:        schema.TypeBool,
 										Required:    true,
 										Description: "Whether rdp access is allowed.",
+									},
+								},
+							},
+						},
+						"network": {
+							Type:        schema.TypeSet,
+							Optional:    true,
+							Description: "The Network permissions that you want to allow.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"allowed": {
+										Type:        schema.TypeBool,
+										Required:    true,
+										Description: "Whether network access is allowed.",
 									},
 								},
 							},
@@ -521,12 +521,12 @@ func dataSourcePolicyV2DocumentRead(ctx context.Context, d *schema.ResourceData,
 					}
 				}
 			}
-			if v, ok := permMap["vpn"]; ok {
-				if vpnPerms := v.(*schema.Set).List(); len(vpnPerms) > 0 {
-					vpnPerm := vpnPerms[0].(map[string]interface{})
-					if v, ok := vpnPerm["allowed"]; ok {
+			if v, ok := permMap["network"]; ok {
+				if networkPerms := v.(*schema.Set).List(); len(networkPerms) > 0 {
+					networkPerm := networkPerms[0].(map[string]interface{})
+					if v, ok := networkPerm["allowed"]; ok {
 						if allowed, ok := v.(bool); ok && allowed {
-							policyData.Permissions.VPN = &border0client.VPNPermissions{}
+							policyData.Permissions.Network = &border0client.NetworkPermissions{}
 						}
 					}
 				}

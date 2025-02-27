@@ -68,9 +68,6 @@ data "border0_policy_v2_document" "unit_test" {
 				allowed_containers = ["test"]
 			}
 		}
-		vpn {
-			allowed = true
-		}
 		http {
 			allowed = true
 		}
@@ -84,6 +81,9 @@ data "border0_policy_v2_document" "unit_test" {
 			allowed = true
 		}
 		vnc {
+			allowed = true
+		}
+		network {
 			allowed = true
 		}
 	}
@@ -147,12 +147,12 @@ func Test_DataSource_PolicyDocumentV2(t *testing.T) {
 					resource.TestCheckResourceAttr("data.border0_policy_v2_document.unit_test", "permissions.0.ssh.0.docker_exec.0.allowed", "true"),
 					resource.TestCheckResourceAttr("data.border0_policy_v2_document.unit_test", "permissions.0.ssh.0.docker_exec.0.use_allowed_containers_list", "true"),
 					resource.TestCheckResourceAttr("data.border0_policy_v2_document.unit_test", "permissions.0.ssh.0.docker_exec.0.allowed_containers.0", "test"),
-					resource.TestCheckResourceAttr("data.border0_policy_v2_document.unit_test", "permissions.0.vpn.0.allowed", "true"),
 					resource.TestCheckResourceAttr("data.border0_policy_v2_document.unit_test", "permissions.0.http.0.allowed", "true"),
 					resource.TestCheckResourceAttr("data.border0_policy_v2_document.unit_test", "permissions.0.kubernetes.0.allowed", "true"),
 					resource.TestCheckResourceAttr("data.border0_policy_v2_document.unit_test", "permissions.0.tls.0.allowed", "true"),
 					resource.TestCheckResourceAttr("data.border0_policy_v2_document.unit_test", "permissions.0.rdp.0.allowed", "true"),
 					resource.TestCheckResourceAttr("data.border0_policy_v2_document.unit_test", "permissions.0.vnc.0.allowed", "true"),
+					resource.TestCheckResourceAttr("data.border0_policy_v2_document.unit_test", "permissions.0.network.0.allowed", "true"),
 
 					// conditions
 					resource.TestCheckResourceAttr("data.border0_policy_v2_document.unit_test", "condition.0.who.0.email.0", "johndoe@example.com"),
