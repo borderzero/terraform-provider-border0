@@ -197,17 +197,6 @@ resource "border0_socket" "test_tf_rdp" {
   }
 }
 
-resource "border0_socket" "test_tf_vpn" {
-  name         = "test-tf-vpn"
-  socket_type  = "vpn"
-  connector_id = border0_connector.test_tf_connector.id
-
-  vpn_configuration {
-    dhcp_pool_subnet  = "10.42.0.0/22"
-    advertised_routes = ["0.0.0.0/0"]
-  }
-}
-
 output "managed_resources" {
   value = {
     connector = {

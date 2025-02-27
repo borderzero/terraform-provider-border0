@@ -129,7 +129,7 @@ resource "border0_socket" "example_connect_to_ecs_with_ssm" {
 ### Required
 
 - `name` (String) The name of the socket. Must be unique within your Border0 organization. Socket name can have alphanumerics and hyphens, but it must start or end with alphanumeric.
-- `socket_type` (String) The type of the socket. Valid values: `ssh`, `http`, `database`, `tls`, `vnc`, `rdp`, `vpn`, `subnet_router`, `exit_node`.
+- `socket_type` (String) The type of the socket. Valid values: `ssh`, `http`, `database`, `tls`, `vnc`, `rdp`, `subnet_router`, `exit_node`.
 
 ### Optional
 
@@ -142,12 +142,10 @@ resource "border0_socket" "example_connect_to_ecs_with_ssm" {
 - `recording_enabled` (Boolean) Indicates if session recording is enabled for the socket.
 - `ssh_configuration` (Block List) (see [below for nested schema](#nestedblock--ssh_configuration))
 - `subnet_router_configuration` (Block List) (see [below for nested schema](#nestedblock--subnet_router_configuration))
-- `subnet_routes_configuration` (Block List) THIS FIELD IS DEPRECATED, USE subnet_router_configuration (see [below for nested schema](#nestedblock--subnet_routes_configuration))
 - `tags` (Map of String) The tags of the socket.
 - `tls_configuration` (Block List) (see [below for nested schema](#nestedblock--tls_configuration))
 - `upstream_type` (String) The upstream type of the socket.
 - `vnc_configuration` (Block List) (see [below for nested schema](#nestedblock--vnc_configuration))
-- `vpn_configuration` (Block List) (see [below for nested schema](#nestedblock--vpn_configuration))
 
 ### Read-Only
 
@@ -258,15 +256,6 @@ Optional:
 - `ipv6_cidr_ranges` (Set of String) Set of IPv6 routes to advertise to VPN clients in CIDR notation
 
 
-<a id="nestedblock--subnet_routes_configuration"></a>
-### Nested Schema for `subnet_routes_configuration`
-
-Optional:
-
-- `ipv4_cidr_ranges` (Set of String) Set of IPv4 routes to advertise to VPN clients in CIDR notation
-- `ipv6_cidr_ranges` (Set of String) Set of IPv6 routes to advertise to VPN clients in CIDR notation
-
-
 <a id="nestedblock--tls_configuration"></a>
 ### Nested Schema for `tls_configuration`
 
@@ -284,12 +273,3 @@ Optional:
 
 - `hostname` (String) The upstream VNC hostname.
 - `port` (Number) The upstream VNC port number.
-
-
-<a id="nestedblock--vpn_configuration"></a>
-### Nested Schema for `vpn_configuration`
-
-Optional:
-
-- `advertised_routes` (Set of String) Set of routes to advertise to VPN clients in IPv4 CIDR notation
-- `dhcp_pool_subnet` (String) The subnet in IPv4 CIDR notation to use for VPN client IP allocations (DHCP pool)

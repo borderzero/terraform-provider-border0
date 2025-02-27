@@ -102,7 +102,7 @@ resource "border0_policy" "unit_test_v2" {
         },
         "tls": {},
         "vnc": {},
-        "vpn": {}
+        "network": {}
     },
     "condition": {
       "who": {
@@ -158,7 +158,7 @@ resource "border0_policy" "unit_test_v2" {
             "shell": {},
             "tcp_forwarding": {}
         },
-        "vpn": {}
+        "network": {}
     },
     "condition": {
       "who": {
@@ -344,9 +344,9 @@ func Test_Resource_Border0PolicyV2(t *testing.T) {
 				Shell:         &border0client.SSHShellPermission{},
 				TCPForwarding: &border0client.SSHTCPForwardingPermission{},
 			},
-			TLS: &border0client.TLSPermissions{},
-			VNC: &border0client.VNCPermissions{},
-			VPN: &border0client.VPNPermissions{},
+			TLS:     &border0client.TLSPermissions{},
+			VNC:     &border0client.VNCPermissions{},
+			Network: &border0client.NetworkPermissions{},
 		},
 		Condition: border0client.PolicyConditionV2{
 			Who: border0client.PolicyWhoV2{
@@ -404,7 +404,7 @@ func Test_Resource_Border0PolicyV2(t *testing.T) {
 				Shell:         &border0client.SSHShellPermission{},
 				TCPForwarding: &border0client.SSHTCPForwardingPermission{},
 			},
-			VPN: &border0client.VPNPermissions{},
+			Network: &border0client.NetworkPermissions{},
 		},
 		Condition: border0client.PolicyConditionV2{
 			Who: border0client.PolicyWhoV2{

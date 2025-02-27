@@ -101,17 +101,6 @@ resource "border0_socket" "example_rdp" {
   }
 }
 
-resource "border0_socket" "example_vpn" {
-  name         = "example-vpn"
-  socket_type  = "vpn"
-  connector_id = border0_connector.test_tf_connector.id
-
-  vpn_configuration {
-    dhcp_pool_subnet  = "10.42.0.0/22"
-    advertised_routes = ["0.0.0.0/0"]
-  }
-}
-
 // create a database socket and link it to a connector that was created with Terraform
 // this socket will be used to connect to an AWS RDS instance with IAM authentication
 resource "border0_socket" "test_tf_aws_rds_with_iam_auth" {
