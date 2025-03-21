@@ -42,3 +42,7 @@ docs: ## Generate terraform provider docs
 .PHONY: release
 release:
 	goreleaser release --clean --snapshot --skip-publish --skip-sign
+
+.PHONY: fmt
+fmt:
+	@terraform fmt --recursive .

@@ -8,6 +8,7 @@ import (
 	"github.com/borderzero/terraform-provider-border0/internal/schemautil/socket/exit_node"
 	"github.com/borderzero/terraform-provider-border0/internal/schemautil/socket/http"
 	"github.com/borderzero/terraform-provider-border0/internal/schemautil/socket/rdp"
+	"github.com/borderzero/terraform-provider-border0/internal/schemautil/socket/snowflake"
 	"github.com/borderzero/terraform-provider-border0/internal/schemautil/socket/ssh"
 	"github.com/borderzero/terraform-provider-border0/internal/schemautil/socket/subnet_router"
 	"github.com/borderzero/terraform-provider-border0/internal/schemautil/socket/tls"
@@ -48,6 +49,8 @@ func FromUpstreamConfig(
 		return subnet_router.FromUpstreamConfig(d, config.SubnetRouterServiceConfiguration)
 	case service.ServiceTypeExitNode:
 		return exit_node.FromUpstreamConfig(d, config.ExitNodeServiceConfiguration)
+	case service.ServiceTypeSnowflake:
+		return snowflake.FromUpstreamConfig(d, config.SnowflakeServiceConfiguration)
 	default:
 		return diag.Errorf(`sockets with service type "%s" not yet supported`, config.ServiceType)
 	}
@@ -118,6 +121,12 @@ func ToUpstreamConfig(d *schema.ResourceData, socket *border0client.Socket) diag
 			socket.UpstreamConfig.ExitNodeServiceConfiguration = new(service.ExitNodeServiceConfiguration)
 		}
 		diags = exit_node.ToUpstreamConfig(d, socket.UpstreamConfig.ExitNodeServiceConfiguration)
+
+	case service.ServiceTypeSnowflake:
+		if socket.UpstreamConfig.SnowflakeServiceConfiguration == nil {
+			socket.UpstreamConfig.SnowflakeServiceConfiguration = new(service.SnowflakeServiceConfiguration)
+		}
+		diags = snowflake.ToUpstreamConfig(d, socket.UpstreamConfig.SnowflakeServiceConfiguration)
 
 	default:
 		return diag.Errorf(`sockets with service type "%s" not yet supported`, socket.UpstreamConfig.ServiceType)
