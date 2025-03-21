@@ -1,10 +1,10 @@
 module github.com/borderzero/terraform-provider-border0
 
-go 1.23.6
+go 1.24
 
 require (
 	github.com/autarch/testify v1.2.2
-	github.com/borderzero/border0-go v1.4.74
+	github.com/borderzero/border0-go v1.4.77
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/hashicorp/go-uuid v1.0.3
 	github.com/hashicorp/terraform-plugin-docs v0.16.0

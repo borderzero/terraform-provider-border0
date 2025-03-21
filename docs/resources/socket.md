@@ -140,6 +140,7 @@ resource "border0_socket" "example_connect_to_ecs_with_ssm" {
 - `http_configuration` (Block List) (see [below for nested schema](#nestedblock--http_configuration))
 - `rdp_configuration` (Block List) (see [below for nested schema](#nestedblock--rdp_configuration))
 - `recording_enabled` (Boolean) Indicates if session recording is enabled for the socket.
+- `snowflake_configuration` (Block List) (see [below for nested schema](#nestedblock--snowflake_configuration))
 - `ssh_configuration` (Block List) (see [below for nested schema](#nestedblock--ssh_configuration))
 - `subnet_router_configuration` (Block List) (see [below for nested schema](#nestedblock--subnet_router_configuration))
 - `tags` (Map of String) The tags of the socket.
@@ -212,6 +213,16 @@ Optional:
 
 - `hostname` (String) The upstream RDP hostname.
 - `port` (Number) The upstream RDP port number.
+
+
+<a id="nestedblock--snowflake_configuration"></a>
+### Nested Schema for `snowflake_configuration`
+
+Required:
+
+- `account` (String) The upstream Snowflake account e.g. meusyiv-ytb02865.
+- `password` (String, Sensitive) The upstream Snowflake password for the user.
+- `username` (String) The upstream Snowflake username to use in the account.
 
 
 <a id="nestedblock--ssh_configuration"></a>

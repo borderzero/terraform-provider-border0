@@ -404,6 +404,31 @@ func resourceSocket() *schema.Resource {
 					},
 				},
 			},
+
+			"snowflake_configuration": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"account": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: "The upstream Snowflake account e.g. meusyiv-ytb02865.",
+						},
+						"username": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: "The upstream Snowflake username to use in the account.",
+						},
+						"password": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Sensitive:   true,
+							Description: "The upstream Snowflake password for the user.",
+						},
+					},
+				},
+			},
 		},
 	}
 }
