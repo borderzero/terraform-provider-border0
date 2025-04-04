@@ -16,8 +16,8 @@ The policy resource allows you to create and manage a Border0 policy.
 resource "border0_policy" "example" {
   name        = "my-example-policy"
   description = "My first policy"
+  version     = "v2"
   policy_data = jsonencode({
-    "version" : "v2",
     "permissions" : {
       "database" : {},
       "http" : {},

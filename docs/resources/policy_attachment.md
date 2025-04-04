@@ -25,8 +25,8 @@ resource "border0_socket" "example" {
 resource "border0_policy" "example" {
   name        = "my-example-policy"
   description = "My first policy"
+  version     = "v2"
   policy_data = jsonencode({
-    "version" : "v2",
     "permissions" : {
       "database" : {},
       "http" : {},
