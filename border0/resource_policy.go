@@ -34,8 +34,8 @@ func resourcePolicy() *schema.Resource {
 			"version": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				Default:      "v1",
-				Description:  "The version of the policy. The default value is 'v1', the other valid value is 'v2'.",
+				Default:      "v2",
+				Description:  "The version of the policy. The default value is 'v2', the other valid value is 'v1'.",
 				ValidateFunc: validation.StringInSlice([]string{"v1", "v2"}, false),
 			},
 			"policy_data": {
@@ -142,12 +142,14 @@ func resourcePolicyUpdate(ctx context.Context, d *schema.ResourceData, m interfa
 			if err := json.Unmarshal([]byte(d.Get("policy_data").(string)), &policyData); err != nil {
 				return diagnostics.Error(err, "Failed to unmarshal policy data")
 			}
+			policyUpdate.Version = "v1"
 			policyUpdate.PolicyData = policyData
 		case "v2":
 			var policyData border0client.PolicyDataV2
 			if err := json.Unmarshal([]byte(d.Get("policy_data").(string)), &policyData); err != nil {
 				return diagnostics.Error(err, "Failed to unmarshal policy data")
 			}
+			policyUpdate.Version = "v2"
 			policyUpdate.PolicyData = policyData
 		default:
 			return diag.Errorf("Invalid policy version: %s", policyUpdate.Version)

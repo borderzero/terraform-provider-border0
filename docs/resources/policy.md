@@ -17,13 +17,22 @@ resource "border0_policy" "example" {
   name        = "my-example-policy"
   description = "My first policy"
   policy_data = jsonencode({
-    "version" : "v1",
-    "action" : ["database", "ssh", "http", "tls"],
+    "version" : "v2",
+    "permissions" : {
+      "database" : {},
+      "http" : {},
+      "kubernetes" : {},
+      "network" : {},
+      "rdp" : {},
+      "ssh" : {},
+      "tls" : {},
+      "vnc" : {}
+    },
     "condition" : {
       "who" : {
-        "email" : [],
+        "email" : [], # your email goes here
         "group" : [],
-        "domain" : ["example.com"]
+        "service_account" : []
       },
       "where" : {
         "allowed_ip" : ["0.0.0.0/0", "::/0"],
@@ -53,7 +62,7 @@ resource "border0_policy" "example" {
 
 - `description` (String) The description of the policy.
 - `org_wide` (Boolean) Whether the policy should be applied to all sockets in the organization.
-- `version` (String) The version of the policy. The default value is 'v1', the other valid value is 'v2'.
+- `version` (String) The version of the policy. The default value is 'v2', the other valid value is 'v1'.
 
 ### Read-Only
 
