@@ -45,13 +45,22 @@ resource "border0_policy" "test_tf_policy" {
   name        = "test-tf-policy"
   description = "test policy from terraform"
   policy_data = jsonencode({
-    "version" : "v1",
-    "action" : ["database", "ssh", "http", "tls"],
+    "version" : "v2",
+    "permissions" : {
+      "database" : {},
+      "http" : {},
+      "kubernetes" : {},
+      "network" : {},
+      "rdp" : {},
+      "ssh" : {},
+      "tls" : {},
+      "vnc" : {}
+    },
     "condition" : {
       "who" : {
         "email" : [], # your email goes here
         "group" : [],
-        "domain" : ["example.com"]
+        "service_account" : []
       },
       "where" : {
         "allowed_ip" : ["0.0.0.0/0", "::/0"],

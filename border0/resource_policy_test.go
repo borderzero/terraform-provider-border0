@@ -43,6 +43,7 @@ resource "border0_policy" "unit_test" {
 var updatePolicyConfig = `
 resource "border0_policy" "unit_test" {
   name = "unit-test-policy-1"
+  version = "v1"
   description = "update policy description"
   policy_data = jsonencode({
     "version": "v1",
@@ -246,6 +247,7 @@ func Test_Resource_Border0Policy(t *testing.T) {
 	}
 	updateInput := border0client.Policy{
 		Name:        "unit-test-policy-1",
+		Version:     "v1",
 		Description: "update policy description",
 		PolicyData:  updatePolicyData,
 	}
@@ -430,6 +432,7 @@ func Test_Resource_Border0PolicyV2(t *testing.T) {
 	}
 	updateInput := border0client.Policy{
 		Name:        "unit-test-policy-v2",
+		Version:     "v2",
 		Description: "update policy description",
 		PolicyData:  updatePolicyData,
 	}

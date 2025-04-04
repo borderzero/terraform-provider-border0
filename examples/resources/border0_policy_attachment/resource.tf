@@ -11,13 +11,22 @@ resource "border0_policy" "example" {
   name        = "my-example-policy"
   description = "My first policy"
   policy_data = jsonencode({
-    "version" : "v1",
-    "action" : ["database", "ssh", "http", "tls"],
+    "version" : "v2",
+    "permissions" : {
+      "database" : {},
+      "http" : {},
+      "kubernetes" : {},
+      "network" : {},
+      "rdp" : {},
+      "ssh" : {},
+      "tls" : {},
+      "vnc" : {}
+    },
     "condition" : {
       "who" : {
-        "email" : [],
+        "email" : [], # your email goes here
         "group" : [],
-        "domain" : ["example.com"]
+        "service_account" : []
       },
       "where" : {
         "allowed_ip" : ["0.0.0.0/0", "::/0"],
