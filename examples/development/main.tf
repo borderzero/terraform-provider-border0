@@ -44,8 +44,8 @@ resource "border0_connector_token" "test_tf_connector_token_expires" {
 resource "border0_policy" "test_tf_policy" {
   name        = "test-tf-policy"
   description = "test policy from terraform"
+  version     = "v2"
   policy_data = jsonencode({
-    "version" : "v2",
     "permissions" : {
       "database" : {},
       "http" : {},
