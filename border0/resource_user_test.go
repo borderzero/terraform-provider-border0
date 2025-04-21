@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/autarch/testify/mock"
+	"github.com/stretchr/testify/mock"
 	border0client "github.com/borderzero/border0-go/client"
 	"github.com/borderzero/terraform-provider-border0/mocks"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
