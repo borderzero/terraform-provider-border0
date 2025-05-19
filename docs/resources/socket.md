@@ -172,7 +172,7 @@ Optional:
 - `password` (String, Sensitive) The upstream password. Used when authentication type is either `username_and_password` or `tls`.
 - `port` (Number) The upstream database port number.
 - `private_key` (String, Sensitive) The upstream private key. Only used when authentication type is `tls`.
-- `protocol` (String) The upstream database protocol. Valid values: `mysql`, `postgres`. Defaults to `mysql`.
+- `protocol` (String) The upstream database protocol. Valid values: `mysql`, `postgres` or `cockroachdb`. Defaults to `mysql`.
 - `rds_instance_region` (String) The upstream RDS database region. Only used when service type is `aws_rds`, and authentication type is `iam`.
 - `service_type` (String) The upstream service type. Valid values: `standard`, `aws_rds`, `gcp_cloud_sql`, `azure_sql`. Defaults to `standard`.
 - `sql_auth` (Boolean) Indicates if standard SQL authentication (username and password) is enabled. Only used when service type is `azure_sql`.
