@@ -2,6 +2,7 @@ package border0_test
 
 import (
 	"encoding/json"
+	"fmt"
 	"testing"
 
 	border0client "github.com/borderzero/border0-go/client"
@@ -506,4 +507,159 @@ func Test_Resource_Border0PolicyV2(t *testing.T) {
 			},
 		},
 	})
+}
+
+func Test_Resource_Border0Policy_SocketTags(t *testing.T) {
+	// Define minimal policy data for v2
+	policyData := border0client.PolicyDataV2{
+		Permissions: border0client.PolicyPermissions{},
+		Condition: border0client.PolicyConditionV2{
+			Who:   border0client.PolicyWhoV2{},
+			Where: border0client.PolicyWhere{},
+			When:  border0client.PolicyWhen{},
+		},
+	}
+
+	// Initial tags
+	initialTags := map[string]string{
+		"team": "backend",
+	}
+	// Updated tags
+	updatedTags := map[string]string{
+		"team":        "backend",
+		"environment": "staging",
+	}
+
+	// Mock client and calls
+	clientMock := mocks.APIClientRequester{}
+	// Create policy with initialTags
+	initialInput := &border0client.Policy{
+		Name:       "unit-test-policy-tags",
+		Version:    "v2",
+		PolicyData: policyData,
+		SocketTags: initialTags,
+	}
+	initialOutput := &border0client.Policy{
+		ID:         "unit-test-id-tags",
+		Name:       "unit-test-policy-tags",
+		Version:    "v2",
+		PolicyData: policyData,
+		SocketTags: initialTags,
+	}
+	// Update tags to updatedTags
+	updateInput := &border0client.Policy{
+		Name:       "unit-test-policy-tags",
+		PolicyData: policyData,
+		SocketTags: updatedTags,
+		Version:    "v2",
+	}
+	updateOutput := &border0client.Policy{
+		ID:         "unit-test-id-tags",
+		Name:       "unit-test-policy-tags",
+		Version:    "v2",
+		PolicyData: policyData,
+		SocketTags: updatedTags,
+	}
+	// Delete tags (nil map)
+	deleteInput := &border0client.Policy{
+		Name:       "unit-test-policy-tags",
+		PolicyData: policyData,
+		SocketTags: nil,
+		Version:    "v2",
+	}
+	deleteOutput := &border0client.Policy{
+		ID:         "unit-test-id-tags",
+		Name:       "unit-test-policy-tags",
+		Version:    "v2",
+		PolicyData: policyData,
+		SocketTags: nil,
+	}
+
+	mockCallsInOrder(
+		// Create
+		clientMock.EXPECT().CreatePolicy(matchContext, initialInput).Return(initialOutput, nil).Call,
+		clientMock.EXPECT().Policy(matchContext, "unit-test-id-tags").Return(initialOutput, nil).Call,
+		clientMock.EXPECT().Policy(matchContext, "unit-test-id-tags").Return(initialOutput, nil).Call,
+		// Update to updatedTags
+		clientMock.EXPECT().Policy(matchContext, "unit-test-id-tags").Return(initialOutput, nil).Call,
+		clientMock.EXPECT().UpdatePolicy(matchContext, "unit-test-id-tags", updateInput).Return(updateOutput, nil).Call,
+		clientMock.EXPECT().Policy(matchContext, "unit-test-id-tags").Return(updateOutput, nil).Call,
+		clientMock.EXPECT().Policy(matchContext, "unit-test-id-tags").Return(updateOutput, nil).Call,
+		// Update to delete tags
+		clientMock.EXPECT().Policy(matchContext, "unit-test-id-tags").Return(updateOutput, nil).Call,
+		clientMock.EXPECT().UpdatePolicy(matchContext, "unit-test-id-tags", deleteInput).Return(deleteOutput, nil).Call,
+		clientMock.EXPECT().Policy(matchContext, "unit-test-id-tags").Return(deleteOutput, nil).Call,
+		clientMock.EXPECT().Policy(matchContext, "unit-test-id-tags").Return(deleteOutput, nil).Call,
+		// Delete
+		clientMock.EXPECT().DeletePolicy(matchContext, "unit-test-id-tags").Return(nil).Call,
+	)
+
+	// HCL configs
+	initialConfig := fmt.Sprintf(`
+resource "border0_policy" "unit_test_tags" {
+  name       = "unit-test-policy-tags"
+  version    = "v2"
+  socket_tags = {
+    team = "backend"
+  }
+  policy_data = jsonencode(%s)
+}
+`, toJSON(policyData))
+	updatedConfig := fmt.Sprintf(`
+resource "border0_policy" "unit_test_tags" {
+  name       = "unit-test-policy-tags"
+  version    = "v2"
+  socket_tags = {
+    team        = "backend"
+    environment = "staging"
+  }
+  policy_data = jsonencode(%s)
+}
+`, toJSON(policyData))
+	deleteConfig := fmt.Sprintf(`
+resource "border0_policy" "unit_test_tags" {
+  name       = "unit-test-policy-tags"
+  version    = "v2"
+  # No socket_tags block to delete
+  policy_data = jsonencode(%s)
+}
+`, toJSON(policyData))
+
+	dataJSON, err := json.Marshal(policyData)
+	require.NoError(t, err)
+
+	resource.ParallelTest(t, resource.TestCase{
+		IsUnitTest:        true,
+		ProviderFactories: testProviderFactories(t, &clientMock),
+		Steps: []resource.TestStep{
+			{
+				Config: initialConfig,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("border0_policy.unit_test_tags", "socket_tags.team", "backend"),
+					testMatchResourceAttrJSON("border0_policy.unit_test_tags", "policy_data", string(dataJSON)),
+				),
+			},
+			{
+				Config: updatedConfig,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("border0_policy.unit_test_tags", "socket_tags.team", "backend"),
+					resource.TestCheckResourceAttr("border0_policy.unit_test_tags", "socket_tags.environment", "staging"),
+					testMatchResourceAttrJSON("border0_policy.unit_test_tags", "policy_data", string(dataJSON)),
+				),
+			},
+			{
+				Config: deleteConfig,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckNoResourceAttr("border0_policy.unit_test_tags", "socket_tags.team"),
+					resource.TestCheckNoResourceAttr("border0_policy.unit_test_tags", "socket_tags.environment"),
+					testMatchResourceAttrJSON("border0_policy.unit_test_tags", "policy_data", string(dataJSON)),
+				),
+			},
+		},
+	})
+}
+
+func toJSON(v interface{}) string {
+	b, _ := json.Marshal(v)
+	return string(b)
 }

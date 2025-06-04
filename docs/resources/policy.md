@@ -62,6 +62,7 @@ resource "border0_policy" "example" {
 
 - `description` (String) The description of the policy.
 - `org_wide` (Boolean) Whether the policy should be applied to all sockets in the organization.
+- `socket_tags` (Map of String) A set of tags to apply to the sockets that this policy is applied to.
 - `version` (String) The version of the policy. The default value is 'v2', the other valid value is 'v1'.
 
 ### Read-Only
