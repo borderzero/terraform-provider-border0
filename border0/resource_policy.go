@@ -56,6 +56,14 @@ func resourcePolicy() *schema.Resource {
 				Default:     false,
 				Description: "Whether the policy should be applied to all sockets in the organization.",
 			},
+			"socket_tags": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: "A set of tags to apply to the sockets that this policy is applied to.",
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 		},
 	}
 }
@@ -84,14 +92,22 @@ func resourcePolicyRead(ctx context.Context, d *schema.ResourceData, m interface
 		"description": policy.Description,
 		"org_wide":    policy.OrgWide,
 		"version":     policy.Version,
+		"socket_tags": func() map[string]any {
+			m := make(map[string]interface{})
+			for key, val := range policy.SocketTags {
+				m[key] = val
+			}
+			return m
+		}(),
 	})
 }
 
 func resourcePolicyCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	client := m.(border0client.Requester)
 	policy := &border0client.Policy{
-		Name:    d.Get("name").(string),
-		Version: d.Get("version").(string),
+		Name:       d.Get("name").(string),
+		Version:    d.Get("version").(string),
+		SocketTags: mapSocketTags(d.Get("socket_tags")),
 	}
 
 	switch policy.Version {
@@ -133,7 +149,8 @@ func resourcePolicyUpdate(ctx context.Context, d *schema.ResourceData, m interfa
 
 	if d.HasChangesExcept("org_wide") {
 		policyUpdate := &border0client.Policy{
-			Name: d.Get("name").(string),
+			Name:       d.Get("name").(string),
+			SocketTags: mapSocketTags(d.Get("socket_tags")),
 		}
 
 		switch d.Get("version").(string) {
@@ -221,4 +238,18 @@ func suppressEquivalentPolicyDiffs(k, old, new string, d *schema.ResourceData) b
 	default:
 		return false
 	}
+}
+
+func mapSocketTags(socketTags any) map[string]string {
+	if raw, ok := socketTags.(map[string]interface{}); ok {
+		if len(raw) == 0 {
+			return nil
+		}
+		m := make(map[string]string)
+		for key, val := range raw {
+			m[key] = val.(string)
+		}
+		return m
+	}
+	return nil
 }
