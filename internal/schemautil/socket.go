@@ -16,7 +16,7 @@ import (
 // - upstream_type
 // - recording_enabled
 func FromSocket(d *schema.ResourceData, socket *border0client.Socket) diag.Diagnostics {
-	if socket.Tags != nil && len(socket.Tags) > 0 {
+	if len(socket.Tags) > 0 {
 		// only set tags if there are any, this prevents a drift in the state
 		// if no tags are set in the terraform resource border0_socket
 		if err := d.Set("tags", socket.Tags); err != nil {

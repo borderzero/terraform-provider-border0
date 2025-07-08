@@ -5,8 +5,10 @@ import (
 	"github.com/borderzero/border0-go/types/service"
 	"github.com/borderzero/terraform-provider-border0/internal/diagnostics"
 	"github.com/borderzero/terraform-provider-border0/internal/schemautil/socket/database"
+	"github.com/borderzero/terraform-provider-border0/internal/schemautil/socket/elasticsearch"
 	"github.com/borderzero/terraform-provider-border0/internal/schemautil/socket/exit_node"
 	"github.com/borderzero/terraform-provider-border0/internal/schemautil/socket/http"
+	"github.com/borderzero/terraform-provider-border0/internal/schemautil/socket/kubernetes"
 	"github.com/borderzero/terraform-provider-border0/internal/schemautil/socket/rdp"
 	"github.com/borderzero/terraform-provider-border0/internal/schemautil/socket/snowflake"
 	"github.com/borderzero/terraform-provider-border0/internal/schemautil/socket/ssh"
@@ -51,6 +53,10 @@ func FromUpstreamConfig(
 		return exit_node.FromUpstreamConfig(d, config.ExitNodeServiceConfiguration)
 	case service.ServiceTypeSnowflake:
 		return snowflake.FromUpstreamConfig(d, config.SnowflakeServiceConfiguration)
+	case service.ServiceTypeKubernetes:
+		return kubernetes.FromUpstreamConfig(d, config.KubernetesServiceConfiguration)
+	case service.ServiceTypeElasticsearch:
+		return elasticsearch.FromUpstreamConfig(d, config.ElasticsearchServiceConfiguration)
 	default:
 		return diag.Errorf(`sockets with service type "%s" not yet supported`, config.ServiceType)
 	}
@@ -128,6 +134,16 @@ func ToUpstreamConfig(d *schema.ResourceData, socket *border0client.Socket) diag
 		}
 		diags = snowflake.ToUpstreamConfig(d, socket.UpstreamConfig.SnowflakeServiceConfiguration)
 
+	case service.ServiceTypeKubernetes:
+		if socket.UpstreamConfig.KubernetesServiceConfiguration == nil {
+			socket.UpstreamConfig.KubernetesServiceConfiguration = new(service.KubernetesServiceConfiguration)
+		}
+		diags = kubernetes.ToUpstreamConfig(d, socket.UpstreamConfig.KubernetesServiceConfiguration)
+	case service.ServiceTypeElasticsearch:
+		if socket.UpstreamConfig.ElasticsearchServiceConfiguration == nil {
+			socket.UpstreamConfig.ElasticsearchServiceConfiguration = new(service.ElasticsearchServiceConfiguration)
+		}
+		diags = elasticsearch.ToUpstreamConfig(d, socket.UpstreamConfig.ElasticsearchServiceConfiguration)
 	default:
 		return diag.Errorf(`sockets with service type "%s" not yet supported`, socket.UpstreamConfig.ServiceType)
 	}

@@ -129,15 +129,17 @@ resource "border0_socket" "example_connect_to_ecs_with_ssm" {
 ### Required
 
 - `name` (String) The name of the socket. Must be unique within your Border0 organization. Socket name can have alphanumerics and hyphens, but it must start or end with alphanumeric.
-- `socket_type` (String) The type of the socket. Valid values: `ssh`, `http`, `database`, `tls`, `vnc`, `rdp`, `subnet_router`, `exit_node`.
+- `socket_type` (String) The type of the socket. Valid values: `ssh`, `http`, `database`, `tls`, `vnc`, `rdp`, `subnet_router`, `exit_node`, `snowflake`, `elasticsearch`, `kubernetes`.
 
 ### Optional
 
 - `connector_id` (String) The connector id that the socket is associated with.
 - `database_configuration` (Block List) (see [below for nested schema](#nestedblock--database_configuration))
 - `description` (String) The description of the socket.
+- `elasticsearch_configuration` (Block List) (see [below for nested schema](#nestedblock--elasticsearch_configuration))
 - `exit_node_configuration` (Block List) (see [below for nested schema](#nestedblock--exit_node_configuration))
 - `http_configuration` (Block List) (see [below for nested schema](#nestedblock--http_configuration))
+- `kubernetes_configuration` (Block List) (see [below for nested schema](#nestedblock--kubernetes_configuration))
 - `rdp_configuration` (Block List) (see [below for nested schema](#nestedblock--rdp_configuration))
 - `recording_enabled` (Boolean) Indicates if session recording is enabled for the socket.
 - `snowflake_configuration` (Block List) (see [below for nested schema](#nestedblock--snowflake_configuration))
@@ -191,6 +193,20 @@ Optional:
 
 
 
+<a id="nestedblock--elasticsearch_configuration"></a>
+### Nested Schema for `elasticsearch_configuration`
+
+Optional:
+
+- `authentication_type` (String) The upstream authentication type. Valid values: `basic`.
+- `hostname` (String) The upstream database hostname.
+- `password` (String, Sensitive) The upstream password. Used when authentication type is either `username_and_password` or `tls`.
+- `port` (Number) The upstream database port number.
+- `protocol` (String) The upstream database protocol. Valid values: `http`, `https`.
+- `service_type` (String) The upstream service type. Valid values: `standard`
+- `username` (String, Sensitive) The upstream username. Used when authentication type is either `username_and_password` or `tls`.
+
+
 <a id="nestedblock--exit_node_configuration"></a>
 ### Nested Schema for `exit_node_configuration`
 
@@ -204,6 +220,39 @@ Optional:
 - `host_header` (String) The upstream host header. Only used when service type is `standard`, and it's different from the hostname in `upstream_url`.
 - `service_type` (String) The upstream service type. Valid values: `standard`, `connector_file_server`. Defaults to `standard`.
 - `upstream_url` (String) The upstream HTTP URL. Format: `http(s)://<hostname>:<port>`. Example: `https://example.com` or `http://another.example.com:8080`. Only used when service type is `standard`.
+
+
+<a id="nestedblock--kubernetes_configuration"></a>
+### Nested Schema for `kubernetes_configuration`
+
+Optional:
+
+- `aws_credentials` (Block List) The upstream service's AWS credentials. (see [below for nested schema](#nestedblock--kubernetes_configuration--aws_credentials))
+- `certificate_authority` (String) The path to the certificate authority file. If not specified, it will use the certificate authority from the kubeconfig file.
+- `certificate_authority_data` (String) The base64 encoded certificate authority data. If not specified, it will use the certificate authority data from the kubeconfig file.
+- `client_certificate` (String) The path to the client certificate file. If not specified, it will use the client certificate from the kubeconfig file.
+- `client_certificate_data` (String) The base64 encoded client certificate data. If not specified, it will use the client certificate data from the kubeconfig file.
+- `client_key` (String, Sensitive) The path to the client key file. If not specified, it will use the client key from the kubeconfig file.
+- `client_key_data` (String, Sensitive) The base64 encoded client key data. If not specified, it will use the client key data from the kubeconfig file.
+- `context` (String) The Kubernetes context to use. If not specified, it will use the current context from the kubeconfig file.
+- `eks_cluster_name` (String) The name of the AWS EKS cluster. Only used when service type is `aws_eks`.
+- `eks_cluster_region` (String) The AWS region of the EKS cluster. Only used when service type is `aws_eks`.
+- `kubeconfig_path` (String) The path to the kubeconfig file. Default it will use the system's kubeconfig file.
+- `server` (String) The Kubernetes API server URL. If not specified, it will use the server URL from the kubeconfig file.
+- `service_type` (String) The upstream service type. Valid values: `standard`, `aws_eks`. Defaults to `standard`.
+- `token` (String, Sensitive) The Kubernetes API token. If not specified, it will use the token from the kubeconfig file.
+- `token_file` (String) The path to the file containing the Kubernetes API token. If not specified, it will use the token from the kubeconfig file.
+
+<a id="nestedblock--kubernetes_configuration--aws_credentials"></a>
+### Nested Schema for `kubernetes_configuration.aws_credentials`
+
+Optional:
+
+- `access_key_id` (String, Sensitive) The upstream AWS access key id.
+- `profile` (String, Sensitive) The upstream AWS profile.
+- `secret_access_key` (String, Sensitive) The upstream AWS secret access key.
+- `session_token` (String, Sensitive) The upstream AWS session token.
+
 
 
 <a id="nestedblock--rdp_configuration"></a>

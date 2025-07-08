@@ -33,7 +33,7 @@ func resourceSocket() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: "The type of the socket. Valid values: `ssh`, `http`, `database`, `tls`, `vnc`, `rdp`, `subnet_router`, `exit_node`.",
+				Description: "The type of the socket. Valid values: `ssh`, `http`, `database`, `tls`, `vnc`, `rdp`, `subnet_router`, `exit_node`, `snowflake`, `elasticsearch`, `kubernetes`.",
 			},
 			"description": {
 				Type:        schema.TypeString,
@@ -429,6 +429,139 @@ func resourceSocket() *schema.Resource {
 					},
 				},
 			},
+
+			"elasticsearch_configuration": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"service_type": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Default:     service.ElasticsearchServiceTypeStandard,
+							Description: "The upstream service type. Valid values: `standard`",
+						},
+						"protocol": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Default:     "https",
+							Description: "The upstream database protocol. Valid values: `http`, `https`.",
+						},
+						"hostname": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The upstream database hostname.",
+						},
+						"port": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Description: "The upstream database port number.",
+						},
+						"authentication_type": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Default:     service.ElasticsearchAuthenticationTypeBasic,
+							Description: "The upstream authentication type. Valid values: `basic`.",
+						},
+						"username": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Sensitive:   true,
+							Description: "The upstream username. Used when authentication type is either `username_and_password` or `tls`.",
+						},
+						"password": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Sensitive:   true,
+							Description: "The upstream password. Used when authentication type is either `username_and_password` or `tls`.",
+						},
+					},
+				},
+			},
+
+			"kubernetes_configuration": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"service_type": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Default:     service.KubernetesServiceTypeStandard,
+							Description: "The upstream service type. Valid values: `standard`, `aws_eks`. Defaults to `standard`.",
+						},
+						"kubeconfig_path": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The path to the kubeconfig file. Default it will use the system's kubeconfig file.",
+						},
+						"context": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The Kubernetes context to use. If not specified, it will use the current context from the kubeconfig file.",
+						},
+						"server": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The Kubernetes API server URL. If not specified, it will use the server URL from the kubeconfig file.",
+						},
+						"certificate_authority": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The path to the certificate authority file. If not specified, it will use the certificate authority from the kubeconfig file.",
+						},
+						"certificate_authority_data": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The base64 encoded certificate authority data. If not specified, it will use the certificate authority data from the kubeconfig file.",
+						},
+						"client_certificate": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The path to the client certificate file. If not specified, it will use the client certificate from the kubeconfig file.",
+						},
+						"client_certificate_data": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The base64 encoded client certificate data. If not specified, it will use the client certificate data from the kubeconfig file.",
+						},
+						"client_key": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Sensitive:   true,
+							Description: "The path to the client key file. If not specified, it will use the client key from the kubeconfig file.",
+						},
+						"client_key_data": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Sensitive:   true,
+							Description: "The base64 encoded client key data. If not specified, it will use the client key data from the kubeconfig file.",
+						},
+						"token": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Sensitive:   true,
+							Description: "The Kubernetes API token. If not specified, it will use the token from the kubeconfig file.",
+						},
+						"token_file": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The path to the file containing the Kubernetes API token. If not specified, it will use the token from the kubeconfig file.",
+						},
+						"eks_cluster_name": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The name of the AWS EKS cluster. Only used when service type is `aws_eks`.",
+						},
+						"eks_cluster_region": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The AWS region of the EKS cluster. Only used when service type is `aws_eks`.",
+						},
+						"aws_credentials": shared.AwsCredentialsSchema,
+					},
+				},
+			},
 		},
 	}
 }
@@ -494,7 +627,6 @@ func fetchSocket(ctx context.Context, d *schema.ResourceData, m interface{}, idO
 	if err != nil {
 		return nil, diagnostics.Error(err, "Failed to fetch socket")
 	}
-
 	return socket, nil
 }
 
