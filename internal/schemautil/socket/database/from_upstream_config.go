@@ -30,6 +30,8 @@ func FromUpstreamConfig(d *schema.ResourceData, config *service.DatabaseServiceC
 		diags = gcpCloudSqlFromUpstreamConfig(&data, config.GcpCloudSql)
 	case service.DatabaseServiceTypeAzureSql:
 		diags = azureSqlFromUpstreamConfig(&data, config.AzureSql)
+	case service.DatabaseServiceTypeAwsDocumentDB:
+		diags = awsDocumentDBFromUpstreamConfig(&data, config.AwsDocumentDB)
 	default:
 		return diag.Errorf(`sockets with database service type "%s" not yet supported`, config.DatabaseServiceType)
 	}
@@ -71,6 +73,7 @@ func standardFromUpstreamConfig(data *map[string]any, config *service.StandardDa
 		(*data)["certificate"] = config.TlsAuth.Certificate
 		(*data)["private_key"] = config.TlsAuth.Key
 		(*data)["ca_certificate"] = config.TlsAuth.CaCertificate
+	case service.DatabaseAuthenticationTypeNoAuth:
 	default:
 		return diag.Errorf(`database authentication type "%s" is invalid`, config.AuthenticationType)
 	}
@@ -102,6 +105,38 @@ func awsRdsFromUpstreamConfig(data *map[string]any, config *service.AwsRdsDataba
 		}
 		(*data)["username"] = config.IamAuth.Username
 		(*data)["rds_instance_region"] = config.IamAuth.RdsInstanceRegion
+		(*data)["ca_certificate"] = config.IamAuth.CaCertificate
+		(*data)["aws_credentials"] = shared.FromAwsCredentials(config.IamAuth.AwsCredentials)
+	default:
+		return diag.Errorf(`database authentication type "%s" is invalid`, config.AuthenticationType)
+	}
+
+	return nil
+}
+
+func awsDocumentDBFromUpstreamConfig(data *map[string]any, config *service.AwsDocumentDBDatabaseServiceConfiguration) diag.Diagnostics {
+	if config == nil {
+		return diag.Errorf(`got a socket with database service type "aws_documentdb" but AWS DocumentDB database service configuration was not present`)
+	}
+
+	(*data)["authentication_type"] = config.AuthenticationType
+	(*data)["protocol"] = config.DatabaseProtocol
+	(*data)["hostname"] = config.Hostname
+	(*data)["port"] = config.Port
+
+	switch config.AuthenticationType {
+	case service.DatabaseAuthenticationTypeUsernameAndPassword:
+		if config.UsernameAndPasswordAuth == nil {
+			return diag.Errorf(`got a socket with database authentication type "username_and_password" but username and password auth configuration was not present`)
+		}
+		(*data)["username"] = config.UsernameAndPasswordAuth.Username
+		(*data)["password"] = config.UsernameAndPasswordAuth.Password
+		(*data)["ca_certificate"] = config.UsernameAndPasswordAuth.CaCertificate
+	case service.DatabaseAuthenticationTypeIam:
+		if config.IamAuth == nil {
+			return diag.Errorf(`got a socket with database authentication type "iam" but IAM auth configuration was not present`)
+		}
+		(*data)["cluster_region"] = config.IamAuth.ClusterRegion
 		(*data)["ca_certificate"] = config.IamAuth.CaCertificate
 		(*data)["aws_credentials"] = shared.FromAwsCredentials(config.IamAuth.AwsCredentials)
 	default:
