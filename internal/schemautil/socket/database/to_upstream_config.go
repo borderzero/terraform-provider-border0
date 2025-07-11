@@ -38,6 +38,12 @@ func ToUpstreamConfig(d *schema.ResourceData, config *service.DatabaseServiceCon
 		}
 		return awsRdsToUpstreamConfig(data, config.AwsRds)
 
+	case service.DatabaseServiceTypeAwsDocumentDB:
+		if config.AwsDocumentDB == nil {
+			config.AwsDocumentDB = new(service.AwsDocumentDBDatabaseServiceConfiguration)
+		}
+		return awsDocumentDBToUpstreamConfig(data, config.AwsDocumentDB)
+
 	case service.DatabaseServiceTypeGcpCloudSql:
 		if config.GcpCloudSql == nil {
 			config.GcpCloudSql = new(service.GcpCloudSqlDatabaseServiceConfiguration)
@@ -105,6 +111,7 @@ func standardToUpstreamConfig(data map[string]any, config *service.StandardDatab
 		if v, ok := data["ca_certificate"]; ok {
 			config.TlsAuth.CaCertificate = v.(string)
 		}
+	case service.DatabaseAuthenticationTypeNoAuth:
 	default:
 		return diag.Errorf(`database authentication type "%s" is invalid`, authType)
 	}
@@ -155,6 +162,60 @@ func awsRdsToUpstreamConfig(data map[string]any, config *service.AwsRdsDatabaseS
 		}
 		if v, ok := data["rds_instance_region"]; ok {
 			config.IamAuth.RdsInstanceRegion = v.(string)
+		}
+		if v, ok := data["ca_certificate"]; ok {
+			config.IamAuth.CaCertificate = v.(string)
+		}
+		if v, ok := data["aws_credentials"]; ok {
+			shared.ToAwsCredentials(v, config.IamAuth.AwsCredentials)
+		}
+	default:
+		return diag.Errorf(`database authentication type "%s" is invalid`, authType)
+	}
+
+	return nil
+}
+
+func awsDocumentDBToUpstreamConfig(data map[string]any, config *service.AwsDocumentDBDatabaseServiceConfiguration) diag.Diagnostics {
+	authType := service.DatabaseAuthenticationTypeUsernameAndPassword // default to "username_and_password"
+
+	if v, ok := data["authentication_type"]; ok {
+		authType = v.(string)
+	}
+	config.AuthenticationType = authType
+
+	if v, ok := data["protocol"]; ok {
+		config.DatabaseProtocol = v.(string)
+	}
+	if v, ok := data["hostname"]; ok {
+		config.Hostname = v.(string)
+	}
+	if v, ok := data["port"]; ok {
+		config.Port = uint16(v.(int))
+	}
+
+	switch authType {
+	case service.DatabaseAuthenticationTypeUsernameAndPassword:
+		if config.UsernameAndPasswordAuth == nil {
+			config.UsernameAndPasswordAuth = new(service.AwsRdsUsernameAndPasswordAuthConfiguration)
+		}
+
+		if v, ok := data["username"]; ok {
+			config.UsernameAndPasswordAuth.Username = v.(string)
+		}
+		if v, ok := data["password"]; ok {
+			config.UsernameAndPasswordAuth.Password = v.(string)
+		}
+		if v, ok := data["ca_certificate"]; ok {
+			config.UsernameAndPasswordAuth.CaCertificate = v.(string)
+		}
+	case service.DatabaseAuthenticationTypeIam:
+		if config.IamAuth == nil {
+			config.IamAuth = new(service.MongoDBAWSAuthConfiguration)
+		}
+
+		if v, ok := data["cluster_region"]; ok {
+			config.IamAuth.ClusterRegion = v.(string)
 		}
 		if v, ok := data["ca_certificate"]; ok {
 			config.IamAuth.CaCertificate = v.(string)

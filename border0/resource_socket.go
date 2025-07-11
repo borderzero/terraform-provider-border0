@@ -257,6 +257,11 @@ func resourceSocket() *schema.Resource {
 							Optional:    true,
 							Description: "The upstream RDS database region. Only used when service type is `aws_rds`, and authentication type is `iam`.",
 						},
+						"cluster_region": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The upstream DocumentDB upstream database region. Only used when service type is `aws_documentdb`, and authentication type is `iam`.",
+						},
 						// gcp_cloud_sql only
 						"cloudsql_connector_enabled": {
 							Type:        schema.TypeBool,
