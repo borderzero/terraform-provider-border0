@@ -34,7 +34,7 @@ resource "border0_connector_token" "test_tf_connector_token_never_expires" {
 resource "border0_connector_token" "test_tf_connector_token_expires" {
   connector_id = border0_connector.test_tf_connector.id
   name         = "test-tf-connector-token-expires"
-  expires_at   = "2024-12-31T23:59:59Z"
+  expires_at   = "2035-12-31T23:59:59Z"
 
   provisioner "local-exec" {
     command = "echo 'token: ${self.token}' > ./border0-connector-token-expires.yaml"
@@ -112,12 +112,20 @@ resource "border0_socket" "test_tf_http" {
 
   http_configuration {
     upstream_url = "https://www.bbc.com"
+    header {
+      key    = "X-Custom-Header"
+      values = ["custom-value"]
+    }
+    header {
+      key    = "X-Another-Header"
+      values = ["another-value", "second-value"]
+    }
   }
-
   tags = {
     "test_key_1" = "test_value_1"
   }
 }
+
 
 resource "border0_socket" "test_tf_ssh" {
   name              = "test-tf-ssh"

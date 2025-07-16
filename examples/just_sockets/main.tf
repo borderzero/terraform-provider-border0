@@ -22,6 +22,10 @@ resource "border0_socket" "test_tf_http" {
 
   http_configuration {
     upstream_url = "https://www.bbc.com"
+    header {
+      key    = "X-Custom-Header"
+      values = ["custom-value", "another-value"]
+    }
   }
 
   tags = {

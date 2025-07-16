@@ -61,6 +61,23 @@ func standardFromUpstreamConfig(data *map[string]any, socket *border0client.Sock
 	}
 	(*data)["host_header"] = hostHeader
 
+	if len(config.Headers) > 0 {
+		headerMap := make(map[string][]string)
+		for _, header := range config.Headers {
+			if header.Key == "" || header.Value == "" {
+				continue
+			}
+			headerMap[header.Key] = append(headerMap[header.Key], header.Value)
+		}
+		var headersList []map[string]any
+		for key, values := range headerMap {
+			headersList = append(headersList, map[string]any{"key": key, "values": values})
+		}
+		if len(headersList) > 0 {
+			(*data)["header"] = headersList
+		}
+	}
+
 	return nil
 }
 
