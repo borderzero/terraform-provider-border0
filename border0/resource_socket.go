@@ -92,6 +92,26 @@ func resourceSocket() *schema.Resource {
 							Optional:    true,
 							Description: "The upstream host header. Only used when service type is `standard`, and it's different from the hostname in `upstream_url`.",
 						},
+						"header": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"key": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: "HTTP header name",
+									},
+									"values": {
+										Type:        schema.TypeList,
+										Required:    true,
+										Elem:        &schema.Schema{Type: schema.TypeString},
+										Description: "List of values for the header. Multiple values are supported.",
+									},
+								},
+							},
+							Description: "Custom HTTP headers forwarded to the upstream service. Each header has a key and a list of values.",
+						},
 						"file_server_directory": {
 							Type:        schema.TypeString,
 							Optional:    true,

@@ -7,6 +7,14 @@ resource "border0_socket" "example_http" {
 
   http_configuration {
     upstream_url = "https://www.bbc.com"
+    header {
+      key    = "X-Custom-Header"
+      values = ["custom-value", "another-value"]
+    }
+    header {
+      key    = "X-Another-Header"
+      values = ["yet-another-value"]
+    }
   }
 
   tags = {

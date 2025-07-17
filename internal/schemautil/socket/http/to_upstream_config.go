@@ -96,6 +96,22 @@ func standardToUpstreamConfig(data map[string]any, socket *border0client.Socket,
 		}
 	}
 
+	var headers []service.Header
+	if v, ok := data["header"]; ok {
+		for _, h := range v.([]any) {
+			m := h.(map[string]any)
+			key := m["key"].(string)
+			var values []string
+			for _, val := range m["values"].([]any) {
+				values = append(values, val.(string))
+			}
+			for _, v := range values {
+				headers = append(headers, service.Header{Key: key, Value: v})
+			}
+		}
+		config.Headers = headers
+	}
+
 	return nil
 }
 

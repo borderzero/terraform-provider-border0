@@ -28,7 +28,7 @@ NAMESPACE=border0
 NAME=border0
 BINARY=terraform-provider-${NAME}
 VERSION=0.1.0
-OS_ARCH=darwin_arm64
+OS_ARCH?=$(shell go env GOOS)_$(shell go env GOARCH)
 
 .PHONY: install
 install: build ## Install the provider in the terraform plugins directory
