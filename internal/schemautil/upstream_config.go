@@ -65,8 +65,11 @@ func FromUpstreamConfig(
 // ToUpstreamConfig translates terraform resource data to a socket's upstream service config.
 // In short: *schema.ResourceData -> *border0client.SocketUpstreamConfigs
 func ToUpstreamConfig(d *schema.ResourceData, socket *border0client.Socket) diag.Diagnostics {
-	// noop if connector id is not set or empty
-	if v, ok := d.GetOk("connector_id"); !ok || v.(string) == "" {
+	// noop if connector ids is not set or empty
+	// NOTE: the connector_id check can be removed when we remove the field from the schema (next major release).
+	connectorIDAny, connectorIDFound := d.GetOk("connector_id")
+	connectorIDsAny, connectorIDsFound := d.GetOk("connector_ids")
+	if (!connectorIDFound || connectorIDAny.(string) == "") && (!connectorIDsFound || connectorIDsAny.(*schema.Set).Len() == 0) {
 		return nil
 	}
 

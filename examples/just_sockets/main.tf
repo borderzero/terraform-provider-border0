@@ -16,9 +16,9 @@ provider "border0" {
 }
 
 resource "border0_socket" "test_tf_http" {
-  name         = "test-tf-http"
-  socket_type  = "http"
-  connector_id = "a7de4cc3-d977-4c4b-82e7-dedb6e7b74a1" // replace with your connector ID
+  name          = "test-tf-http"
+  socket_type   = "http"
+  connector_ids = ["a7de4cc3-d977-4c4b-82e7-dedb6e7b74a1"] // replace with your connector ID
 
   http_configuration {
     upstream_url = "https://www.bbc.com"
@@ -37,7 +37,7 @@ resource "border0_socket" "test_tf_ssh" {
   name              = "test-tf-ssh"
   recording_enabled = true
   socket_type       = "ssh"
-  connector_id      = "a7de4cc3-d977-4c4b-82e7-dedb6e7b74a1" // replace with your connector ID
+  connector_ids     = ["a7de4cc3-d977-4c4b-82e7-dedb6e7b74a1"] // replace with your connector ID
 
   ssh_configuration {
     hostname            = "127.0.0.1"

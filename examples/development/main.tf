@@ -22,6 +22,12 @@ resource "border0_connector" "test_tf_connector" {
   built_in_ssh_service_enabled = true
 }
 
+resource "border0_connector" "test_tf_connector_2" {
+  name                         = "test-tf-connector-2"
+  description                  = "test connector from terraform"
+  built_in_ssh_service_enabled = true
+}
+
 resource "border0_connector_token" "test_tf_connector_token_never_expires" {
   connector_id = border0_connector.test_tf_connector.id
   name         = "test-tf-connector-token-never-expires"
@@ -106,9 +112,12 @@ resource "border0_policy" "another_test_tf_policy" {
 }
 
 resource "border0_socket" "test_tf_http" {
-  name         = "test-tf-http"
-  socket_type  = "http"
-  connector_id = border0_connector.test_tf_connector.id
+  name        = "test-tf-http"
+  socket_type = "http"
+  connector_ids = [
+    border0_connector.test_tf_connector.id,
+    border0_connector.test_tf_connector_2.id,
+  ]
 
   http_configuration {
     upstream_url = "https://www.bbc.com"
@@ -131,7 +140,7 @@ resource "border0_socket" "test_tf_ssh" {
   name              = "test-tf-ssh"
   recording_enabled = true
   socket_type       = "ssh"
-  connector_id      = border0_connector.test_tf_connector.id
+  connector_ids     = [border0_connector.test_tf_connector.id]
 
   ssh_configuration {
     hostname            = "127.0.0.1"
@@ -170,7 +179,7 @@ resource "border0_socket" "test_tf_mysql" {
   name              = "test-tf-mysql"
   recording_enabled = true
   socket_type       = "database"
-  connector_id      = border0_connector.test_tf_connector.id
+  connector_ids     = [border0_connector.test_tf_connector.id]
 
   database_configuration {
     protocol = "mysql"
@@ -182,9 +191,9 @@ resource "border0_socket" "test_tf_mysql" {
 }
 
 resource "border0_socket" "test_tf_tls" {
-  name         = "test-tf-tls"
-  socket_type  = "tls"
-  connector_id = border0_connector.test_tf_connector.id
+  name          = "test-tf-tls"
+  socket_type   = "tls"
+  connector_ids = [border0_connector.test_tf_connector.id]
 
   tls_configuration {
     hostname = "127.0.0.1"
@@ -193,9 +202,9 @@ resource "border0_socket" "test_tf_tls" {
 }
 
 resource "border0_socket" "test_tf_vnc" {
-  name         = "test-tf-vnc"
-  socket_type  = "vnc"
-  connector_id = border0_connector.test_tf_connector.id
+  name          = "test-tf-vnc"
+  socket_type   = "vnc"
+  connector_ids = [border0_connector.test_tf_connector.id]
 
   vnc_configuration {
     hostname = "127.0.0.1"
@@ -204,9 +213,9 @@ resource "border0_socket" "test_tf_vnc" {
 }
 
 resource "border0_socket" "test_tf_rdp" {
-  name         = "test-tf-rdp"
-  socket_type  = "rdp"
-  connector_id = border0_connector.test_tf_connector.id
+  name          = "test-tf-rdp"
+  socket_type   = "rdp"
+  connector_ids = [border0_connector.test_tf_connector.id]
 
   rdp_configuration {
     hostname = "127.0.0.1"

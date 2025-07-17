@@ -41,9 +41,9 @@ resource "border0_connector_token" "test_tf_connector_token_expires" {
 }
 
 resource "border0_socket" "test_tf_http" {
-  name         = "test-tf-http"
-  socket_type  = "http"
-  connector_id = border0_connector.test_tf_connector.id
+  name          = "test-tf-http"
+  socket_type   = "http"
+  connector_ids = [border0_connector.test_tf_connector.id]
 
   http_configuration {
     upstream_url = "https://www.bbc.com"
@@ -66,7 +66,7 @@ resource "border0_socket" "test_tf_ssh" {
   name              = "test-tf-ssh"
   recording_enabled = true
   socket_type       = "ssh"
-  connector_id      = border0_connector.test_tf_connector.id
+  connector_ids     = [border0_connector.test_tf_connector.id]
 
   ssh_configuration {
     hostname            = "127.0.0.1"
@@ -77,9 +77,9 @@ resource "border0_socket" "test_tf_ssh" {
 }
 
 resource "border0_socket" "example_tls" {
-  name         = "example-tls"
-  socket_type  = "tls"
-  connector_id = border0_connector.test_tf_connector.id
+  name          = "example-tls"
+  socket_type   = "tls"
+  connector_ids = [border0_connector.test_tf_connector.id]
 
   tls_configuration {
     hostname = "127.0.0.1"
@@ -88,9 +88,9 @@ resource "border0_socket" "example_tls" {
 }
 
 resource "border0_socket" "example_vnc" {
-  name         = "example-vnc"
-  socket_type  = "vnc"
-  connector_id = border0_connector.test_tf_connector.id
+  name          = "example-vnc"
+  socket_type   = "vnc"
+  connector_ids = [border0_connector.test_tf_connector.id]
 
   vnc_configuration {
     hostname = "127.0.0.1"
@@ -99,9 +99,9 @@ resource "border0_socket" "example_vnc" {
 }
 
 resource "border0_socket" "example_rdp" {
-  name         = "example-rdp"
-  socket_type  = "rdp"
-  connector_id = border0_connector.test_tf_connector.id
+  name          = "example-rdp"
+  socket_type   = "rdp"
+  connector_ids = [border0_connector.test_tf_connector.id]
 
   rdp_configuration {
     hostname = "127.0.0.1"
@@ -115,7 +115,7 @@ resource "border0_socket" "test_tf_aws_rds_with_iam_auth" {
   name              = "test-tf-aws-rds-with-iam-auth"
   recording_enabled = true
   socket_type       = "database"
-  connector_id      = border0_connector.test_tf_connector.id
+  connector_ids     = [border0_connector.test_tf_connector.id]
 
   database_configuration {
     protocol            = "mysql"
@@ -134,7 +134,7 @@ resource "border0_socket" "test_tf_aws_ec2_instance_connect" {
   name              = "test-tf-ec2-instance-connect"
   recording_enabled = true
   socket_type       = "ssh"
-  connector_id      = border0_connector.test_tf_connector.id
+  connector_ids     = [border0_connector.test_tf_connector.id]
 
   ssh_configuration {
     service_type        = "aws_ec2_instance_connect"
@@ -153,7 +153,7 @@ resource "border0_socket" "test_tf_connect_to_ecs_with_ssm" {
   name              = "test-tf-connect-to-ecs-with-ssm"
   recording_enabled = true
   socket_type       = "ssh"
-  connector_id      = border0_connector.test_tf_connector.id
+  connector_ids     = [border0_connector.test_tf_connector.id]
 
   ssh_configuration {
     service_type       = "aws_ssm"

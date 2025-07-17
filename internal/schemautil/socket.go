@@ -1,8 +1,11 @@
 package schemautil
 
 import (
+	"sort"
+
 	border0client "github.com/borderzero/border0-go/client"
 	"github.com/borderzero/border0-go/client/enum"
+	"github.com/borderzero/border0-go/lib/types/slice"
 	"github.com/borderzero/terraform-provider-border0/internal/diagnostics"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -36,15 +39,21 @@ func FromSocket(d *schema.ResourceData, socket *border0client.Socket) diag.Diagn
 // FromConnector reads the `connector_id` from the first connector in the list of connectors from a Border0
 // socket, and sets the `connector_id` in the terraform resource data.
 func FromConnector(d *schema.ResourceData, connectors *border0client.SocketConnectors) diag.Diagnostics {
-	var connectorID string
+	connectorIDs := slice.Transform(connectors.List, func(c border0client.SocketConnector) string { return c.ConnectorID })
+	sort.Strings(connectorIDs)
+	connectorIDsAny := slice.Transform(connectorIDs, func(stringID string) any { return stringID })
 
-	if len(connectors.List) > 0 {
-		connectorID = connectors.List[0].ConnectorID
+	// only set connector_ids if the original state had connector_ids
+	if _, ok := d.GetOk("connector_ids"); ok {
+		return SetValues(d, map[string]any{"connector_ids": schema.NewSet(schema.HashString, connectorIDsAny)})
 	}
-
-	return SetValues(d, map[string]any{
-		"connector_id": connectorID,
-	})
+	// backwards compatibility, can remove next major version
+	if _, ok := d.GetOk("connector_id"); ok {
+		if len(connectorIDs) > 0 {
+			return SetValues(d, map[string]any{"connector_id": connectorIDs[0]})
+		}
+	}
+	return nil
 }
 
 // ToSocket read top level socket fields from terraform resource data and sets them in a border0client.Socket.
@@ -96,9 +105,19 @@ func ToSocket(d *schema.ResourceData, socket *border0client.Socket) diag.Diagnos
 		socket.RecordingEnabled = v.(bool)
 	}
 
-	if v, ok := d.GetOk("connector_id"); ok {
-		socket.ConnectorID = v.(string)
+	if v, ok := d.GetOk("connector_ids"); ok {
+		rawSet := v.(*schema.Set)
+		socket.ConnectorIDs = make([]string, rawSet.Len())
+		for i, id := range rawSet.List() {
+			socket.ConnectorIDs[i] = id.(string)
+		}
 	}
 
+	// backwards compatibility, will be deprecated in next major release
+	if len(socket.ConnectorIDs) == 0 {
+		if v, ok := d.GetOk("connector_id"); ok {
+			socket.ConnectorIDs = []string{v.(string)}
+		}
+	}
 	return nil
 }

@@ -16,9 +16,9 @@ The socket resource allows you to create and manage a Border0 socket.
 // create an HTTP socket with an HTTPS upstream and add few tags to the socket
 // this socket will be linked to a connector that was created with terraform
 resource "border0_socket" "example_http" {
-  name         = "example-http"
-  socket_type  = "http"
-  connector_id = border0_connector.example.id // link to a connector that was created with terraform
+  name          = "example-http"
+  socket_type   = "http"
+  connector_ids = [border0_connector.example.id] // link to a connector that was created with terraform
 
   http_configuration {
     upstream_url = "https://www.bbc.com"
@@ -45,7 +45,7 @@ resource "border0_socket" "example_ssh_password_auth" {
   name              = "example-ssh-password-auth"
   recording_enabled = true
   socket_type       = "ssh"
-  connector_id      = "a7de4cc3-d977-4c4b-82e7-dedb6e7b74a1" // replace with your connector ID
+  connector_ids     = ["a7de4cc3-d977-4c4b-82e7-dedb6e7b74a1"] // replace with your connector ID
 
   ssh_configuration {
     hostname            = "127.0.0.1"
@@ -61,7 +61,7 @@ resource "border0_socket" "example_ssh_border0_certificate_auth" {
   name              = "example-ssh-border0-certificate-auth"
   recording_enabled = true
   socket_type       = "ssh"
-  connector_id      = border0_connector.example.id // link to a connector that was created with terraform
+  connector_ids     = [border0_connector.example.id] // link to a connector that was created with terraform
 
   ssh_configuration {
     hostname            = "127.0.0.1"
@@ -78,7 +78,7 @@ resource "border0_socket" "example_aws_rds_with_iam_auth" {
   name              = "example-aws-rds-with-iam-auth"
   recording_enabled = true
   socket_type       = "database"
-  connector_id      = border0_connector.example.id // link to a connector that was created with terraform
+  connector_ids     = [border0_connector.example.id] // link to a connector that was created with terraform
 
   database_configuration {
     protocol            = "mysql"
@@ -98,7 +98,7 @@ resource "border0_socket" "example_aws_ec2_instance_connect" {
   name              = "example-ec2-instance-connect"
   recording_enabled = true
   socket_type       = "ssh"
-  connector_id      = border0_connector.example.id
+  connector_ids     = [border0_connector.example.id] // link to a connector that was created with terraform
 
   ssh_configuration {
     service_type        = "aws_ec2_instance_connect"
@@ -119,7 +119,7 @@ resource "border0_socket" "example_connect_to_ecs_with_ssm" {
   name              = "example-connect-to-ecs-with-ssm"
   recording_enabled = true
   socket_type       = "ssh"
-  connector_id      = border0_connector.example.id // link to a connector that was created with terraform
+  connector_ids     = [border0_connector.example.id] // link to a connector that was created with terraform
 
   ssh_configuration {
     service_type       = "aws_ssm"
@@ -141,7 +141,8 @@ resource "border0_socket" "example_connect_to_ecs_with_ssm" {
 
 ### Optional
 
-- `connector_id` (String) The connector id that the socket is associated with.
+- `connector_id` (String, Deprecated) The ID of the connector that the socket is attached to.
+- `connector_ids` (Set of String) The ID(s) of the connector(s) that the socket is attached to.
 - `database_configuration` (Block List) (see [below for nested schema](#nestedblock--database_configuration))
 - `description` (String) The description of the socket.
 - `elasticsearch_configuration` (Block List) (see [below for nested schema](#nestedblock--elasticsearch_configuration))
