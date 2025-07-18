@@ -54,10 +54,18 @@ func resourceSocket() *schema.Resource {
 				Optional:    true,
 				Description: "The tags of the socket.",
 			},
+			// backwards compatibility, will be deprecated in next major release
 			"connector_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "The connector id that the socket is associated with.",
+				Deprecated:  "Use connector_ids instead. This field will be removed in a future release.",
+				Description: "The ID of the connector that the socket is attached to.",
+			},
+			"connector_ids": {
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: "The ID(s) of the connector(s) that the socket is attached to.",
 			},
 			"upstream_type": {
 				Type:     schema.TypeString,
