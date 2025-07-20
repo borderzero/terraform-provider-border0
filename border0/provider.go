@@ -45,6 +45,7 @@ func Provider(options ...ProviderOption) *schema.Provider {
 			"border0_policy_document":    dataSourcePolicyDocument(),
 			"border0_policy_v2_document": dataSourcePolicyV2Document(),
 			"border0_user_emails_to_ids": dataSourceUserEmailsToIDs(),
+			"border0_group_names_to_ids": dataSourceGroupNamesToIDs(),
 		},
 	}
 
