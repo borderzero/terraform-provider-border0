@@ -7,6 +7,7 @@ import (
 	border0client "github.com/borderzero/border0-go/client"
 	"github.com/borderzero/border0-go/types/service"
 	"github.com/borderzero/terraform-provider-border0/internal/diagnostics"
+	"github.com/borderzero/terraform-provider-border0/internal/lib/sem"
 	"github.com/borderzero/terraform-provider-border0/internal/schemautil"
 	"github.com/borderzero/terraform-provider-border0/internal/schemautil/socket/shared"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -14,12 +15,14 @@ import (
 )
 
 func resourceSocket() *schema.Resource {
+	semaphore := sem.New(10)
+
 	return &schema.Resource{
 		Description:   "The socket resource allows you to create and manage a Border0 socket.",
 		ReadContext:   resourceSocketRead,
-		CreateContext: resourceSocketCreate,
-		UpdateContext: resourceSocketUpdate,
-		DeleteContext: resourceSocketDelete,
+		CreateContext: getResourceSocketCreate(semaphore),
+		UpdateContext: getResourceSocketUpdate(semaphore),
+		DeleteContext: getResourceSocketDelete(semaphore),
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -663,65 +666,80 @@ func fetchSocket(ctx context.Context, d *schema.ResourceData, m interface{}, idO
 	return socket, nil
 }
 
-func resourceSocketCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	client := m.(border0client.Requester)
-	socket := &border0client.Socket{
-		Name:       d.Get("name").(string),
-		SocketType: d.Get("socket_type").(string),
-	}
+func getResourceSocketCreate(sem sem.Semaphore) schema.CreateContextFunc {
+	return func(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+		sem.Acquire()
+		defer sem.Release()
 
-	if diags := schemautil.ToSocket(d, socket); diags.HasError() {
-		return diags
-	}
-	if diags := schemautil.ToUpstreamConfig(d, socket); diags.HasError() {
-		return diags
-	}
-
-	created, err := client.CreateSocket(ctx, socket)
-	if err != nil {
-		return diagnostics.Error(err, "Failed to create socket")
-	}
-
-	d.SetId(created.SocketID)
-
-	return resourceSocketRead(ctx, d, m)
-}
-
-func resourceSocketUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	client := m.(border0client.Requester)
-
-	if d.HasChangesExcept("socket_type") {
-		existingSocket, err := client.Socket(ctx, d.Id())
-		if err != nil {
-			return diagnostics.Error(err, "Failed to fetch socket")
-		}
-		socketUpdate := &border0client.Socket{
-			Name:         d.Get("name").(string),
-			SocketType:   d.Get("socket_type").(string),
-			UpstreamType: existingSocket.UpstreamType,
+		client := m.(border0client.Requester)
+		socket := &border0client.Socket{
+			Name:       d.Get("name").(string),
+			SocketType: d.Get("socket_type").(string),
 		}
 
-		if diags := schemautil.ToSocket(d, socketUpdate); diags.HasError() {
+		if diags := schemautil.ToSocket(d, socket); diags.HasError() {
 			return diags
 		}
-		if diags := schemautil.ToUpstreamConfig(d, socketUpdate); diags.HasError() {
+		if diags := schemautil.ToUpstreamConfig(d, socket); diags.HasError() {
 			return diags
 		}
 
-		_, err = client.UpdateSocket(ctx, d.Id(), socketUpdate)
+		created, err := client.CreateSocket(ctx, socket)
 		if err != nil {
-			return diagnostics.Error(err, "Failed to update socket")
+			return diagnostics.Error(err, "Failed to create socket")
 		}
-	}
 
-	return resourceSocketRead(ctx, d, m)
+		d.SetId(created.SocketID)
+
+		return resourceSocketRead(ctx, d, m)
+	}
 }
 
-func resourceSocketDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	client := m.(border0client.Requester)
-	if err := client.DeleteSocket(ctx, d.Id()); err != nil {
-		return diagnostics.Error(err, "Failed to delete socket")
+func getResourceSocketUpdate(sem sem.Semaphore) schema.UpdateContextFunc {
+	return func(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+		sem.Acquire()
+		defer sem.Release()
+
+		client := m.(border0client.Requester)
+
+		if d.HasChangesExcept("socket_type") {
+			existingSocket, err := client.Socket(ctx, d.Id())
+			if err != nil {
+				return diagnostics.Error(err, "Failed to fetch socket")
+			}
+			socketUpdate := &border0client.Socket{
+				Name:         d.Get("name").(string),
+				SocketType:   d.Get("socket_type").(string),
+				UpstreamType: existingSocket.UpstreamType,
+			}
+
+			if diags := schemautil.ToSocket(d, socketUpdate); diags.HasError() {
+				return diags
+			}
+			if diags := schemautil.ToUpstreamConfig(d, socketUpdate); diags.HasError() {
+				return diags
+			}
+
+			_, err = client.UpdateSocket(ctx, d.Id(), socketUpdate)
+			if err != nil {
+				return diagnostics.Error(err, "Failed to update socket")
+			}
+		}
+
+		return resourceSocketRead(ctx, d, m)
 	}
-	d.SetId("")
-	return nil
+}
+
+func getResourceSocketDelete(sem sem.Semaphore) schema.DeleteContextFunc {
+	return func(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+		sem.Acquire()
+		defer sem.Release()
+
+		client := m.(border0client.Requester)
+		if err := client.DeleteSocket(ctx, d.Id()); err != nil {
+			return diagnostics.Error(err, "Failed to delete socket")
+		}
+		d.SetId("")
+		return nil
+	}
 }
