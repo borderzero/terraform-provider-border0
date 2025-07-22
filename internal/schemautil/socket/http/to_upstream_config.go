@@ -83,6 +83,7 @@ func standardToUpstreamConfig(data map[string]any, socket *border0client.Socket,
 		config.Hostname = hostname
 		config.Port = port
 		config.HostHeader = hostname
+		config.Scheme = upstreamType
 
 		// backward compatibility with the old "upstream_type" and "upstream_http_hostname" attributes
 		socket.UpstreamType = upstreamType

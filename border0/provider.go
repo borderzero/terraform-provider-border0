@@ -4,15 +4,22 @@ import (
 	"context"
 
 	border0client "github.com/borderzero/border0-go/client"
+	"github.com/borderzero/terraform-provider-border0/internal/lib/sem"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
+
+// NOTE: currently only applies to socket, but we plan on
+// having this apply to all resources using the same semaphore.
+const maxParallelism = 5
 
 // ProviderOption is a function that can be passed to `Provider()` to configures it.
 type ProviderOption func(p *schema.Provider)
 
 // Provider returns a Border0 implementation and definition of terraform `schema.Provider`.
 func Provider(options ...ProviderOption) *schema.Provider {
+	semaphore := sem.New(maxParallelism)
+
 	provider := &schema.Provider{
 		ConfigureContextFunc: providerConfigure,
 		Schema: map[string]*schema.Schema{
@@ -31,7 +38,7 @@ func Provider(options ...ProviderOption) *schema.Provider {
 			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
-			"border0_socket":                resourceSocket(),
+			"border0_socket":                resourceSocket(semaphore),
 			"border0_policy":                resourcePolicy(),
 			"border0_policy_attachment":     resourcePolicyAttachment(),
 			"border0_connector":             resourceConnector(),
