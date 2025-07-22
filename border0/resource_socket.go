@@ -14,8 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceSocket() *schema.Resource {
-	semaphore := sem.New(10)
+func resourceSocket(semaphore sem.Semaphore) *schema.Resource {
 
 	return &schema.Resource{
 		Description:   "The socket resource allows you to create and manage a Border0 socket.",
