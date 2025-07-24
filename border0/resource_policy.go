@@ -65,6 +65,17 @@ func resourcePolicy() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
+			"tag_rules": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "A list of tag rules to apply to the sockets that this policy is applied to.",
+				Elem: &schema.Schema{
+					Type: schema.TypeMap,
+					Elem: &schema.Schema{
+						Type: schema.TypeString,
+					},
+				},
+			},
 		},
 	}
 }
@@ -96,6 +107,15 @@ func resourcePolicyRead(ctx context.Context, d *schema.ResourceData, m interface
 		return diagnostics.Error(err, "Failed to marshal filtered policy data")
 	}
 
+	tagRulesSlice := make([]map[string]any, 0, len(policy.TagRules))
+	for _, rule := range policy.TagRules {
+		ruleMap := make(map[string]any)
+		for key, val := range rule {
+			ruleMap[key] = val
+		}
+		tagRulesSlice = append(tagRulesSlice, ruleMap)
+	}
+
 	return schemautil.SetValues(d, map[string]any{
 		"name":        policy.Name,
 		"policy_data": string(filteredPolicyData),
@@ -109,6 +129,7 @@ func resourcePolicyRead(ctx context.Context, d *schema.ResourceData, m interface
 			}
 			return m
 		}(),
+		"tag_rules": tagRulesSlice,
 	})
 }
 
@@ -118,6 +139,7 @@ func resourcePolicyCreate(ctx context.Context, d *schema.ResourceData, m interfa
 		Name:       d.Get("name").(string),
 		Version:    d.Get("version").(string),
 		SocketTags: mapSocketTags(d.Get("socket_tags")),
+		TagRules:   mapTagRules(d.Get("tag_rules")),
 	}
 
 	switch policy.Version {
@@ -161,6 +183,7 @@ func resourcePolicyUpdate(ctx context.Context, d *schema.ResourceData, m interfa
 		policyUpdate := &border0client.Policy{
 			Name:       d.Get("name").(string),
 			SocketTags: mapSocketTags(d.Get("socket_tags")),
+			TagRules:   mapTagRules(d.Get("tag_rules")),
 		}
 
 		switch d.Get("version").(string) {
@@ -257,4 +280,28 @@ func mapSocketTags(socketTags any) map[string]string {
 		return m
 	}
 	return nil
+}
+
+func mapTagRules(tagRules any) []map[string]string {
+	if raw, ok := tagRules.([]interface{}); ok {
+		if len(raw) == 0 {
+			return []map[string]string{}
+		}
+		rules := make([]map[string]string, 0, len(raw))
+		for _, rule := range raw {
+			if ruleMap, ok := rule.(map[string]interface{}); ok {
+				stringMap := make(map[string]string)
+				for key, val := range ruleMap {
+					if strVal, ok := val.(string); ok {
+						stringMap[key] = strVal
+					} else {
+						log.Printf("[WARN] Expected string value for key '%s', got %T", key, val)
+					}
+				}
+				rules = append(rules, stringMap)
+			}
+		}
+		return rules
+	}
+	return []map[string]string{}
 }
