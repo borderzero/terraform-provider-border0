@@ -32,6 +32,8 @@ github.com/borderzero/border0-go v1.4.86-0.20250720073618-f3738b853e45 h1:iQBXHw
 github.com/borderzero/border0-go v1.4.86-0.20250720073618-f3738b853e45/go.mod h1:ynkISCzFQZCr2MwWi8xac2fYOqiWD00lQQjuy0ci3pY=
 github.com/borderzero/border0-go v1.4.86 h1:SpCZQfhkkWFqQ63umzBp4tduHY6WlT/0cshgNA8hrTs=
 github.com/borderzero/border0-go v1.4.86/go.mod h1:ynkISCzFQZCr2MwWi8xac2fYOqiWD00lQQjuy0ci3pY=
+github.com/borderzero/border0-go v1.4.87-0.20250722124009-b3237dbfbf63 h1:UectHI9zTfsQpPHGhsKiONDlr9aDQ2OXcRt7DKg5vrg=
+github.com/borderzero/border0-go v1.4.87-0.20250722124009-b3237dbfbf63/go.mod h1:ynkISCzFQZCr2MwWi8xac2fYOqiWD00lQQjuy0ci3pY=
 github.com/bufbuild/protocompile v0.4.0 h1:LbFKd2XowZvQ/kajzguUp2DC9UEIQhIq77fZZlaQsNA=
 github.com/bufbuild/protocompile v0.4.0/go.mod h1:3v93+mbWn/v3xzN+31nwkJfrEpAUwp+BagBSZWx+TP8=
 github.com/cenkalti/backoff/v4 v4.3.0 h1:MyRJ/UdXutAwSAT+s3wNd7MfTIcy71VQueUuFK343L8=
