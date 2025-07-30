@@ -212,6 +212,7 @@ func Test_Resource_Border0Policy(t *testing.T) {
 		Description: "policy created from terraform unit test",
 		Version:     "v1",
 		PolicyData:  initialPolicyData,
+		TagRules:    []map[string]string{},
 	}
 	initialOutput := border0client.Policy{
 		ID:          "unit-test-id-1",
@@ -219,6 +220,7 @@ func Test_Resource_Border0Policy(t *testing.T) {
 		Name:        "unit-test-policy-1",
 		Description: "policy created from terraform unit test",
 		PolicyData:  initialPolicyData,
+		TagRules:    []map[string]string{},
 	}
 
 	updatePolicyData := border0client.PolicyData{
@@ -251,6 +253,7 @@ func Test_Resource_Border0Policy(t *testing.T) {
 		Version:     "v1",
 		Description: "update policy description",
 		PolicyData:  updatePolicyData,
+		TagRules:    []map[string]string{},
 	}
 	updateOutput := border0client.Policy{
 		ID:          "unit-test-id-1",
@@ -258,6 +261,7 @@ func Test_Resource_Border0Policy(t *testing.T) {
 		Name:        "unit-test-policy-1",
 		Description: "update policy description",
 		PolicyData:  updatePolicyData,
+		TagRules:    []map[string]string{},
 	}
 
 	clientMock := mocks.APIClientRequester{}
@@ -376,6 +380,7 @@ func Test_Resource_Border0PolicyV2(t *testing.T) {
 		Version:     "v2",
 		Description: "policy created from terraform unit test",
 		PolicyData:  initialPolicyData,
+		TagRules:    []map[string]string{},
 	}
 	initialOutput := border0client.Policy{
 		ID:          "unit-test-id-v2",
@@ -383,6 +388,7 @@ func Test_Resource_Border0PolicyV2(t *testing.T) {
 		Name:        "unit-test-policy-v2",
 		Description: "policy created from terraform unit test",
 		PolicyData:  initialPolicyData,
+		TagRules:    []map[string]string{},
 	}
 
 	updatePolicyData := border0client.PolicyDataV2{
@@ -436,6 +442,7 @@ func Test_Resource_Border0PolicyV2(t *testing.T) {
 		Version:     "v2",
 		Description: "update policy description",
 		PolicyData:  updatePolicyData,
+		TagRules:    []map[string]string{},
 	}
 	updateOutput := border0client.Policy{
 		ID:          "unit-test-id-v2",
@@ -443,6 +450,7 @@ func Test_Resource_Border0PolicyV2(t *testing.T) {
 		Version:     "v2",
 		Description: "update policy description",
 		PolicyData:  updatePolicyData,
+		TagRules:    []map[string]string{},
 	}
 
 	clientMock := mocks.APIClientRequester{}
@@ -538,6 +546,7 @@ func Test_Resource_Border0Policy_SocketTags(t *testing.T) {
 		Version:    "v2",
 		PolicyData: policyData,
 		SocketTags: initialTags,
+		TagRules:   []map[string]string{},
 	}
 	initialOutput := &border0client.Policy{
 		ID:         "unit-test-id-tags",
@@ -545,6 +554,7 @@ func Test_Resource_Border0Policy_SocketTags(t *testing.T) {
 		Version:    "v2",
 		PolicyData: policyData,
 		SocketTags: initialTags,
+		TagRules:   []map[string]string{},
 	}
 	// Update tags to updatedTags
 	updateInput := &border0client.Policy{
@@ -552,6 +562,7 @@ func Test_Resource_Border0Policy_SocketTags(t *testing.T) {
 		PolicyData: policyData,
 		SocketTags: updatedTags,
 		Version:    "v2",
+		TagRules:   []map[string]string{},
 	}
 	updateOutput := &border0client.Policy{
 		ID:         "unit-test-id-tags",
@@ -559,6 +570,7 @@ func Test_Resource_Border0Policy_SocketTags(t *testing.T) {
 		Version:    "v2",
 		PolicyData: policyData,
 		SocketTags: updatedTags,
+		TagRules:   []map[string]string{},
 	}
 	// Delete tags (nil map)
 	deleteInput := &border0client.Policy{
@@ -566,6 +578,7 @@ func Test_Resource_Border0Policy_SocketTags(t *testing.T) {
 		PolicyData: policyData,
 		SocketTags: nil,
 		Version:    "v2",
+		TagRules:   []map[string]string{},
 	}
 	deleteOutput := &border0client.Policy{
 		ID:         "unit-test-id-tags",
@@ -573,6 +586,7 @@ func Test_Resource_Border0Policy_SocketTags(t *testing.T) {
 		Version:    "v2",
 		PolicyData: policyData,
 		SocketTags: nil,
+		TagRules:   []map[string]string{},
 	}
 
 	mockCallsInOrder(
