@@ -227,7 +227,7 @@ Optional:
 Optional:
 
 - `file_server_directory` (String) The upstream file server directory. Only used when service type is `connector_file_server`.
-- `header` (Block List) Custom HTTP headers forwarded to the upstream service. Each header has a key and a list of values. (see [below for nested schema](#nestedblock--http_configuration--header))
+- `header` (Block Set) Custom HTTP headers forwarded to the upstream service. Each header has a key and a list of values. (see [below for nested schema](#nestedblock--http_configuration--header))
 - `host_header` (String) The upstream host header. Only used when service type is `standard`, and it's different from the hostname in `upstream_url`.
 - `service_type` (String) The upstream service type. Valid values: `standard`, `connector_file_server`. Defaults to `standard`.
 - `upstream_url` (String) The upstream HTTP URL. Format: `http(s)://<hostname>:<port>`. Example: `https://example.com` or `http://another.example.com:8080`. Only used when service type is `standard`.
