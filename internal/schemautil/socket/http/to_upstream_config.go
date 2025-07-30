@@ -99,7 +99,16 @@ func standardToUpstreamConfig(data map[string]any, socket *border0client.Socket,
 
 	var headers []service.Header
 	if v, ok := data["header"]; ok {
-		for _, h := range v.([]any) {
+		var vSlice []any
+		switch v := v.(type) {
+		case *schema.Set:
+			vSlice = v.List()
+		case []any: // backwards compatibility... but nobody is using this really, remove.
+			vSlice = v
+		default:
+			return diag.Errorf("unexpected type for header in state: %T", v)
+		}
+		for _, h := range vSlice {
 			m := h.(map[string]any)
 			key := m["key"].(string)
 			var values []string
