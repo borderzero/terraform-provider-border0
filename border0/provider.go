@@ -11,7 +11,11 @@ import (
 
 // NOTE: currently only applies to socket, but we plan on
 // having this apply to all resources using the same semaphore.
-const maxParallelism = 5
+//
+// Terraform's parallelism is 10 by default but can be set to any
+// value using the "-parallelism" flag e.g. -parallelism=200...
+// So we cap it at 100 here in case it's set to a higher value.
+const maxParallelism = 100
 
 // ProviderOption is a function that can be passed to `Provider()` to configures it.
 type ProviderOption func(p *schema.Provider)
