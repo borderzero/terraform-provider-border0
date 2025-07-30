@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	border0client "github.com/borderzero/border0-go/client"
+	"github.com/borderzero/border0-go/lib/types/jsoneq"
 	"github.com/borderzero/terraform-provider-border0/internal/diagnostics"
 	"github.com/borderzero/terraform-provider-border0/internal/schemautil"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -81,14 +82,23 @@ func resourcePolicyRead(ctx context.Context, d *schema.ResourceData, m interface
 		return diagnostics.Error(err, "Failed to fetch policy")
 	}
 
-	policyData, err := json.Marshal(&policy.PolicyData)
+	rawPolicyData, err := json.Marshal(&policy.PolicyData)
 	if err != nil {
 		return diagnostics.Error(err, "Failed to marshal policy data")
+	}
+	var pdIface any
+	if err := json.Unmarshal(rawPolicyData, &pdIface); err != nil {
+		return diagnostics.Error(err, "Failed to process policy data")
+	}
+	jsoneq.Prune(pdIface, jsoneq.PruneEmptySlices(), jsoneq.PruneEmptyStrings())
+	filteredPolicyData, err := json.Marshal(pdIface)
+	if err != nil {
+		return diagnostics.Error(err, "Failed to marshal filtered policy data")
 	}
 
 	return schemautil.SetValues(d, map[string]any{
 		"name":        policy.Name,
-		"policy_data": string(policyData),
+		"policy_data": string(filteredPolicyData),
 		"description": policy.Description,
 		"org_wide":    policy.OrgWide,
 		"version":     policy.Version,
@@ -194,50 +204,45 @@ func resourcePolicyDelete(ctx context.Context, d *schema.ResourceData, m interfa
 	return nil
 }
 
+// suppressEquivalentPolicyDiffs suppresses spurious diffs in policy_data by checking
+// for semantic equivalence, ignoring default values and unordered arrays.
 func suppressEquivalentPolicyDiffs(k, old, new string, d *schema.ResourceData) bool {
-
-	if strings.TrimSpace(old) == "" && strings.TrimSpace(new) == "" {
+	oldTrim := strings.TrimSpace(old)
+	newTrim := strings.TrimSpace(new)
+	if oldTrim == "" && newTrim == "" {
+		return true
+	}
+	if (oldTrim == "{}" && newTrim == "") || (oldTrim == "" && newTrim == "{}") || (oldTrim == "{}" && newTrim == "{}") {
 		return true
 	}
 
-	if strings.TrimSpace(old) == "{}" && strings.TrimSpace(new) == "" {
-		return true
-	}
-
-	if strings.TrimSpace(old) == "" && strings.TrimSpace(new) == "{}" {
-		return true
-	}
-
-	if strings.TrimSpace(old) == "{}" && strings.TrimSpace(new) == "{}" {
-		return true
-	}
-
+	// first, unmarshal into typed structs to ignore default values
 	switch d.Get("version").(string) {
 	case "v1":
-		var oldJSONAsPolicyData, newJSONAsPolicyData border0client.PolicyData
-
-		if err := json.Unmarshal([]byte(old), &oldJSONAsPolicyData); err != nil {
-			return false
+		var oldPD, newPD border0client.PolicyData
+		if err := json.Unmarshal([]byte(old), &oldPD); err == nil {
+			if err := json.Unmarshal([]byte(new), &newPD); err == nil {
+				if reflect.DeepEqual(oldPD, newPD) {
+					return true
+				}
+			}
 		}
-
-		if err := json.Unmarshal([]byte(new), &newJSONAsPolicyData); err != nil {
-			return false
-		}
-		return reflect.DeepEqual(oldJSONAsPolicyData, newJSONAsPolicyData)
 	case "v2":
-		var oldJSONAsPolicyData, newJSONAsPolicyData border0client.PolicyDataV2
-
-		if err := json.Unmarshal([]byte(old), &oldJSONAsPolicyData); err != nil {
-			return false
+		var oldPD, newPD border0client.PolicyDataV2
+		if err := json.Unmarshal([]byte(old), &oldPD); err == nil {
+			if err := json.Unmarshal([]byte(new), &newPD); err == nil {
+				if reflect.DeepEqual(oldPD, newPD) {
+					return true
+				}
+			}
 		}
-
-		if err := json.Unmarshal([]byte(new), &newJSONAsPolicyData); err != nil {
-			return false
-		}
-		return reflect.DeepEqual(oldJSONAsPolicyData, newJSONAsPolicyData)
 	default:
 		return false
 	}
+
+	// fallback to generic unordered JSON comparison for arrays
+	// NOTE: we MUST keep empty objects.
+	return jsoneq.AreEqual(old, new, jsoneq.PruneEmptySlices(), jsoneq.PruneEmptyStrings())
 }
 
 func mapSocketTags(socketTags any) map[string]string {
