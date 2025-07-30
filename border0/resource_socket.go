@@ -15,7 +15,21 @@ import (
 )
 
 func resourceSocket(semaphore sem.Semaphore) *schema.Resource {
-
+	headerBlockResource := &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"key": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "HTTP header name",
+			},
+			"values": {
+				Type:        schema.TypeList,
+				Required:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: "List of values for the header. Multiple values are supported.",
+			},
+		},
+	}
 	return &schema.Resource{
 		Description:   "The socket resource allows you to create and manage a Border0 socket.",
 		ReadContext:   resourceSocketRead,
@@ -103,23 +117,10 @@ func resourceSocket(semaphore sem.Semaphore) *schema.Resource {
 							Description: "The upstream host header. Only used when service type is `standard`, and it's different from the hostname in `upstream_url`.",
 						},
 						"header": {
-							Type:     schema.TypeList,
-							Optional: true,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"key": {
-										Type:        schema.TypeString,
-										Required:    true,
-										Description: "HTTP header name",
-									},
-									"values": {
-										Type:        schema.TypeList,
-										Required:    true,
-										Elem:        &schema.Schema{Type: schema.TypeString},
-										Description: "List of values for the header. Multiple values are supported.",
-									},
-								},
-							},
+							Type:        schema.TypeSet,
+							Optional:    true,
+							Elem:        headerBlockResource,
+							Set:         schema.HashResource(headerBlockResource),
 							Description: "Custom HTTP headers forwarded to the upstream service. Each header has a key and a list of values.",
 						},
 						"file_server_directory": {
