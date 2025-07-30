@@ -92,17 +92,14 @@ func Test_Resource_Border0Socket_HTTPBasic(t *testing.T) {
 		// terraform apply (create + read + read)
 		clientMock.EXPECT().CreateSocket(matchContext, &initialInput).Return(&initialOutput, nil).Call,
 		clientMock.EXPECT().Socket(matchContext, "unit-test-http-socket-id").Return(&initialOutput, nil).Call,
-		clientMock.EXPECT().Socket(matchContext, "unit-test-http-socket").Return(&initialOutput, nil).Call,
 		clientMock.EXPECT().SocketConnectors(matchContext, "unit-test-http-socket-id").Return(new(border0client.SocketConnectors), nil).Call,
 		clientMock.EXPECT().SocketUpstreamConfigs(matchContext, "unit-test-http-socket-id").Return(new(border0client.SocketUpstreamConfigs), nil).Call,
 		clientMock.EXPECT().Socket(matchContext, "unit-test-http-socket-id").Return(&initialOutput, nil).Call,
-		clientMock.EXPECT().Socket(matchContext, "unit-test-http-socket").Return(&initialOutput, nil).Call,
 		clientMock.EXPECT().SocketConnectors(matchContext, "unit-test-http-socket-id").Return(new(border0client.SocketConnectors), nil).Call,
 		clientMock.EXPECT().SocketUpstreamConfigs(matchContext, "unit-test-http-socket-id").Return(new(border0client.SocketUpstreamConfigs), nil).Call,
 
 		// this read is needed because of the update
 		clientMock.EXPECT().Socket(matchContext, "unit-test-http-socket-id").Return(&initialOutput, nil).Call,
-		clientMock.EXPECT().Socket(matchContext, "unit-test-http-socket").Return(&initialOutput, nil).Call,
 		clientMock.EXPECT().SocketConnectors(matchContext, "unit-test-http-socket-id").Return(new(border0client.SocketConnectors), nil).Call,
 		clientMock.EXPECT().SocketUpstreamConfigs(matchContext, "unit-test-http-socket-id").Return(new(border0client.SocketUpstreamConfigs), nil).Call,
 
@@ -111,17 +108,14 @@ func Test_Resource_Border0Socket_HTTPBasic(t *testing.T) {
 		clientMock.EXPECT().Socket(matchContext, "unit-test-http-socket-id").Return(&updateOutput, nil).Call,
 		clientMock.EXPECT().UpdateSocket(matchContext, "unit-test-http-socket-id", &updateInput).Return(&updateOutput, nil).Call,
 		clientMock.EXPECT().Socket(matchContext, "unit-test-http-socket-id").Return(&updateOutput, nil).Call,
-		clientMock.EXPECT().Socket(matchContext, "unit-test-http-socket").Return(&updateOutput, nil).Call,
 		clientMock.EXPECT().SocketConnectors(matchContext, "unit-test-http-socket-id").Return(new(border0client.SocketConnectors), nil).Call,
 		clientMock.EXPECT().SocketUpstreamConfigs(matchContext, "unit-test-http-socket-id").Return(new(border0client.SocketUpstreamConfigs), nil).Call,
 		clientMock.EXPECT().Socket(matchContext, "unit-test-http-socket-id").Return(&updateOutput, nil).Call,
-		clientMock.EXPECT().Socket(matchContext, "unit-test-http-socket").Return(&updateOutput, nil).Call,
 		clientMock.EXPECT().SocketConnectors(matchContext, "unit-test-http-socket-id").Return(new(border0client.SocketConnectors), nil).Call,
 		clientMock.EXPECT().SocketUpstreamConfigs(matchContext, "unit-test-http-socket-id").Return(new(border0client.SocketUpstreamConfigs), nil).Call,
 
 		// terraform import (read)
 		clientMock.EXPECT().Socket(matchContext, "unit-test-http-socket-id").Return(&updateOutput, nil).Call,
-		clientMock.EXPECT().Socket(matchContext, "unit-test-http-socket").Return(&updateOutput, nil).Call,
 		clientMock.EXPECT().SocketConnectors(matchContext, "unit-test-http-socket-id").Return(new(border0client.SocketConnectors), nil).Call,
 		clientMock.EXPECT().SocketUpstreamConfigs(matchContext, "unit-test-http-socket-id").Return(new(border0client.SocketUpstreamConfigs), nil).Call,
 

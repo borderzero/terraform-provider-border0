@@ -605,20 +605,7 @@ func resourceSocket(semaphore sem.Semaphore) *schema.Resource {
 func resourceSocketRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	client := m.(border0client.Requester)
 
-	// first let's try to get the socket by id
-	// this api call may return socket that's soft deleted
-	// we will try to fetch the same socket again by its name to make sure it's not deleted
 	socket, diags := fetchSocket(ctx, d, m, d.Id())
-	if diags.HasError() {
-		return diags
-	}
-	if socket == nil {
-		return nil
-	}
-
-	// and then get the socket by its name, in case if the socket is deleted
-	// api only returns 404 error when the socket is fetched by name
-	socket, diags = fetchSocket(ctx, d, m, socket.Name)
 	if diags.HasError() {
 		return diags
 	}
