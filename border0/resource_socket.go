@@ -602,7 +602,7 @@ func resourceSocket(semaphore sem.Semaphore) *schema.Resource {
 	}
 }
 
-func resourceSocketRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceSocketRead(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
 	client := m.(border0client.Requester)
 
 	socket, diags := fetchSocket(ctx, d, m, d.Id())
@@ -634,7 +634,7 @@ func resourceSocketRead(ctx context.Context, d *schema.ResourceData, m interface
 	return schemautil.FromUpstreamConfig(d, socket, upstreamConfigs)
 }
 
-func fetchSocket(ctx context.Context, d *schema.ResourceData, m interface{}, idOrName string) (*border0client.Socket, diag.Diagnostics) {
+func fetchSocket(ctx context.Context, d *schema.ResourceData, m any, idOrName string) (*border0client.Socket, diag.Diagnostics) {
 	client := m.(border0client.Requester)
 
 	// get socket by id or by name
@@ -654,7 +654,7 @@ func fetchSocket(ctx context.Context, d *schema.ResourceData, m interface{}, idO
 }
 
 func getResourceSocketCreate(sem sem.Semaphore) schema.CreateContextFunc {
-	return func(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	return func(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
 		sem.Acquire()
 		defer sem.Release()
 
@@ -683,7 +683,7 @@ func getResourceSocketCreate(sem sem.Semaphore) schema.CreateContextFunc {
 }
 
 func getResourceSocketUpdate(sem sem.Semaphore) schema.UpdateContextFunc {
-	return func(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	return func(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
 		sem.Acquire()
 		defer sem.Release()
 
@@ -718,7 +718,7 @@ func getResourceSocketUpdate(sem sem.Semaphore) schema.UpdateContextFunc {
 }
 
 func getResourceSocketDelete(sem sem.Semaphore) schema.DeleteContextFunc {
-	return func(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	return func(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
 		sem.Acquire()
 		defer sem.Release()
 

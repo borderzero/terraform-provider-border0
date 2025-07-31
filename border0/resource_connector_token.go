@@ -49,7 +49,7 @@ func resourceConnectorToken() *schema.Resource {
 	}
 }
 
-func resourceConnectorTokenRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceConnectorTokenRead(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
 	client := m.(border0client.Requester)
 
 	var connectorID, connectorTokenID string
@@ -78,7 +78,7 @@ func resourceConnectorTokenRead(ctx context.Context, d *schema.ResourceData, m i
 	})
 }
 
-func resourceConnectorTokenCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceConnectorTokenCreate(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
 	client := m.(border0client.Requester)
 	connectorID := d.Get("connector_id").(string)
 	connectorToken := &border0client.ConnectorToken{
@@ -110,7 +110,7 @@ func resourceConnectorTokenCreate(ctx context.Context, d *schema.ResourceData, m
 	return resourceConnectorTokenRead(ctx, d, m)
 }
 
-func resourceConnectorTokenDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceConnectorTokenDelete(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
 	client := m.(border0client.Requester)
 
 	var connectorID, connectorTokenID string

@@ -8,7 +8,7 @@ import (
 )
 
 // Error returns a diag.Diagnostics with the given error message and severity.
-func Error(err error, message string, args ...interface{}) diag.Diagnostics {
+func Error(err error, message string, args ...any) diag.Diagnostics {
 	var detail string
 	if err != nil {
 		detail = err.Error()

@@ -47,7 +47,7 @@ func resourceUser() *schema.Resource {
 	}
 }
 
-func resourceUserRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceUserRead(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
 	client := m.(border0client.Requester)
 
 	user, err := client.User(ctx, d.Id())
@@ -69,7 +69,7 @@ func resourceUserRead(ctx context.Context, d *schema.ResourceData, m interface{}
 	})
 }
 
-func resourceUserCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceUserCreate(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
 	client := m.(border0client.Requester)
 
 	user := &border0client.User{
@@ -102,7 +102,7 @@ func resourceUserCreate(ctx context.Context, d *schema.ResourceData, m interface
 	return nil
 }
 
-func resourceUserUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceUserUpdate(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
 	client := m.(border0client.Requester)
 
 	fieldsToCheckForChanges := []string{
@@ -128,7 +128,7 @@ func resourceUserUpdate(ctx context.Context, d *schema.ResourceData, m interface
 	return resourceUserRead(ctx, d, m)
 }
 
-func resourceUserDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceUserDelete(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
 	client := m.(border0client.Requester)
 	if err := client.DeleteUser(ctx, d.Id()); err != nil {
 		return diagnostics.Error(err, "Failed to delete user")

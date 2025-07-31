@@ -458,12 +458,12 @@ func dataSourcePolicyV2Document() *schema.Resource {
 	}
 }
 
-func dataSourcePolicyV2DocumentRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func dataSourcePolicyV2DocumentRead(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
 	var policyData border0client.PolicyDataV2
 
 	if v, ok := d.GetOk("permissions"); ok {
 		if permissions := v.(*schema.Set).List(); len(permissions) > 0 {
-			permMap := permissions[0].(map[string]interface{})
+			permMap := permissions[0].(map[string]any)
 
 			if v, ok := permMap["database"]; ok {
 				policyData.Permissions.Database = parseDatabasePermissions(v.(*schema.Set).List())
@@ -473,7 +473,7 @@ func dataSourcePolicyV2DocumentRead(ctx context.Context, d *schema.ResourceData,
 			}
 			if v, ok := permMap["http"]; ok {
 				if httpPerms := v.(*schema.Set).List(); len(httpPerms) > 0 {
-					httpPerm := httpPerms[0].(map[string]interface{})
+					httpPerm := httpPerms[0].(map[string]any)
 					if v, ok := httpPerm["allowed"]; ok {
 						if allowed, ok := v.(bool); ok && allowed {
 							policyData.Permissions.HTTP = &border0client.HTTPPermissions{}
@@ -483,7 +483,7 @@ func dataSourcePolicyV2DocumentRead(ctx context.Context, d *schema.ResourceData,
 			}
 			if v, ok := permMap["kubernetes"]; ok {
 				if kubernetesPerms := v.(*schema.Set).List(); len(kubernetesPerms) > 0 {
-					kubernetesPerm := kubernetesPerms[0].(map[string]interface{})
+					kubernetesPerm := kubernetesPerms[0].(map[string]any)
 					if v, ok := kubernetesPerm["allowed"]; ok {
 						if allowed, ok := v.(bool); ok && allowed {
 							policyData.Permissions.Kubernetes = &border0client.KubernetesPermissions{}
@@ -493,7 +493,7 @@ func dataSourcePolicyV2DocumentRead(ctx context.Context, d *schema.ResourceData,
 			}
 			if v, ok := permMap["tls"]; ok {
 				if tlsPerms := v.(*schema.Set).List(); len(tlsPerms) > 0 {
-					tlsPerm := tlsPerms[0].(map[string]interface{})
+					tlsPerm := tlsPerms[0].(map[string]any)
 					if v, ok := tlsPerm["allowed"]; ok {
 						if allowed, ok := v.(bool); ok && allowed {
 							policyData.Permissions.TLS = &border0client.TLSPermissions{}
@@ -503,7 +503,7 @@ func dataSourcePolicyV2DocumentRead(ctx context.Context, d *schema.ResourceData,
 			}
 			if v, ok := permMap["vnc"]; ok {
 				if vncPerms := v.(*schema.Set).List(); len(vncPerms) > 0 {
-					vncPerm := vncPerms[0].(map[string]interface{})
+					vncPerm := vncPerms[0].(map[string]any)
 					if v, ok := vncPerm["allowed"]; ok {
 						if allowed, ok := v.(bool); ok && allowed {
 							policyData.Permissions.VNC = &border0client.VNCPermissions{}
@@ -513,7 +513,7 @@ func dataSourcePolicyV2DocumentRead(ctx context.Context, d *schema.ResourceData,
 			}
 			if v, ok := permMap["rdp"]; ok {
 				if rdpPerms := v.(*schema.Set).List(); len(rdpPerms) > 0 {
-					rdpPerm := rdpPerms[0].(map[string]interface{})
+					rdpPerm := rdpPerms[0].(map[string]any)
 					if v, ok := rdpPerm["allowed"]; ok {
 						if allowed, ok := v.(bool); ok && allowed {
 							policyData.Permissions.RDP = &border0client.RDPPermissions{}
@@ -523,7 +523,7 @@ func dataSourcePolicyV2DocumentRead(ctx context.Context, d *schema.ResourceData,
 			}
 			if v, ok := permMap["network"]; ok {
 				if networkPerms := v.(*schema.Set).List(); len(networkPerms) > 0 {
-					networkPerm := networkPerms[0].(map[string]interface{})
+					networkPerm := networkPerms[0].(map[string]any)
 					if v, ok := networkPerm["allowed"]; ok {
 						if allowed, ok := v.(bool); ok && allowed {
 							policyData.Permissions.Network = &border0client.NetworkPermissions{}
@@ -536,10 +536,10 @@ func dataSourcePolicyV2DocumentRead(ctx context.Context, d *schema.ResourceData,
 
 	if v, ok := d.GetOk("condition"); ok {
 		if conditions := v.(*schema.Set).List(); len(conditions) > 0 {
-			condition := conditions[0].(map[string]interface{})
+			condition := conditions[0].(map[string]any)
 			if v, ok := condition["who"]; ok {
 				if whos := v.(*schema.Set).List(); len(whos) > 0 {
-					who := whos[0].(map[string]interface{})
+					who := whos[0].(map[string]any)
 					if v, ok := who["email"]; ok {
 						policyData.Condition.Who.Email = policyDecodeStringList(v.(*schema.Set).List())
 					}
@@ -553,7 +553,7 @@ func dataSourcePolicyV2DocumentRead(ctx context.Context, d *schema.ResourceData,
 			}
 			if v, ok := condition["where"]; ok {
 				if wheres := v.(*schema.Set).List(); len(wheres) > 0 {
-					where := wheres[0].(map[string]interface{})
+					where := wheres[0].(map[string]any)
 					if v, ok := where["allowed_ip"]; ok {
 						policyData.Condition.Where.AllowedIP = policyDecodeStringList(v.(*schema.Set).List())
 					}
@@ -567,7 +567,7 @@ func dataSourcePolicyV2DocumentRead(ctx context.Context, d *schema.ResourceData,
 			}
 			if v, ok := condition["when"]; ok {
 				if whens := v.(*schema.Set).List(); len(whens) > 0 {
-					when := whens[0].(map[string]interface{})
+					when := whens[0].(map[string]any)
 					if v, ok := when["after"]; ok {
 						policyData.Condition.When.After = v.(string)
 					}
@@ -596,13 +596,13 @@ func dataSourcePolicyV2DocumentRead(ctx context.Context, d *schema.ResourceData,
 	return nil
 }
 
-func parseDatabasePermissions(dbPerms []interface{}) *border0client.DatabasePermissions {
+func parseDatabasePermissions(dbPerms []any) *border0client.DatabasePermissions {
 	var maxSessionDurationSeconds *int
 	var allowedDatabases *[]border0client.DatabasePermission
 	var allowed bool
 
 	for _, dbPerm := range dbPerms {
-		permMap := dbPerm.(map[string]interface{})
+		permMap := dbPerm.(map[string]any)
 
 		if v, ok := permMap["allowed"]; ok {
 			allowed = v.(bool)
@@ -612,8 +612,8 @@ func parseDatabasePermissions(dbPerms []interface{}) *border0client.DatabasePerm
 			if useAllowedDatabasesList, ok := v.(bool); ok && useAllowedDatabasesList {
 				if v, ok := permMap["allowed_databases"]; ok {
 					databases := []border0client.DatabasePermission{}
-					for _, ad := range v.([]interface{}) {
-						adMap := ad.(map[string]interface{})
+					for _, ad := range v.([]any) {
+						adMap := ad.(map[string]any)
 						allowedDatabase := border0client.DatabasePermission{
 							Database: adMap["database"].(string),
 						}
@@ -622,7 +622,7 @@ func parseDatabasePermissions(dbPerms []interface{}) *border0client.DatabasePerm
 							if useAllowedQueryTypesList, ok := aql.(bool); ok && useAllowedQueryTypesList {
 								if aq, ok := adMap["allowed_query_types"]; ok {
 									queryTypes := []string{}
-									for _, qt := range aq.([]interface{}) {
+									for _, qt := range aq.([]any) {
 										queryTypes = append(queryTypes, qt.(string))
 									}
 									allowedDatabase.AllowedQueryTypes = &queryTypes
@@ -655,7 +655,7 @@ func parseDatabasePermissions(dbPerms []interface{}) *border0client.DatabasePerm
 	}
 }
 
-func parseSSHPermissions(sshPerms []interface{}) *border0client.SSHPermissions {
+func parseSSHPermissions(sshPerms []any) *border0client.SSHPermissions {
 	var shellPermission *border0client.SSHShellPermission
 	var execPermission *border0client.SSHExecPermission
 	var sftpPermission *border0client.SSHSFTPPermission
@@ -667,7 +667,7 @@ func parseSSHPermissions(sshPerms []interface{}) *border0client.SSHPermissions {
 	var allowed bool
 
 	for _, sshPerm := range sshPerms {
-		permMap := sshPerm.(map[string]interface{})
+		permMap := sshPerm.(map[string]any)
 		if v, ok := permMap["allowed"]; ok {
 			allowed = v.(bool)
 		}
@@ -675,7 +675,7 @@ func parseSSHPermissions(sshPerms []interface{}) *border0client.SSHPermissions {
 		if v, ok := permMap["shell"]; ok {
 			var execAllowed bool
 			if shells := v.(*schema.Set).List(); len(shells) > 0 {
-				shell := shells[0].(map[string]interface{})
+				shell := shells[0].(map[string]any)
 				if v, ok := shell["allowed"]; ok {
 					execAllowed, _ = v.(bool)
 				}
@@ -691,7 +691,7 @@ func parseSSHPermissions(sshPerms []interface{}) *border0client.SSHPermissions {
 			var commands []string
 
 			if execs := v.(*schema.Set).List(); len(execs) > 0 {
-				exec := execs[0].(map[string]interface{})
+				exec := execs[0].(map[string]any)
 				if v, ok := exec["allowed"]; ok {
 					execAllowed, _ = v.(bool)
 				}
@@ -701,7 +701,7 @@ func parseSSHPermissions(sshPerms []interface{}) *border0client.SSHPermissions {
 				}
 
 				if v, ok := exec["commands"]; ok {
-					for _, cmd := range v.([]interface{}) {
+					for _, cmd := range v.([]any) {
 						commands = append(commands, cmd.(string))
 					}
 				}
@@ -719,7 +719,7 @@ func parseSSHPermissions(sshPerms []interface{}) *border0client.SSHPermissions {
 		if v, ok := permMap["sftp"]; ok {
 			var sftpAllowed bool
 			if sftps := v.(*schema.Set).List(); len(sftps) > 0 {
-				sftp := sftps[0].(map[string]interface{})
+				sftp := sftps[0].(map[string]any)
 				if v, ok := sftp["allowed"]; ok {
 					sftpAllowed, _ = v.(bool)
 				}
@@ -734,7 +734,7 @@ func parseSSHPermissions(sshPerms []interface{}) *border0client.SSHPermissions {
 			var tcpForwardingAllowed, useAllowedConnectionsList bool
 			var allowedConnections *[]border0client.SSHTcpForwardingConnection
 			if tcpForwardings := v.(*schema.Set).List(); len(tcpForwardings) > 0 {
-				tcpForwarding := tcpForwardings[0].(map[string]interface{})
+				tcpForwarding := tcpForwardings[0].(map[string]any)
 				if v, ok := tcpForwarding["allowed"]; ok {
 					tcpForwardingAllowed, _ = v.(bool)
 				}
@@ -744,7 +744,7 @@ func parseSSHPermissions(sshPerms []interface{}) *border0client.SSHPermissions {
 				}
 
 				if v, ok := tcpForwarding["allowed_connections"]; ok {
-					allowedConnections = parseSSHTCPForwardingConnections(v.([]interface{}))
+					allowedConnections = parseSSHTCPForwardingConnections(v.([]any))
 				}
 
 				if tcpForwardingAllowed {
@@ -761,7 +761,7 @@ func parseSSHPermissions(sshPerms []interface{}) *border0client.SSHPermissions {
 			var kubectlExecAllowed, useAllowedNamespacesList bool
 			var allowedNamespaces *[]border0client.KubectlExecNamespace
 			if kubectlExecs := v.(*schema.Set).List(); len(kubectlExecs) > 0 {
-				kubectlExec := kubectlExecs[0].(map[string]interface{})
+				kubectlExec := kubectlExecs[0].(map[string]any)
 				if v, ok := kubectlExec["allowed"]; ok {
 					kubectlExecAllowed, _ = v.(bool)
 				}
@@ -771,7 +771,7 @@ func parseSSHPermissions(sshPerms []interface{}) *border0client.SSHPermissions {
 				}
 
 				if v, ok := kubectlExec["allowed_namespaces"]; ok {
-					allowedNamespaces = parseSSHKubectlExecNamespaces(v.([]interface{}))
+					allowedNamespaces = parseSSHKubectlExecNamespaces(v.([]any))
 				}
 
 				if kubectlExecAllowed {
@@ -788,7 +788,7 @@ func parseSSHPermissions(sshPerms []interface{}) *border0client.SSHPermissions {
 			var dockerExecAllowed, useAllowedContainerList bool
 			var allowedContainers []string
 			if dockerExecs := v.(*schema.Set).List(); len(dockerExecs) > 0 {
-				dockerExec := dockerExecs[0].(map[string]interface{})
+				dockerExec := dockerExecs[0].(map[string]any)
 				if v, ok := dockerExec["allowed"]; ok {
 					dockerExecAllowed, _ = v.(bool)
 				}
@@ -798,7 +798,7 @@ func parseSSHPermissions(sshPerms []interface{}) *border0client.SSHPermissions {
 				}
 
 				if v, ok := dockerExec["allowed_containers"]; ok {
-					for _, cmd := range v.([]interface{}) {
+					for _, cmd := range v.([]any) {
 						allowedContainers = append(allowedContainers, cmd.(string))
 					}
 				}
@@ -824,7 +824,7 @@ func parseSSHPermissions(sshPerms []interface{}) *border0client.SSHPermissions {
 			if useAllowedUsernamesList, ok := v.(bool); ok && useAllowedUsernamesList {
 				if v, ok := permMap["allowed_usernames"]; ok {
 					usernames := []string{}
-					for _, username := range v.([]interface{}) {
+					for _, username := range v.([]any) {
 						usernames = append(usernames, username.(string))
 					}
 					allowedUsernames = &usernames
@@ -849,11 +849,11 @@ func parseSSHPermissions(sshPerms []interface{}) *border0client.SSHPermissions {
 	}
 }
 
-func parseSSHTCPForwardingConnections(allowedConnections []interface{}) *[]border0client.SSHTcpForwardingConnection {
+func parseSSHTCPForwardingConnections(allowedConnections []any) *[]border0client.SSHTcpForwardingConnection {
 	var connections []border0client.SSHTcpForwardingConnection
 
 	for _, conn := range allowedConnections {
-		connMap := conn.(map[string]interface{})
+		connMap := conn.(map[string]any)
 
 		var destAddress, destPort string
 		if addr, ok := connMap["destination_address"]; ok && addr != nil {
@@ -873,11 +873,11 @@ func parseSSHTCPForwardingConnections(allowedConnections []interface{}) *[]borde
 	return &connections
 }
 
-func parseSSHKubectlExecNamespaces(allowedNamespaces []interface{}) *[]border0client.KubectlExecNamespace {
+func parseSSHKubectlExecNamespaces(allowedNamespaces []any) *[]border0client.KubectlExecNamespace {
 	var namespaces []border0client.KubectlExecNamespace
 
 	for _, ns := range allowedNamespaces {
-		nsMap := ns.(map[string]interface{})
+		nsMap := ns.(map[string]any)
 		namespace := border0client.KubectlExecNamespace{
 			Namespace: nsMap["namespace"].(string),
 		}
@@ -886,7 +886,7 @@ func parseSSHKubectlExecNamespaces(allowedNamespaces []interface{}) *[]border0cl
 			if usePodSelector, ok := ps.(bool); ok && usePodSelector {
 				if ps, ok := nsMap["pod_selector"]; ok {
 					podSelector := map[string]string{}
-					for key, value := range ps.(map[string]interface{}) {
+					for key, value := range ps.(map[string]any) {
 						podSelector[key] = value.(string)
 					}
 					namespace.PodSelector = &podSelector

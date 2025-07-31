@@ -42,7 +42,7 @@ func resourceGroup() *schema.Resource {
 	}
 }
 
-func resourceGroupRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceGroupRead(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
 	client := m.(border0client.Requester)
 
 	group, err := client.Group(ctx, d.Id())
@@ -62,7 +62,7 @@ func resourceGroupRead(ctx context.Context, d *schema.ResourceData, m interface{
 	})
 }
 
-func resourceGroupCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceGroupCreate(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
 	client := m.(border0client.Requester)
 
 	group := &border0client.Group{
@@ -101,7 +101,7 @@ func resourceGroupCreate(ctx context.Context, d *schema.ResourceData, m interfac
 	return nil
 }
 
-func resourceGroupUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceGroupUpdate(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
 	client := m.(border0client.Requester)
 
 	group := &border0client.Group{
@@ -133,7 +133,7 @@ func resourceGroupUpdate(ctx context.Context, d *schema.ResourceData, m interfac
 	return resourceGroupRead(ctx, d, m)
 }
 
-func resourceGroupDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceGroupDelete(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
 	client := m.(border0client.Requester)
 	if err := client.DeleteGroup(ctx, d.Id()); err != nil {
 		return diagnostics.Error(err, "Failed to delete group")
