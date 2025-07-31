@@ -38,7 +38,7 @@ func dataSourceUserEmailsToIDs() *schema.Resource {
 	}
 }
 
-func dataSourceUserEmailsToIDsRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func dataSourceUserEmailsToIDsRead(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
 	client := m.(border0client.Requester)
 
 	emails := set.New[string]()

@@ -10,19 +10,20 @@ import (
 	border0client "github.com/borderzero/border0-go/client"
 	"github.com/borderzero/border0-go/lib/types/jsoneq"
 	"github.com/borderzero/terraform-provider-border0/internal/diagnostics"
+	"github.com/borderzero/terraform-provider-border0/internal/lib/sem"
 	"github.com/borderzero/terraform-provider-border0/internal/schemautil"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-func resourcePolicy() *schema.Resource {
+func resourcePolicy(semaphore sem.Semaphore) *schema.Resource {
 	return &schema.Resource{
 		Description:   "The policy resource allows you to create and manage a Border0 policy.",
 		ReadContext:   resourcePolicyRead,
-		CreateContext: resourcePolicyCreate,
-		UpdateContext: resourcePolicyUpdate,
-		DeleteContext: resourcePolicyDelete,
+		CreateContext: getResourcePolicyCreate(semaphore),
+		UpdateContext: getResourcePolicyUpdate(semaphore),
+		DeleteContext: getResourcePolicyDelete(semaphore),
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -80,7 +81,7 @@ func resourcePolicy() *schema.Resource {
 	}
 }
 
-func resourcePolicyRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourcePolicyRead(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
 	client := m.(border0client.Requester)
 	policy, err := client.Policy(ctx, d.Id())
 	if !d.IsNewResource() && border0client.NotFound(err) {
@@ -123,7 +124,7 @@ func resourcePolicyRead(ctx context.Context, d *schema.ResourceData, m interface
 		"org_wide":    policy.OrgWide,
 		"version":     policy.Version,
 		"socket_tags": func() map[string]any {
-			m := make(map[string]interface{})
+			m := make(map[string]any)
 			for key, val := range policy.SocketTags {
 				m[key] = val
 			}
@@ -133,98 +134,113 @@ func resourcePolicyRead(ctx context.Context, d *schema.ResourceData, m interface
 	})
 }
 
-func resourcePolicyCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	client := m.(border0client.Requester)
-	policy := &border0client.Policy{
-		Name:       d.Get("name").(string),
-		Version:    d.Get("version").(string),
-		SocketTags: mapSocketTags(d.Get("socket_tags")),
-		TagRules:   mapTagRules(d.Get("tag_rules")),
-	}
+func getResourcePolicyCreate(sem sem.Semaphore) schema.CreateContextFunc {
+	return func(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
+		sem.Acquire()
+		defer sem.Release()
 
-	switch policy.Version {
-	case "v1":
-		var policyData border0client.PolicyData
-		if err := json.Unmarshal([]byte(d.Get("policy_data").(string)), &policyData); err != nil {
-			return diagnostics.Error(err, "Failed to unmarshal policy data")
-		}
-		policy.PolicyData = policyData
-	case "v2":
-		var policyData border0client.PolicyDataV2
-		if err := json.Unmarshal([]byte(d.Get("policy_data").(string)), &policyData); err != nil {
-			return diagnostics.Error(err, "Failed to unmarshal policy data")
-		}
-		policy.PolicyData = policyData
-	default:
-		return diag.Errorf("Invalid policy version: %s", policy.Version)
-	}
-
-	if v, ok := d.GetOk("description"); ok {
-		policy.Description = v.(string)
-	}
-	if v, ok := d.GetOk("org_wide"); ok {
-		policy.OrgWide = v.(bool)
-	}
-
-	created, err := client.CreatePolicy(ctx, policy)
-	if err != nil {
-		return diagnostics.Error(err, "Failed to create policy")
-	}
-
-	d.SetId(created.ID)
-
-	return resourcePolicyRead(ctx, d, m)
-}
-
-func resourcePolicyUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	client := m.(border0client.Requester)
-
-	if d.HasChangesExcept("org_wide") {
-		policyUpdate := &border0client.Policy{
+		client := m.(border0client.Requester)
+		policy := &border0client.Policy{
 			Name:       d.Get("name").(string),
+			Version:    d.Get("version").(string),
 			SocketTags: mapSocketTags(d.Get("socket_tags")),
 			TagRules:   mapTagRules(d.Get("tag_rules")),
 		}
 
-		switch d.Get("version").(string) {
+		switch policy.Version {
 		case "v1":
 			var policyData border0client.PolicyData
 			if err := json.Unmarshal([]byte(d.Get("policy_data").(string)), &policyData); err != nil {
 				return diagnostics.Error(err, "Failed to unmarshal policy data")
 			}
-			policyUpdate.Version = "v1"
-			policyUpdate.PolicyData = policyData
+			policy.PolicyData = policyData
 		case "v2":
 			var policyData border0client.PolicyDataV2
 			if err := json.Unmarshal([]byte(d.Get("policy_data").(string)), &policyData); err != nil {
 				return diagnostics.Error(err, "Failed to unmarshal policy data")
 			}
-			policyUpdate.Version = "v2"
-			policyUpdate.PolicyData = policyData
+			policy.PolicyData = policyData
 		default:
-			return diag.Errorf("Invalid policy version: %s", policyUpdate.Version)
+			return diag.Errorf("Invalid policy version: %s", policy.Version)
 		}
 
 		if v, ok := d.GetOk("description"); ok {
-			policyUpdate.Description = v.(string)
+			policy.Description = v.(string)
+		}
+		if v, ok := d.GetOk("org_wide"); ok {
+			policy.OrgWide = v.(bool)
 		}
 
-		_, err := client.UpdatePolicy(ctx, d.Id(), policyUpdate)
+		created, err := client.CreatePolicy(ctx, policy)
 		if err != nil {
-			return diagnostics.Error(err, "Failed to update policy")
+			return diagnostics.Error(err, "Failed to create policy")
 		}
-	}
 
-	return resourcePolicyRead(ctx, d, m)
+		d.SetId(created.ID)
+
+		return resourcePolicyRead(ctx, d, m)
+	}
 }
 
-func resourcePolicyDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	client := m.(border0client.Requester)
-	if err := client.DeletePolicy(ctx, d.Id()); err != nil {
-		return diagnostics.Error(err, "Failed to delete policy")
+func getResourcePolicyUpdate(sem sem.Semaphore) schema.UpdateContextFunc {
+	return func(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
+		sem.Acquire()
+		defer sem.Release()
+
+		client := m.(border0client.Requester)
+
+		if d.HasChangesExcept("org_wide") {
+			policyUpdate := &border0client.Policy{
+				Name:       d.Get("name").(string),
+				SocketTags: mapSocketTags(d.Get("socket_tags")),
+				TagRules:   mapTagRules(d.Get("tag_rules")),
+			}
+
+			switch d.Get("version").(string) {
+			case "v1":
+				var policyData border0client.PolicyData
+				if err := json.Unmarshal([]byte(d.Get("policy_data").(string)), &policyData); err != nil {
+					return diagnostics.Error(err, "Failed to unmarshal policy data")
+				}
+				policyUpdate.Version = "v1"
+				policyUpdate.PolicyData = policyData
+			case "v2":
+				var policyData border0client.PolicyDataV2
+				if err := json.Unmarshal([]byte(d.Get("policy_data").(string)), &policyData); err != nil {
+					return diagnostics.Error(err, "Failed to unmarshal policy data")
+				}
+				policyUpdate.Version = "v2"
+				policyUpdate.PolicyData = policyData
+			default:
+				return diag.Errorf("Invalid policy version: %s", policyUpdate.Version)
+			}
+
+			if v, ok := d.GetOk("description"); ok {
+				policyUpdate.Description = v.(string)
+			}
+
+			_, err := client.UpdatePolicy(ctx, d.Id(), policyUpdate)
+			if err != nil {
+				return diagnostics.Error(err, "Failed to update policy")
+			}
+		}
+
+		return resourcePolicyRead(ctx, d, m)
 	}
-	d.SetId("")
-	return nil
+}
+
+func getResourcePolicyDelete(sem sem.Semaphore) schema.DeleteContextFunc {
+	return func(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
+		sem.Acquire()
+		defer sem.Release()
+
+		client := m.(border0client.Requester)
+		if err := client.DeletePolicy(ctx, d.Id()); err != nil {
+			return diagnostics.Error(err, "Failed to delete policy")
+		}
+		d.SetId("")
+		return nil
+	}
 }
 
 // suppressEquivalentPolicyDiffs suppresses spurious diffs in policy_data by checking
@@ -269,7 +285,7 @@ func suppressEquivalentPolicyDiffs(k, old, new string, d *schema.ResourceData) b
 }
 
 func mapSocketTags(socketTags any) map[string]string {
-	if raw, ok := socketTags.(map[string]interface{}); ok {
+	if raw, ok := socketTags.(map[string]any); ok {
 		if len(raw) == 0 {
 			return nil
 		}
@@ -283,13 +299,13 @@ func mapSocketTags(socketTags any) map[string]string {
 }
 
 func mapTagRules(tagRules any) []map[string]string {
-	if raw, ok := tagRules.([]interface{}); ok {
+	if raw, ok := tagRules.([]any); ok {
 		if len(raw) == 0 {
 			return []map[string]string{}
 		}
 		rules := make([]map[string]string, 0, len(raw))
 		for _, rule := range raw {
-			if ruleMap, ok := rule.(map[string]interface{}); ok {
+			if ruleMap, ok := rule.(map[string]any); ok {
 				stringMap := make(map[string]string)
 				for key, val := range ruleMap {
 					if strVal, ok := val.(string); ok {

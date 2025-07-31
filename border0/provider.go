@@ -15,9 +15,9 @@ const (
 	// having this apply to all resources using the same semaphore.
 	//
 	// Terraform's parallelism is 10 by default but can be set to any
-	// value using the "-parallelism" flag e.g. -parallelism=200...
-	// So we cap it at 100 here in case it's set to a higher value.
-	maxParallelism = 100
+	// value using the "-parallelism" flag e.g. -parallelism=10...
+	// So we cap it at 10 here in case it's set to a higher value.
+	maxParallelism = 10
 
 	defaultTimeout = time.Second * 30
 )
@@ -54,7 +54,7 @@ func Provider(options ...ProviderOption) *schema.Provider {
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"border0_socket":                resourceSocket(semaphore),
-			"border0_policy":                resourcePolicy(),
+			"border0_policy":                resourcePolicy(semaphore),
 			"border0_policy_attachment":     resourcePolicyAttachment(),
 			"border0_connector":             resourceConnector(),
 			"border0_connector_token":       resourceConnectorToken(),
@@ -64,10 +64,12 @@ func Provider(options ...ProviderOption) *schema.Provider {
 			"border0_service_account_token": resourceServiceAccountToken(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
-			"border0_policy_document":    dataSourcePolicyDocument(),
 			"border0_policy_v2_document": dataSourcePolicyV2Document(),
 			"border0_user_emails_to_ids": dataSourceUserEmailsToIDs(),
 			"border0_group_names_to_ids": dataSourceGroupNamesToIDs(),
+
+			// deprecated
+			"border0_policy_document": dataSourcePolicyDocument(),
 		},
 	}
 

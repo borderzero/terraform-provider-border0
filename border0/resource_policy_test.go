@@ -673,7 +673,7 @@ resource "border0_policy" "unit_test_tags" {
 	})
 }
 
-func toJSON(v interface{}) string {
+func toJSON(v any) string {
 	b, _ := json.Marshal(v)
 	return string(b)
 }

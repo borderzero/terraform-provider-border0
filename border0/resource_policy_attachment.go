@@ -39,7 +39,7 @@ func resourcePolicyAttachment() *schema.Resource {
 	}
 }
 
-func resourcePolicyAttachmentRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourcePolicyAttachmentRead(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
 	client := m.(border0client.Requester)
 
 	ids := strings.Split(d.Id(), ":")
@@ -70,7 +70,7 @@ func resourcePolicyAttachmentRead(ctx context.Context, d *schema.ResourceData, m
 	return nil
 }
 
-func resourcePolicyAttachmentCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourcePolicyAttachmentCreate(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
 	client := m.(border0client.Requester)
 	policyID := d.Get("policy_id").(string)
 	socketID := d.Get("socket_id").(string)
@@ -82,7 +82,7 @@ func resourcePolicyAttachmentCreate(ctx context.Context, d *schema.ResourceData,
 	return resourcePolicyAttachmentRead(ctx, d, m)
 }
 
-func resourcePolicyAttachmentDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourcePolicyAttachmentDelete(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
 	client := m.(border0client.Requester)
 	ids := strings.Split(d.Id(), ":")
 	if len(ids) != 2 {

@@ -13,10 +13,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
+// deprecated in favor of dataSourcePolicyV2Document, see DeprecationMessage for more info.
 func dataSourcePolicyDocument() *schema.Resource {
 	return &schema.Resource{
-		Description: "`border0_policy_document` data source can be used to generate a policy document in JSON format for use with `border0_policy` resource.",
-		ReadContext: dataSourcePolicyDocumentRead,
+		DeprecationMessage: "`border0_policy_document` is deprecated. Use `border0_policy_v2_document` instead. The Border0 API will reject the creation of policies with v1 format and only allows updating existing v1 policies.",
+		Description:        "`border0_policy_document` data source can be used to generate a policy document in JSON format for use with `border0_policy` resource.",
+		ReadContext:        dataSourcePolicyDocumentRead,
 		Schema: map[string]*schema.Schema{
 			"json": {
 				Type:     schema.TypeString,
@@ -135,7 +137,7 @@ func dataSourcePolicyDocument() *schema.Resource {
 	}
 }
 
-func dataSourcePolicyDocumentRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func dataSourcePolicyDocumentRead(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
 	var policyData border0client.PolicyData
 
 	if v, ok := d.GetOk("action"); ok {
@@ -143,10 +145,10 @@ func dataSourcePolicyDocumentRead(ctx context.Context, d *schema.ResourceData, m
 	}
 	if v, ok := d.GetOk("condition"); ok {
 		if conditions := v.(*schema.Set).List(); len(conditions) > 0 {
-			condition := conditions[0].(map[string]interface{})
+			condition := conditions[0].(map[string]any)
 			if v, ok := condition["who"]; ok {
 				if whos := v.(*schema.Set).List(); len(whos) > 0 {
-					who := whos[0].(map[string]interface{})
+					who := whos[0].(map[string]any)
 					if v, ok := who["email"]; ok {
 						policyData.Condition.Who.Email = policyDecodeStringList(v.(*schema.Set).List())
 					}
@@ -163,7 +165,7 @@ func dataSourcePolicyDocumentRead(ctx context.Context, d *schema.ResourceData, m
 			}
 			if v, ok := condition["where"]; ok {
 				if wheres := v.(*schema.Set).List(); len(wheres) > 0 {
-					where := wheres[0].(map[string]interface{})
+					where := wheres[0].(map[string]any)
 					if v, ok := where["allowed_ip"]; ok {
 						policyData.Condition.Where.AllowedIP = policyDecodeStringList(v.(*schema.Set).List())
 					}
@@ -177,7 +179,7 @@ func dataSourcePolicyDocumentRead(ctx context.Context, d *schema.ResourceData, m
 			}
 			if v, ok := condition["when"]; ok {
 				if whens := v.(*schema.Set).List(); len(whens) > 0 {
-					when := whens[0].(map[string]interface{})
+					when := whens[0].(map[string]any)
 					if v, ok := when["after"]; ok {
 						policyData.Condition.When.After = v.(string)
 					}
@@ -206,7 +208,7 @@ func dataSourcePolicyDocumentRead(ctx context.Context, d *schema.ResourceData, m
 	return nil
 }
 
-func policyDecodeStringList(list []interface{}) []string {
+func policyDecodeStringList(list []any) []string {
 	ret := make([]string, len(list))
 	for i, value := range list {
 		ret[i] = value.(string)

@@ -46,7 +46,7 @@ func resourceConnector() *schema.Resource {
 	}
 }
 
-func resourceConnectorRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceConnectorRead(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
 	client := m.(border0client.Requester)
 	connector, err := client.Connector(ctx, d.Id())
 	if !d.IsNewResource() && border0client.NotFound(err) {
@@ -72,7 +72,7 @@ func resourceConnectorRead(ctx context.Context, d *schema.ResourceData, m interf
 	})
 }
 
-func resourceConnectorCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceConnectorCreate(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
 	client := m.(border0client.Requester)
 	connector := &border0client.Connector{
 		Name: d.Get("name").(string),
@@ -114,7 +114,7 @@ func resourceConnectorCreate(ctx context.Context, d *schema.ResourceData, m inte
 	return nil
 }
 
-func resourceConnectorUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceConnectorUpdate(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
 	client := m.(border0client.Requester)
 
 	fieldsToCheckForChanges := []string{
@@ -146,7 +146,7 @@ func resourceConnectorUpdate(ctx context.Context, d *schema.ResourceData, m inte
 	return resourceConnectorRead(ctx, d, m)
 }
 
-func resourceConnectorDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceConnectorDelete(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
 	client := m.(border0client.Requester)
 	if err := client.DeleteConnector(ctx, d.Id()); err != nil {
 		return diagnostics.Error(err, "Failed to delete connector")

@@ -49,7 +49,7 @@ func resourceServiceAccountToken() *schema.Resource {
 	}
 }
 
-func resourceServiceAccountTokenRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceServiceAccountTokenRead(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
 	client := m.(border0client.Requester)
 
 	var serviceAccountTokenID, serviceAccountName string
@@ -84,7 +84,7 @@ func resourceServiceAccountTokenRead(ctx context.Context, d *schema.ResourceData
 	return nil
 }
 
-func resourceServiceAccountTokenCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceServiceAccountTokenCreate(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
 	client := m.(border0client.Requester)
 
 	serviceAccountName := d.Get("service_account_name").(string)
@@ -118,7 +118,7 @@ func resourceServiceAccountTokenCreate(ctx context.Context, d *schema.ResourceDa
 	return resourceServiceAccountTokenRead(ctx, d, m)
 }
 
-func resourceServiceAccountTokenDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceServiceAccountTokenDelete(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
 	client := m.(border0client.Requester)
 
 	var serviceAccountTokenID, serviceAccountName string

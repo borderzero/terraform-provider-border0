@@ -47,7 +47,7 @@ func resourceServiceAccount() *schema.Resource {
 	}
 }
 
-func resourceServiceAccountRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceServiceAccountRead(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
 	client := m.(border0client.Requester)
 
 	serviceAccount, err := client.ServiceAccount(ctx, d.Id())
@@ -69,7 +69,7 @@ func resourceServiceAccountRead(ctx context.Context, d *schema.ResourceData, m i
 	})
 }
 
-func resourceServiceAccountCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceServiceAccountCreate(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
 	client := m.(border0client.Requester)
 
 	serviceAccount := &border0client.ServiceAccount{
@@ -95,7 +95,7 @@ func resourceServiceAccountCreate(ctx context.Context, d *schema.ResourceData, m
 	return nil
 }
 
-func resourceServiceAccountUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceServiceAccountUpdate(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
 	client := m.(border0client.Requester)
 
 	fieldsToCheckForChanges := []string{
@@ -121,7 +121,7 @@ func resourceServiceAccountUpdate(ctx context.Context, d *schema.ResourceData, m
 	return resourceServiceAccountRead(ctx, d, m)
 }
 
-func resourceServiceAccountDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceServiceAccountDelete(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
 	client := m.(border0client.Requester)
 	if err := client.DeleteServiceAccount(ctx, d.Get("name").(string)); err != nil {
 		return diagnostics.Error(err, "Failed to delete service account")

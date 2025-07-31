@@ -45,7 +45,7 @@ func testProviderFactories(t *testing.T, api border0client.Requester) map[string
 	return map[string]func() (*schema.Provider, error){
 		"border0": func() (*schema.Provider, error) {
 			return border0.Provider(func(p *schema.Provider) {
-				p.ConfigureContextFunc = func(ctx context.Context, data *schema.ResourceData) (interface{}, diag.Diagnostics) {
+				p.ConfigureContextFunc = func(ctx context.Context, data *schema.ResourceData) (any, diag.Diagnostics) {
 					return api, nil
 				}
 				p.Schema = nil // no need to include any of the global configuration

@@ -38,7 +38,7 @@ func dataSourceGroupNamesToIDs() *schema.Resource {
 	}
 }
 
-func dataSourceGroupNamesToIDsRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func dataSourceGroupNamesToIDsRead(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
 	client := m.(border0client.Requester)
 
 	groups := set.New[string]()
