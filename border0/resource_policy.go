@@ -58,14 +58,6 @@ func resourcePolicy(semaphore sem.Semaphore) *schema.Resource {
 				Default:     false,
 				Description: "Whether the policy should be applied to all sockets in the organization.",
 			},
-			"socket_tags": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				Description: "A set of tags to apply to the sockets that this policy is applied to.",
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-			},
 			"tag_rules": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -123,14 +115,7 @@ func resourcePolicyRead(ctx context.Context, d *schema.ResourceData, m any) diag
 		"description": policy.Description,
 		"org_wide":    policy.OrgWide,
 		"version":     policy.Version,
-		"socket_tags": func() map[string]any {
-			m := make(map[string]any)
-			for key, val := range policy.SocketTags {
-				m[key] = val
-			}
-			return m
-		}(),
-		"tag_rules": tagRulesSlice,
+		"tag_rules":   tagRulesSlice,
 	})
 }
 
@@ -141,10 +126,9 @@ func getResourcePolicyCreate(sem sem.Semaphore) schema.CreateContextFunc {
 
 		client := m.(border0client.Requester)
 		policy := &border0client.Policy{
-			Name:       d.Get("name").(string),
-			Version:    d.Get("version").(string),
-			SocketTags: mapSocketTags(d.Get("socket_tags")),
-			TagRules:   mapTagRules(d.Get("tag_rules")),
+			Name:     d.Get("name").(string),
+			Version:  d.Get("version").(string),
+			TagRules: mapTagRules(d.Get("tag_rules")),
 		}
 
 		switch policy.Version {
@@ -191,9 +175,8 @@ func getResourcePolicyUpdate(sem sem.Semaphore) schema.UpdateContextFunc {
 
 		if d.HasChangesExcept("org_wide") {
 			policyUpdate := &border0client.Policy{
-				Name:       d.Get("name").(string),
-				SocketTags: mapSocketTags(d.Get("socket_tags")),
-				TagRules:   mapTagRules(d.Get("tag_rules")),
+				Name:     d.Get("name").(string),
+				TagRules: mapTagRules(d.Get("tag_rules")),
 			}
 
 			switch d.Get("version").(string) {
@@ -282,20 +265,6 @@ func suppressEquivalentPolicyDiffs(k, old, new string, d *schema.ResourceData) b
 	// fallback to generic unordered JSON comparison for arrays
 	// NOTE: we MUST keep empty objects.
 	return jsoneq.AreEqual(old, new, jsoneq.PruneEmptySlices(), jsoneq.PruneEmptyStrings())
-}
-
-func mapSocketTags(socketTags any) map[string]string {
-	if raw, ok := socketTags.(map[string]any); ok {
-		if len(raw) == 0 {
-			return nil
-		}
-		m := make(map[string]string)
-		for key, val := range raw {
-			m[key] = val.(string)
-		}
-		return m
-	}
-	return nil
 }
 
 func mapTagRules(tagRules any) []map[string]string {
