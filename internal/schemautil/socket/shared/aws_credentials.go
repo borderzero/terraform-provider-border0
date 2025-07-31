@@ -49,34 +49,50 @@ func FromAwsCredentials(creds *common.AwsCredentials) []map[string]any {
 	if creds == nil {
 		return nil
 	}
-	return []map[string]any{
-		{
-			"access_key_id":     creds.AwsAccessKeyId,
-			"secret_access_key": creds.AwsSecretAccessKey,
-			"session_token":     creds.AwsSessionToken,
-			"profile":           creds.AwsProfile,
-		},
+	m := make(map[string]any)
+	if creds.AwsAccessKeyId != nil && *creds.AwsAccessKeyId != "" {
+		m["access_key_id"] = creds.AwsAccessKeyId
 	}
+	if creds.AwsSecretAccessKey != nil && *creds.AwsSecretAccessKey != "" {
+		m["secret_access_key"] = creds.AwsSecretAccessKey
+	}
+	if creds.AwsSessionToken != nil && *creds.AwsSessionToken != "" {
+		m["session_token"] = creds.AwsSessionToken
+	}
+	if creds.AwsProfile != nil && *creds.AwsProfile != "" {
+		m["profile"] = creds.AwsProfile
+	}
+	return []map[string]any{m}
 }
 
 // ToAwsCredentials converts the `aws_credentials` block to a `common.AwsCredentials` struct.
-func ToAwsCredentials(v any, creds *common.AwsCredentials) {
+func ToAwsCredentials(v any) *common.AwsCredentials {
 	if awsCredentialsList := v.([]any); len(awsCredentialsList) > 0 {
 		awsCredentials := awsCredentialsList[0].(map[string]any)
-		if creds == nil {
-			creds = new(common.AwsCredentials)
-		}
+
+		creds := new(common.AwsCredentials)
+		nonEmpty := false
+
 		if v, ok := awsCredentials["access_key_id"]; ok {
 			creds.AwsAccessKeyId = pointer.To(v.(string))
+			nonEmpty = true
 		}
 		if v, ok := awsCredentials["secret_access_key"]; ok {
 			creds.AwsSecretAccessKey = pointer.To(v.(string))
+			nonEmpty = true
 		}
 		if v, ok := awsCredentials["session_token"]; ok {
 			creds.AwsSessionToken = pointer.To(v.(string))
+			nonEmpty = true
 		}
 		if v, ok := awsCredentials["profile"]; ok {
 			creds.AwsProfile = pointer.To(v.(string))
+			nonEmpty = true
+		}
+
+		if nonEmpty {
+			return creds
 		}
 	}
+	return nil
 }
