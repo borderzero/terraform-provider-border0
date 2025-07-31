@@ -517,7 +517,7 @@ func Test_Resource_Border0PolicyV2(t *testing.T) {
 	})
 }
 
-func Test_Resource_Border0Policy_SocketTags(t *testing.T) {
+func Test_Resource_Border0Policy_TagRules(t *testing.T) {
 	// Define minimal policy data for v2
 	policyData := border0client.PolicyDataV2{
 		Permissions: border0client.PolicyPermissions{},
@@ -529,13 +529,13 @@ func Test_Resource_Border0Policy_SocketTags(t *testing.T) {
 	}
 
 	// Initial tags
-	initialTags := map[string]string{
-		"team": "backend",
+	initialTags := []map[string]string{
+		{"team": "backend"},
 	}
 	// Updated tags
-	updatedTags := map[string]string{
-		"team":        "backend",
-		"environment": "staging",
+	updatedTags := []map[string]string{
+		{"team": "backend"},
+		{"environment": "staging"},
 	}
 
 	// Mock client and calls
@@ -545,38 +545,33 @@ func Test_Resource_Border0Policy_SocketTags(t *testing.T) {
 		Name:       "unit-test-policy-tags",
 		Version:    "v2",
 		PolicyData: policyData,
-		SocketTags: initialTags,
-		TagRules:   []map[string]string{},
+		TagRules:   initialTags,
 	}
 	initialOutput := &border0client.Policy{
 		ID:         "unit-test-id-tags",
 		Name:       "unit-test-policy-tags",
 		Version:    "v2",
 		PolicyData: policyData,
-		SocketTags: initialTags,
-		TagRules:   []map[string]string{},
+		TagRules:   initialTags,
 	}
 	// Update tags to updatedTags
 	updateInput := &border0client.Policy{
 		Name:       "unit-test-policy-tags",
 		PolicyData: policyData,
-		SocketTags: updatedTags,
 		Version:    "v2",
-		TagRules:   []map[string]string{},
+		TagRules:   updatedTags,
 	}
 	updateOutput := &border0client.Policy{
 		ID:         "unit-test-id-tags",
 		Name:       "unit-test-policy-tags",
 		Version:    "v2",
 		PolicyData: policyData,
-		SocketTags: updatedTags,
-		TagRules:   []map[string]string{},
+		TagRules:   updatedTags,
 	}
-	// Delete tags (nil map)
+	// Delete tags
 	deleteInput := &border0client.Policy{
 		Name:       "unit-test-policy-tags",
 		PolicyData: policyData,
-		SocketTags: nil,
 		Version:    "v2",
 		TagRules:   []map[string]string{},
 	}
@@ -585,7 +580,6 @@ func Test_Resource_Border0Policy_SocketTags(t *testing.T) {
 		Name:       "unit-test-policy-tags",
 		Version:    "v2",
 		PolicyData: policyData,
-		SocketTags: nil,
 		TagRules:   []map[string]string{},
 	}
 
@@ -613,9 +607,9 @@ func Test_Resource_Border0Policy_SocketTags(t *testing.T) {
 resource "border0_policy" "unit_test_tags" {
   name       = "unit-test-policy-tags"
   version    = "v2"
-  socket_tags = {
+  tag_rules = [{
     team = "backend"
-  }
+  }]
   policy_data = jsonencode(%s)
 }
 `, toJSON(policyData))
@@ -623,10 +617,12 @@ resource "border0_policy" "unit_test_tags" {
 resource "border0_policy" "unit_test_tags" {
   name       = "unit-test-policy-tags"
   version    = "v2"
-  socket_tags = {
+  tag_rules = [{
     team        = "backend"
+  },
+  {
     environment = "staging"
-  }
+  }]
   policy_data = jsonencode(%s)
 }
 `, toJSON(policyData))
@@ -634,7 +630,7 @@ resource "border0_policy" "unit_test_tags" {
 resource "border0_policy" "unit_test_tags" {
   name       = "unit-test-policy-tags"
   version    = "v2"
-  # No socket_tags block to delete
+  # No tag_rules block to delete
   policy_data = jsonencode(%s)
 }
 `, toJSON(policyData))
@@ -649,23 +645,24 @@ resource "border0_policy" "unit_test_tags" {
 			{
 				Config: initialConfig,
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("border0_policy.unit_test_tags", "socket_tags.team", "backend"),
+					resource.TestCheckResourceAttr("border0_policy.unit_test_tags", "tag_rules.0.team", "backend"),
+					resource.TestCheckResourceAttr("border0_policy.unit_test_tags", "tag_rules.#", "1"),
 					testMatchResourceAttrJSON("border0_policy.unit_test_tags", "policy_data", string(dataJSON)),
 				),
 			},
 			{
 				Config: updatedConfig,
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("border0_policy.unit_test_tags", "socket_tags.team", "backend"),
-					resource.TestCheckResourceAttr("border0_policy.unit_test_tags", "socket_tags.environment", "staging"),
+					resource.TestCheckResourceAttr("border0_policy.unit_test_tags", "tag_rules.0.team", "backend"),
+					resource.TestCheckResourceAttr("border0_policy.unit_test_tags", "tag_rules.1.environment", "staging"),
+					resource.TestCheckResourceAttr("border0_policy.unit_test_tags", "tag_rules.#", "2"),
 					testMatchResourceAttrJSON("border0_policy.unit_test_tags", "policy_data", string(dataJSON)),
 				),
 			},
 			{
 				Config: deleteConfig,
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckNoResourceAttr("border0_policy.unit_test_tags", "socket_tags.team"),
-					resource.TestCheckNoResourceAttr("border0_policy.unit_test_tags", "socket_tags.environment"),
+					resource.TestCheckResourceAttr("border0_policy.unit_test_tags", "tag_rules.#", "0"),
 					testMatchResourceAttrJSON("border0_policy.unit_test_tags", "policy_data", string(dataJSON)),
 				),
 			},
