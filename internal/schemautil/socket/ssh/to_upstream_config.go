@@ -148,7 +148,7 @@ func awsEc2InstanceConnectToUpstreamConfig(data map[string]any, config *service.
 		config.Ec2InstanceRegion = v.(string)
 	}
 	if v, ok := data["aws_credentials"]; ok {
-		shared.ToAwsCredentials(v, config.AwsCredentials)
+		config.AwsCredentials = shared.ToAwsCredentials(v)
 	}
 
 	return nil
@@ -174,7 +174,7 @@ func awsSsmToUpstreamConfig(data map[string]any, config *service.AwsSsmSshServic
 			config.AwsSsmEc2TargetConfiguration.Ec2InstanceRegion = v.(string)
 		}
 		if v, ok := data["aws_credentials"]; ok {
-			shared.ToAwsCredentials(v, config.AwsSsmEc2TargetConfiguration.AwsCredentials)
+			config.AwsSsmEc2TargetConfiguration.AwsCredentials = shared.ToAwsCredentials(v)
 		}
 	case service.SsmTargetTypeEcs:
 		if config.AwsSsmEcsTargetConfiguration == nil {
@@ -190,7 +190,7 @@ func awsSsmToUpstreamConfig(data map[string]any, config *service.AwsSsmSshServic
 			config.AwsSsmEcsTargetConfiguration.EcsServiceName = v.(string)
 		}
 		if v, ok := data["aws_credentials"]; ok {
-			shared.ToAwsCredentials(v, config.AwsSsmEcsTargetConfiguration.AwsCredentials)
+			config.AwsSsmEcsTargetConfiguration.AwsCredentials = shared.ToAwsCredentials(v)
 		}
 	default:
 		return diag.Errorf(`ssm target type "%s" is invalid`, targetType)

@@ -167,7 +167,7 @@ func awsRdsToUpstreamConfig(data map[string]any, config *service.AwsRdsDatabaseS
 			config.IamAuth.CaCertificate = v.(string)
 		}
 		if v, ok := data["aws_credentials"]; ok {
-			shared.ToAwsCredentials(v, config.IamAuth.AwsCredentials)
+			config.IamAuth.AwsCredentials = shared.ToAwsCredentials(v)
 		}
 	default:
 		return diag.Errorf(`database authentication type "%s" is invalid`, authType)
@@ -221,7 +221,7 @@ func awsDocumentDBToUpstreamConfig(data map[string]any, config *service.AwsDocum
 			config.IamAuth.CaCertificate = v.(string)
 		}
 		if v, ok := data["aws_credentials"]; ok {
-			shared.ToAwsCredentials(v, config.IamAuth.AwsCredentials)
+			config.IamAuth.AwsCredentials = shared.ToAwsCredentials(v)
 		}
 	default:
 		return diag.Errorf(`database authentication type "%s" is invalid`, authType)

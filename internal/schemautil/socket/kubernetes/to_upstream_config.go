@@ -89,8 +89,7 @@ func awsEksToUpstreamConfig(data map[string]any, config *service.AwsEksKubernete
 		config.EksClusterRegion = v.(string)
 	}
 	if v, ok := data["aws_credentials"]; ok {
-		shared.ToAwsCredentials(v, config.AwsCredentials)
+		config.AwsCredentials = shared.ToAwsCredentials(v)
 	}
-
 	return nil
 }
