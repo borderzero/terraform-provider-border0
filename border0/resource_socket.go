@@ -584,6 +584,16 @@ func resourceSocket(semaphore sem.Semaphore) *schema.Resource {
 							Optional:    true,
 							Description: "The path to the file containing the Kubernetes API token. If not specified, it will use the token from the kubeconfig file.",
 						},
+						"impersonation_enabled": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     false,
+							Description: "Indicates whether to set impersonation headers e.g. \"Impersonate-User\" and \"Impersonate-Groups\".",
+							DiffSuppressFunc: func(k, prevValue, curValue string, d *schema.ResourceData) bool {
+								// NOTE: treat "" (unset) and "false" as equivalent.
+								return prevValue == curValue || (prevValue == "" && curValue == "false") || (prevValue == "false" && curValue == "")
+							},
+						},
 						"eks_cluster_name": {
 							Type:        schema.TypeString,
 							Optional:    true,
