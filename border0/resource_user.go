@@ -70,7 +70,8 @@ func resourceUserRead(ctx context.Context, d *schema.ResourceData, m any) diag.D
 }
 
 func resourceUserCreate(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
-	client := m.(border0client.Requester)
+	helper := m.(*ProviderHelper)
+	client := helper.Requester
 
 	user := &border0client.User{
 		DisplayName: d.Get("display_name").(string),
@@ -95,15 +96,16 @@ func resourceUserCreate(ctx context.Context, d *schema.ResourceData, m any) diag
 
 	d.SetId(created.ID)
 
+	helper.ReadAfterWriteDelay()
 	if diags := resourceUserRead(ctx, d, m); diags.HasError() {
 		return diags
 	}
-
 	return nil
 }
 
 func resourceUserUpdate(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
-	client := m.(border0client.Requester)
+	helper := m.(*ProviderHelper)
+	client := helper.Requester
 
 	fieldsToCheckForChanges := []string{
 		"display_name",
@@ -123,8 +125,9 @@ func resourceUserUpdate(ctx context.Context, d *schema.ResourceData, m any) diag
 		if err != nil {
 			return diagnostics.Error(err, "Failed to update user")
 		}
-	}
 
+		helper.ReadAfterWriteDelay()
+	}
 	return resourceUserRead(ctx, d, m)
 }
 

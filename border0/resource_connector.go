@@ -73,7 +73,9 @@ func resourceConnectorRead(ctx context.Context, d *schema.ResourceData, m any) d
 }
 
 func resourceConnectorCreate(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
-	client := m.(border0client.Requester)
+	helper := m.(*ProviderHelper)
+	client := helper.Requester
+
 	connector := &border0client.Connector{
 		Name: d.Get("name").(string),
 		// we need to create the connector first and then enable the built-in ssh service
@@ -97,6 +99,8 @@ func resourceConnectorCreate(ctx context.Context, d *schema.ResourceData, m any)
 		return diagnostics.Error(err, "Failed to create connector")
 	}
 	d.SetId(created.ConnectorID)
+
+	helper.ReadAfterWriteDelay()
 	if diags := resourceConnectorRead(ctx, d, m); diags.HasError() {
 		return diags
 	}
@@ -108,6 +112,7 @@ func resourceConnectorCreate(ctx context.Context, d *schema.ResourceData, m any)
 		if err != nil {
 			return diagnostics.Error(err, "Failed to enable built-in ssh service")
 		}
+		helper.ReadAfterWriteDelay()
 		return resourceConnectorRead(ctx, d, m)
 	}
 
@@ -115,7 +120,8 @@ func resourceConnectorCreate(ctx context.Context, d *schema.ResourceData, m any)
 }
 
 func resourceConnectorUpdate(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
-	client := m.(border0client.Requester)
+	helper := m.(*ProviderHelper)
+	client := helper.Requester
 
 	fieldsToCheckForChanges := []string{
 		"name",
@@ -141,6 +147,7 @@ func resourceConnectorUpdate(ctx context.Context, d *schema.ResourceData, m any)
 		if err != nil {
 			return diagnostics.Error(err, "Failed to update connector")
 		}
+		helper.ReadAfterWriteDelay()
 	}
 
 	return resourceConnectorRead(ctx, d, m)

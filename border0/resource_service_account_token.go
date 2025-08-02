@@ -85,7 +85,8 @@ func resourceServiceAccountTokenRead(ctx context.Context, d *schema.ResourceData
 }
 
 func resourceServiceAccountTokenCreate(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
-	client := m.(border0client.Requester)
+	helper := m.(*ProviderHelper)
+	client := helper.Requester
 
 	serviceAccountName := d.Get("service_account_name").(string)
 	tokenName := d.Get("name").(string)
@@ -115,6 +116,7 @@ func resourceServiceAccountTokenCreate(ctx context.Context, d *schema.ResourceDa
 		return diags
 	}
 
+	helper.ReadAfterWriteDelay()
 	return resourceServiceAccountTokenRead(ctx, d, m)
 }
 

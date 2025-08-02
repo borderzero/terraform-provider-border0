@@ -63,7 +63,8 @@ func resourceGroupRead(ctx context.Context, d *schema.ResourceData, m any) diag.
 }
 
 func resourceGroupCreate(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
-	client := m.(border0client.Requester)
+	helper := m.(*ProviderHelper)
+	client := helper.Requester
 
 	group := &border0client.Group{
 		DisplayName: d.Get("display_name").(string),
@@ -86,6 +87,7 @@ func resourceGroupCreate(ctx context.Context, d *schema.ResourceData, m any) dia
 	}
 	d.SetId(created.ID)
 
+	helper.ReadAfterWriteDelay()
 	if _, err = client.UpdateGroupMemberships(ctx, created, members); err != nil {
 		if delErr := client.DeleteGroup(ctx, created.ID); delErr != nil {
 			return diagnostics.Error(err, "failed to create group memberships and failed to cleanup group afterwards: %v", delErr)
@@ -94,6 +96,7 @@ func resourceGroupCreate(ctx context.Context, d *schema.ResourceData, m any) dia
 		return diagnostics.Error(err, "failed to create group memberships")
 	}
 
+	helper.ReadAfterWriteDelay()
 	if diags := resourceGroupRead(ctx, d, m); diags.HasError() {
 		return diags
 	}
@@ -102,7 +105,8 @@ func resourceGroupCreate(ctx context.Context, d *schema.ResourceData, m any) dia
 }
 
 func resourceGroupUpdate(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
-	client := m.(border0client.Requester)
+	helper := m.(*ProviderHelper)
+	client := helper.Requester
 
 	group := &border0client.Group{
 		ID: d.Id(),
@@ -130,6 +134,7 @@ func resourceGroupUpdate(ctx context.Context, d *schema.ResourceData, m any) dia
 		}
 	}
 
+	helper.ReadAfterWriteDelay()
 	return resourceGroupRead(ctx, d, m)
 }
 

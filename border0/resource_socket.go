@@ -673,7 +673,8 @@ func getResourceSocketCreate(sem sem.Semaphore) schema.CreateContextFunc {
 		sem.Acquire()
 		defer sem.Release()
 
-		client := m.(border0client.Requester)
+		helper := m.(*ProviderHelper)
+		client := helper.Requester
 		socket := &border0client.Socket{
 			Name:       d.Get("name").(string),
 			SocketType: d.Get("socket_type").(string),
@@ -693,6 +694,7 @@ func getResourceSocketCreate(sem sem.Semaphore) schema.CreateContextFunc {
 
 		d.SetId(created.SocketID)
 
+		helper.ReadAfterWriteDelay()
 		return resourceSocketRead(ctx, d, m)
 	}
 }
@@ -702,7 +704,8 @@ func getResourceSocketUpdate(sem sem.Semaphore) schema.UpdateContextFunc {
 		sem.Acquire()
 		defer sem.Release()
 
-		client := m.(border0client.Requester)
+		helper := m.(*ProviderHelper)
+		client := helper.Requester
 
 		if d.HasChangesExcept("socket_type") {
 			existingSocket, err := client.Socket(ctx, d.Id())
@@ -728,6 +731,7 @@ func getResourceSocketUpdate(sem sem.Semaphore) schema.UpdateContextFunc {
 			}
 		}
 
+		helper.ReadAfterWriteDelay()
 		return resourceSocketRead(ctx, d, m)
 	}
 }
