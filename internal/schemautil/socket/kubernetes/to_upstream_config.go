@@ -24,7 +24,7 @@ func ToUpstreamConfig(d *schema.ResourceData, config *service.KubernetesServiceC
 	}
 	config.KubernetesServiceType = serviceType
 
-	if v, ok := d.GetOk("impersonation_enabled"); ok {
+	if v, ok := data["impersonation_enabled"]; ok {
 		config.ImpersonationEnabled = v.(bool)
 	}
 
