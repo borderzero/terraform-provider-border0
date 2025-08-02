@@ -19,11 +19,14 @@ func ToUpstreamConfig(d *schema.ResourceData, config *service.KubernetesServiceC
 	}
 
 	serviceType := service.KubernetesServiceTypeStandard // default to "standard"
-
 	if v, ok := data["service_type"]; ok {
 		serviceType = v.(string)
 	}
 	config.KubernetesServiceType = serviceType
+
+	if v, ok := d.GetOk("impersonation_enabled"); ok {
+		config.ImpersonationEnabled = v.(bool)
+	}
 
 	switch serviceType {
 	case service.KubernetesServiceTypeStandard:

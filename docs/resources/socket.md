@@ -257,6 +257,7 @@ Optional:
 - `context` (String) The Kubernetes context to use. If not specified, it will use the current context from the kubeconfig file.
 - `eks_cluster_name` (String) The name of the AWS EKS cluster. Only used when service type is `aws_eks`.
 - `eks_cluster_region` (String) The AWS region of the EKS cluster. Only used when service type is `aws_eks`.
+- `impersonation_enabled` (Boolean) Indicates whether to set impersonation headers e.g. "Impersonate-User" and "Impersonate-Groups".
 - `kubeconfig_path` (String) The path to the kubeconfig file. Default it will use the system's kubeconfig file.
 - `server` (String) The Kubernetes API server URL. If not specified, it will use the server URL from the kubeconfig file.
 - `service_type` (String) The upstream service type. Valid values: `standard`, `aws_eks`. Defaults to `standard`.

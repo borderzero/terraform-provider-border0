@@ -16,7 +16,8 @@ func FromUpstreamConfig(d *schema.ResourceData, config *service.KubernetesServic
 	}
 
 	data := map[string]any{
-		"service_type": config.KubernetesServiceType,
+		"service_type":          config.KubernetesServiceType,
+		"impersonation_enabled": config.ImpersonationEnabled,
 	}
 
 	var diags diag.Diagnostics
