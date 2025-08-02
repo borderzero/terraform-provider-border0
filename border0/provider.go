@@ -20,6 +20,8 @@ const (
 	maxParallelism = 10
 
 	defaultTimeout = time.Second * 30
+
+	replicationDelay = time.Second
 )
 
 // ProviderOption is a function that can be passed to `Provider()` to configures it.
@@ -80,7 +82,7 @@ func Provider(options ...ProviderOption) *schema.Provider {
 	return provider
 }
 
-func providerConfigure(_ context.Context, d *schema.ResourceData) (any, diag.Diagnostics) {
+func providerConfigure(ctx context.Context, d *schema.ResourceData) (any, diag.Diagnostics) {
 	token := d.Get("token").(string)
 	if token == "" {
 		return nil, diag.Errorf("border0 provider credential is empty - set `token`")
@@ -110,5 +112,25 @@ func providerConfigure(_ context.Context, d *schema.ResourceData) (any, diag.Dia
 		opts = append(opts, border0client.WithTimeout(defaultTimeout))
 	}
 
-	return border0client.New(opts...), nil
+	client := border0client.New(opts...)
+
+	// Fetch server info to determine if we are hitting the primary or secondary region
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+
+	isPrimary := true
+	serverInfo, err := client.ServerInfo(ctx)
+	if err == nil && serverInfo != nil && serverInfo.Primary != nil {
+		isPrimary = *serverInfo.Primary
+	}
+
+	return &ProviderConfig{
+		Requester: client,
+		IsPrimary: isPrimary,
+	}, nil
+}
+
+type ProviderConfig struct {
+	border0client.Requester
+	IsPrimary bool
 }
