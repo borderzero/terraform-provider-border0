@@ -62,6 +62,11 @@ func resourceSocket(semaphore sem.Semaphore) *schema.Resource {
 				Default:     false,
 				Description: "Indicates if session recording is enabled for the socket.",
 			},
+			"display_name": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "An additional display name of the socket. Less restrictive than the `name` field and does not need to be unique.",
+			},
 			"tags": {
 				Type: schema.TypeMap,
 				Elem: &schema.Schema{

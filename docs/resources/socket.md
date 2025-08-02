@@ -145,6 +145,7 @@ resource "border0_socket" "example_connect_to_ecs_with_ssm" {
 - `connector_ids` (Set of String) The ID(s) of the connector(s) that the socket is attached to.
 - `database_configuration` (Block List) (see [below for nested schema](#nestedblock--database_configuration))
 - `description` (String) The description of the socket.
+- `display_name` (String) An additional display name of the socket. Less restrictive than the `name` field and does not need to be unique.
 - `elasticsearch_configuration` (Block List) (see [below for nested schema](#nestedblock--elasticsearch_configuration))
 - `exit_node_configuration` (Block List) (see [below for nested schema](#nestedblock--exit_node_configuration))
 - `http_configuration` (Block List) (see [below for nested schema](#nestedblock--http_configuration))

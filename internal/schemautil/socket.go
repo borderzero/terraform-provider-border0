@@ -14,6 +14,7 @@ import (
 // FromSocket converts a border0client.Socket's top level fields into terraform resource data.
 // Those fields are:
 // - name
+// - display_name
 // - socket_type
 // - description
 // - upstream_type
@@ -29,6 +30,7 @@ func FromSocket(d *schema.ResourceData, socket *border0client.Socket) diag.Diagn
 
 	return SetValues(d, map[string]any{
 		"name":              socket.Name,
+		"display_name":      socket.DisplayName,
 		"socket_type":       socket.SocketType,
 		"description":       socket.Description,
 		"upstream_type":     socket.UpstreamType,
@@ -58,6 +60,7 @@ func FromConnector(d *schema.ResourceData, connectors *border0client.SocketConne
 
 // ToSocket read top level socket fields from terraform resource data and sets them in a border0client.Socket.
 // Those fields are:
+// - display_name
 // - description
 // - upstream_type
 // - upstream_http_hostname
@@ -65,6 +68,10 @@ func FromConnector(d *schema.ResourceData, connectors *border0client.SocketConne
 // - recording_enabled
 // - connector_id
 func ToSocket(d *schema.ResourceData, socket *border0client.Socket) diag.Diagnostics {
+	if v, ok := d.GetOk("display_name"); ok {
+		socket.DisplayName = v.(string)
+	}
+
 	if v, ok := d.GetOk("description"); ok {
 		socket.Description = v.(string)
 	}
