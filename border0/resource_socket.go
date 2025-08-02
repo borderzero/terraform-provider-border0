@@ -3,6 +3,7 @@ package border0
 import (
 	"context"
 	"log"
+	"time"
 
 	border0client "github.com/borderzero/border0-go/client"
 	"github.com/borderzero/border0-go/types/service"
@@ -673,7 +674,8 @@ func getResourceSocketCreate(sem sem.Semaphore) schema.CreateContextFunc {
 		sem.Acquire()
 		defer sem.Release()
 
-		client := m.(border0client.Requester)
+		config := m.(*ProviderConfig)
+		client := config.Requester
 		socket := &border0client.Socket{
 			Name:       d.Get("name").(string),
 			SocketType: d.Get("socket_type").(string),
@@ -693,6 +695,10 @@ func getResourceSocketCreate(sem sem.Semaphore) schema.CreateContextFunc {
 
 		d.SetId(created.SocketID)
 
+		if !config.IsPrimary {
+			// Wait for the socket to be replicated in the database
+			time.Sleep(replicationDelay)
+		}
 		return resourceSocketRead(ctx, d, m)
 	}
 }
@@ -702,7 +708,8 @@ func getResourceSocketUpdate(sem sem.Semaphore) schema.UpdateContextFunc {
 		sem.Acquire()
 		defer sem.Release()
 
-		client := m.(border0client.Requester)
+		config := m.(*ProviderConfig)
+		client := config.Requester
 
 		if d.HasChangesExcept("socket_type") {
 			existingSocket, err := client.Socket(ctx, d.Id())
@@ -728,6 +735,10 @@ func getResourceSocketUpdate(sem sem.Semaphore) schema.UpdateContextFunc {
 			}
 		}
 
+		if !config.IsPrimary {
+			// Wait for the socket to be replicated in the database
+			time.Sleep(replicationDelay)
+		}
 		return resourceSocketRead(ctx, d, m)
 	}
 }
