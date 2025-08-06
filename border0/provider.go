@@ -20,6 +20,8 @@ const (
 	maxParallelism = 10
 
 	defaultTimeout = time.Second * 30
+
+	defaultReadAfterWriteDelay = time.Second
 )
 
 // ProviderOption is a function that can be passed to `Provider()` to configures it.
@@ -80,7 +82,7 @@ func Provider(options ...ProviderOption) *schema.Provider {
 	return provider
 }
 
-func providerConfigure(_ context.Context, d *schema.ResourceData) (any, diag.Diagnostics) {
+func providerConfigure(ctx context.Context, d *schema.ResourceData) (any, diag.Diagnostics) {
 	token := d.Get("token").(string)
 	if token == "" {
 		return nil, diag.Errorf("border0 provider credential is empty - set `token`")
@@ -110,5 +112,38 @@ func providerConfigure(_ context.Context, d *schema.ResourceData) (any, diag.Dia
 		opts = append(opts, border0client.WithTimeout(defaultTimeout))
 	}
 
-	return border0client.New(opts...), nil
+	client := border0client.New(opts...)
+
+	// Fetch server info to determine how long to wait after each write before reading
+	// to account for any data replication / propagation delays.
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+
+	delay := defaultReadAfterWriteDelay
+	serverInfo, err := client.ServerInfo(ctx)
+	if err == nil && serverInfo != nil && serverInfo.DataConsistency != nil {
+		delay = time.Duration(serverInfo.DataConsistency.RxAfterTxDelayMS * int64(time.Millisecond))
+	}
+
+	return &ProviderHelper{
+		Requester: client,
+		Delayer:   &delayer{delay},
+	}, nil
 }
+
+type ProviderHelper struct {
+	border0client.Requester
+	Delayer
+}
+
+type Delayer interface {
+	ReadAfterWriteDelay()
+}
+
+type NoopDelayer struct{}
+
+func (d *NoopDelayer) ReadAfterWriteDelay() {}
+
+type delayer struct{ delay time.Duration }
+
+func (d *delayer) ReadAfterWriteDelay() { time.Sleep(d.delay) }

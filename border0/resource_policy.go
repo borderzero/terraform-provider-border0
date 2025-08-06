@@ -124,7 +124,9 @@ func getResourcePolicyCreate(sem sem.Semaphore) schema.CreateContextFunc {
 		sem.Acquire()
 		defer sem.Release()
 
-		client := m.(border0client.Requester)
+		helper := m.(*ProviderHelper)
+		client := helper.Requester
+
 		policy := &border0client.Policy{
 			Name:     d.Get("name").(string),
 			Version:  d.Get("version").(string),
@@ -162,6 +164,7 @@ func getResourcePolicyCreate(sem sem.Semaphore) schema.CreateContextFunc {
 
 		d.SetId(created.ID)
 
+		helper.ReadAfterWriteDelay()
 		return resourcePolicyRead(ctx, d, m)
 	}
 }
@@ -171,7 +174,8 @@ func getResourcePolicyUpdate(sem sem.Semaphore) schema.UpdateContextFunc {
 		sem.Acquire()
 		defer sem.Release()
 
-		client := m.(border0client.Requester)
+		helper := m.(*ProviderHelper)
+		client := helper.Requester
 
 		if d.HasChangesExcept("org_wide") {
 			policyUpdate := &border0client.Policy{
@@ -208,6 +212,7 @@ func getResourcePolicyUpdate(sem sem.Semaphore) schema.UpdateContextFunc {
 			}
 		}
 
+		helper.ReadAfterWriteDelay()
 		return resourcePolicyRead(ctx, d, m)
 	}
 }

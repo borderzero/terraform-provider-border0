@@ -79,7 +79,9 @@ func resourceConnectorTokenRead(ctx context.Context, d *schema.ResourceData, m a
 }
 
 func resourceConnectorTokenCreate(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
-	client := m.(border0client.Requester)
+	helper := m.(*ProviderHelper)
+	client := helper.Requester
+
 	connectorID := d.Get("connector_id").(string)
 	connectorToken := &border0client.ConnectorToken{
 		ConnectorID: connectorID,
@@ -107,6 +109,7 @@ func resourceConnectorTokenCreate(ctx context.Context, d *schema.ResourceData, m
 		return diags
 	}
 
+	helper.ReadAfterWriteDelay()
 	return resourceConnectorTokenRead(ctx, d, m)
 }
 

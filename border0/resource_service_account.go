@@ -70,7 +70,8 @@ func resourceServiceAccountRead(ctx context.Context, d *schema.ResourceData, m a
 }
 
 func resourceServiceAccountCreate(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
-	client := m.(border0client.Requester)
+	helper := m.(*ProviderHelper)
+	client := helper.Requester
 
 	serviceAccount := &border0client.ServiceAccount{
 		Name:        d.Get("name").(string),
@@ -88,6 +89,7 @@ func resourceServiceAccountCreate(ctx context.Context, d *schema.ResourceData, m
 	}
 	d.SetId(created.Name)
 
+	helper.ReadAfterWriteDelay()
 	if diags := resourceServiceAccountRead(ctx, d, m); diags.HasError() {
 		return diags
 	}
@@ -96,7 +98,8 @@ func resourceServiceAccountCreate(ctx context.Context, d *schema.ResourceData, m
 }
 
 func resourceServiceAccountUpdate(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
-	client := m.(border0client.Requester)
+	helper := m.(*ProviderHelper)
+	client := helper.Requester
 
 	fieldsToCheckForChanges := []string{
 		"description",
@@ -118,6 +121,7 @@ func resourceServiceAccountUpdate(ctx context.Context, d *schema.ResourceData, m
 		}
 	}
 
+	helper.ReadAfterWriteDelay()
 	return resourceServiceAccountRead(ctx, d, m)
 }
 

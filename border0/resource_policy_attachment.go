@@ -71,7 +71,9 @@ func resourcePolicyAttachmentRead(ctx context.Context, d *schema.ResourceData, m
 }
 
 func resourcePolicyAttachmentCreate(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
-	client := m.(border0client.Requester)
+	helper := m.(*ProviderHelper)
+	client := helper.Requester
+
 	policyID := d.Get("policy_id").(string)
 	socketID := d.Get("socket_id").(string)
 	err := client.AttachPolicyToSocket(ctx, policyID, socketID)
@@ -79,6 +81,8 @@ func resourcePolicyAttachmentCreate(ctx context.Context, d *schema.ResourceData,
 		return diagnostics.Error(err, "Failed to attach policy to socket")
 	}
 	d.SetId(fmt.Sprintf("%s:%s", policyID, socketID))
+
+	helper.ReadAfterWriteDelay()
 	return resourcePolicyAttachmentRead(ctx, d, m)
 }
 
