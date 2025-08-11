@@ -3,6 +3,7 @@ package border0
 import (
 	"context"
 	"log"
+	"strings"
 
 	border0client "github.com/borderzero/border0-go/client"
 	"github.com/borderzero/border0-go/types/service"
@@ -44,6 +45,9 @@ func resourceSocket(semaphore sem.Semaphore) *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The name of the socket. Must be unique within your Border0 organization. Socket name can have alphanumerics and hyphens, but it must start or end with alphanumeric.",
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					return strings.EqualFold(old, new) // Case-insensitive comparison
+				},
 			},
 			"socket_type": {
 				Type:        schema.TypeString,
