@@ -33,7 +33,14 @@ resource "border0_policy" "example" {
       "kubernetes" : {},
       "network" : {},
       "rdp" : {},
-      "ssh" : {},
+      "ssh": {
+          "shell": {},
+          "exec": {},
+          "sftp": {},
+          "tcp_forwarding": {},
+          "kubectl_exec": {},
+          "docker_exec": {}
+      },
       "tls" : {},
       "vnc" : {}
     },
