@@ -83,14 +83,35 @@ resource "border0_policy" "test_tf_policy" {
   })
 }
 
-data "border0_policy_document" "test_tf_policy_document" {
-  version = "v1"
-  action  = ["database", "ssh", "http", "tls"]
+data "border0_policy_v2_document" "test_tf_policy_document" {
+  permissions {
+    network { allowed = true }
+    ssh {
+      allowed = true
+      shell { allowed = true }
+      exec { allowed = true }
+      sftp { allowed = true }
+      tcp_forwarding { allowed = true }
+      kubectl_exec { allowed = true }
+      docker_exec { allowed = true }
+    }
+    database {
+      allowed = true
+      allowed_databases {
+        database            = "books"
+        allowed_query_types = ["ReadOnly"]
+      }
+    }
+    http { allowed = true }
+    tls { allowed = true }
+    vnc { allowed = true }
+    rdp { allowed = true }
+    kubernetes { allowed = true }
+  }
   condition {
     who {
-      email  = [] # your email goes here
-      group  = []
-      domain = ["example.com"]
+      email = [] # your email goes here
+      group = []
     }
     where {
       allowed_ip  = ["0.0.0.0/0", "::/0"]
@@ -108,7 +129,7 @@ data "border0_policy_document" "test_tf_policy_document" {
 resource "border0_policy" "another_test_tf_policy" {
   name        = "another-test-tf-policy"
   description = "another test policy from terraform"
-  policy_data = data.border0_policy_document.test_tf_policy_document.json
+  policy_data = data.border0_policy_v2_document.test_tf_policy_document.json
 }
 
 resource "border0_socket" "test_tf_http" {
@@ -176,7 +197,7 @@ resource "border0_policy_attachment" "another_test_tf_policy_ssh_socket" {
 }
 
 resource "border0_socket" "test_tf_mysql" {
-  name              = "test-tf-mysql"
+  name              = "test-tf-MySQL"
   recording_enabled = true
   socket_type       = "database"
   connector_ids     = [border0_connector.test_tf_connector.id]
