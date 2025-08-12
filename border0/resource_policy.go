@@ -95,6 +95,7 @@ func resourcePolicyRead(ctx context.Context, d *schema.ResourceData, m any) diag
 		return diagnostics.Error(err, "Failed to process policy data")
 	}
 	jsoneq.Prune(pdIface, jsoneq.PruneEmptySlices(), jsoneq.PruneEmptyStrings())
+	pruneNullValues(pdIface)
 	filteredPolicyData, err := json.Marshal(pdIface)
 	if err != nil {
 		return diagnostics.Error(err, "Failed to marshal filtered policy data")
@@ -269,6 +270,8 @@ func suppressEquivalentPolicyDiffs(k, old, new string, d *schema.ResourceData) b
 
 	// fallback to generic unordered JSON comparison for arrays
 	// NOTE: we MUST keep empty objects.
+	old = pruneNullJSON(old)
+	new = pruneNullJSON(new)
 	return jsoneq.AreEqual(old, new, jsoneq.PruneEmptySlices(), jsoneq.PruneEmptyStrings())
 }
 
@@ -294,4 +297,34 @@ func mapTagRules(tagRules any) []map[string]string {
 		return rules
 	}
 	return []map[string]string{}
+}
+
+func pruneNullValues(v any) {
+	switch x := v.(type) {
+	case map[string]any:
+		for k, e := range x {
+			if e == nil {
+				delete(x, k)
+				continue
+			}
+			pruneNullValues(e)
+		}
+	case []any:
+		for _, e := range x {
+			pruneNullValues(e)
+		}
+	}
+}
+
+func pruneNullJSON(s string) string {
+	var v any
+	if err := json.Unmarshal([]byte(s), &v); err != nil {
+		return s
+	}
+	pruneNullValues(v)
+	b, err := json.Marshal(v)
+	if err != nil {
+		return s
+	}
+	return string(b)
 }
