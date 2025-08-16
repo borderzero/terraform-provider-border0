@@ -179,6 +179,7 @@ Optional:
 - `cloudsql_iam_auth` (Boolean) Indicates if GCP IAM authentication is enabled. Only used when service type is `gcp_cloud_sql`.
 - `cloudsql_instance_id` (String) The upstream CloudSQL instance id. Only used when service type is `gcp_cloud_sql`.
 - `cluster_region` (String) The upstream DocumentDB upstream database region. Only used when service type is `aws_documentdb`, and authentication type is `iam`.
+- `database_name` (String) The upstream database name. Only used when service type is `standard`, `aws_rds`, or `aws_documentdb`.
 - `gcp_credentials` (String, Sensitive) The upstream GCP credentials.
 - `hostname` (String) The upstream database hostname.
 - `kerberos_auth` (Boolean) Indicates if Kerberos authentication is enabled. Only used when service type is `azure_sql`.

@@ -56,6 +56,7 @@ func standardFromUpstreamConfig(data *map[string]any, config *service.StandardDa
 	(*data)["protocol"] = config.DatabaseProtocol
 	(*data)["hostname"] = config.Hostname
 	(*data)["port"] = config.Port
+	(*data)["database_name"] = config.DatabaseName
 
 	switch config.AuthenticationType {
 	case service.DatabaseAuthenticationTypeUsernameAndPassword:
@@ -90,6 +91,7 @@ func awsRdsFromUpstreamConfig(data *map[string]any, config *service.AwsRdsDataba
 	(*data)["protocol"] = config.DatabaseProtocol
 	(*data)["hostname"] = config.Hostname
 	(*data)["port"] = config.Port
+	(*data)["database_name"] = config.DatabaseName
 
 	switch config.AuthenticationType {
 	case service.DatabaseAuthenticationTypeUsernameAndPassword:
@@ -123,6 +125,7 @@ func awsDocumentDBFromUpstreamConfig(data *map[string]any, config *service.AwsDo
 	(*data)["protocol"] = config.DatabaseProtocol
 	(*data)["hostname"] = config.Hostname
 	(*data)["port"] = config.Port
+	(*data)["database_name"] = config.DatabaseName
 
 	switch config.AuthenticationType {
 	case service.DatabaseAuthenticationTypeUsernameAndPassword:

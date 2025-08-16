@@ -25,8 +25,8 @@ github.com/bgentry/speakeasy v0.2.0 h1:tgObeVOf8WAvtuAX6DhJ4xks4CFNwPDZiqzGqIHE5
 github.com/bgentry/speakeasy v0.2.0/go.mod h1:+zsyZBPWlz7T6j88CTgSN5bM796AkVf0kBD4zp0CCIs=
 github.com/bmatcuk/doublestar/v4 v4.9.1 h1:X8jg9rRZmJd4yRy7ZeNDRnM+T3ZfHv15JiBJ/avrEXE=
 github.com/bmatcuk/doublestar/v4 v4.9.1/go.mod h1:xBQ8jztBU6kakFMg+8WGxn0c6z1fTSPVIjEY1Wr7jzc=
-github.com/borderzero/border0-go v1.4.95 h1:bk2UwpFhH9Ibpm3ub1rf8rdm3cEjTQs69a/2ewY8eqw=
-github.com/borderzero/border0-go v1.4.95/go.mod h1:ZHJou3/DK22v0iOmdsG8ImwQmGpzHjPuhwGU94DuCt0=
+github.com/borderzero/border0-go v1.4.104 h1:6aAZVp9+f3Tl5yWzVn7dNwk04MKIgI4LRy0sbRxhsro=
+github.com/borderzero/border0-go v1.4.104/go.mod h1:/H7vMMFm4Nj9+6K59PFfLcB4cy8NpWpppgcfV/sNeY4=
 github.com/bufbuild/protocompile v0.4.0 h1:LbFKd2XowZvQ/kajzguUp2DC9UEIQhIq77fZZlaQsNA=
 github.com/bufbuild/protocompile v0.4.0/go.mod h1:3v93+mbWn/v3xzN+31nwkJfrEpAUwp+BagBSZWx+TP8=
 github.com/cenkalti/backoff/v4 v4.3.0 h1:MyRJ/UdXutAwSAT+s3wNd7MfTIcy71VQueUuFK343L8=
