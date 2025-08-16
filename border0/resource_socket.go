@@ -255,6 +255,11 @@ func resourceSocket(semaphore sem.Semaphore) *schema.Resource {
 							Optional:    true,
 							Description: "The upstream database port number.",
 						},
+						"database_name": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The upstream database name. Only used when service type is `standard`, `aws_rds`, or `aws_documentdb`.",
+						},
 						"authentication_type": {
 							Type:        schema.TypeString,
 							Optional:    true,

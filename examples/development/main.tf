@@ -58,13 +58,13 @@ resource "border0_policy" "test_tf_policy" {
       "kubernetes" : {},
       "network" : {},
       "rdp" : {},
-      "ssh": {
-          "shell": {},
-          "exec": {},
-          "sftp": {},
-          "tcp_forwarding": {},
-          "kubectl_exec": {},
-          "docker_exec": {}
+      "ssh" : {
+        "shell" : {},
+        "exec" : {},
+        "sftp" : {},
+        "tcp_forwarding" : {},
+        "kubectl_exec" : {},
+        "docker_exec" : {}
       },
       "tls" : {},
       "vnc" : {}
@@ -210,11 +210,12 @@ resource "border0_socket" "test_tf_mysql" {
   connector_ids     = [border0_connector.test_tf_connector.id]
 
   database_configuration {
-    protocol = "mysql"
-    hostname = "127.0.0.1"
-    port     = 3307
-    username = "root"
-    password = "test"
+    protocol      = "mysql"
+    hostname      = "127.0.0.1"
+    port          = 3307
+    database_name = "test_db"
+    username      = "root"
+    password      = "test"
   }
 }
 

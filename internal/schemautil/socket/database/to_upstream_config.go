@@ -78,6 +78,9 @@ func standardToUpstreamConfig(data map[string]any, config *service.StandardDatab
 	if v, ok := data["port"]; ok {
 		config.Port = uint16(v.(int))
 	}
+	if v, ok := data["database_name"]; ok {
+		config.DatabaseName = v.(string)
+	}
 
 	switch authType {
 	case service.DatabaseAuthenticationTypeUsernameAndPassword:
@@ -136,6 +139,9 @@ func awsRdsToUpstreamConfig(data map[string]any, config *service.AwsRdsDatabaseS
 	if v, ok := data["port"]; ok {
 		config.Port = uint16(v.(int))
 	}
+	if v, ok := data["database_name"]; ok {
+		config.DatabaseName = v.(string)
+	}
 
 	switch authType {
 	case service.DatabaseAuthenticationTypeUsernameAndPassword:
@@ -192,6 +198,9 @@ func awsDocumentDBToUpstreamConfig(data map[string]any, config *service.AwsDocum
 	}
 	if v, ok := data["port"]; ok {
 		config.Port = uint16(v.(int))
+	}
+	if v, ok := data["database_name"]; ok {
+		config.DatabaseName = v.(string)
 	}
 
 	switch authType {
