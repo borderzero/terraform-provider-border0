@@ -24,7 +24,14 @@ resource "border0_policy" "example" {
       "kubernetes" : {},
       "network" : {},
       "rdp" : {},
-      "ssh" : {},
+      "ssh" : {
+        "shell" : {},
+        "exec" : {},
+        "sftp" : {},
+        "tcp_forwarding" : {},
+        "kubectl_exec" : {},
+        "docker_exec" : {}
+      },
       "tls" : {},
       "vnc" : {}
     },
@@ -47,6 +54,21 @@ resource "border0_policy" "example" {
       }
     }
   })
+}
+
+
+// Using the data source to create/manage a tag based policy
+// More info: https://docs.border0.com/docs/product-updates#march-2025
+resource "border0_policy" "example" {
+  name        = "example-policy"
+  description = "My tag based policy"
+  version     = "v2"
+  policy_data = data.border0_policy_v2_document.example.json
+  // This results in (example-tag1:example-value1 AND example_tag2:more-example-value OR example-tag:example-value)
+  tag_rules = [
+    { example_tag1 = "example-value1", example_tag2 = "more-example-value" },
+    { example_tag = "example-value"},
+  ]
 }
 ```
 
