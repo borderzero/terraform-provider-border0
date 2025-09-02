@@ -5,9 +5,9 @@ import (
 	"time"
 
 	border0client "github.com/borderzero/border0-go/client"
-	"github.com/borderzero/terraform-provider-border0/internal/lib/sem"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"golang.org/x/sync/semaphore"
 )
 
 const (
@@ -29,7 +29,7 @@ type ProviderOption func(p *schema.Provider)
 
 // Provider returns a Border0 implementation and definition of terraform `schema.Provider`.
 func Provider(options ...ProviderOption) *schema.Provider {
-	semaphore := sem.New(maxParallelism)
+	semaphore := semaphore.NewWeighted(maxParallelism)
 
 	provider := &schema.Provider{
 		ConfigureContextFunc: providerConfigure,

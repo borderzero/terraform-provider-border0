@@ -10,14 +10,14 @@ import (
 	border0client "github.com/borderzero/border0-go/client"
 	"github.com/borderzero/border0-go/lib/types/jsoneq"
 	"github.com/borderzero/terraform-provider-border0/internal/diagnostics"
-	"github.com/borderzero/terraform-provider-border0/internal/lib/sem"
 	"github.com/borderzero/terraform-provider-border0/internal/schemautil"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"golang.org/x/sync/semaphore"
 )
 
-func resourcePolicy(semaphore sem.Semaphore) *schema.Resource {
+func resourcePolicy(semaphore *semaphore.Weighted) *schema.Resource {
 	return &schema.Resource{
 		Description:   "The policy resource allows you to create and manage a Border0 policy.",
 		ReadContext:   resourcePolicyRead,
@@ -119,10 +119,12 @@ func resourcePolicyRead(ctx context.Context, d *schema.ResourceData, m any) diag
 	})
 }
 
-func getResourcePolicyCreate(sem sem.Semaphore) schema.CreateContextFunc {
+func getResourcePolicyCreate(sem *semaphore.Weighted) schema.CreateContextFunc {
 	return func(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
-		sem.Acquire()
-		defer sem.Release()
+		if err := sem.Acquire(ctx, 1); err != nil {
+			return diag.FromErr(err)
+		}
+		defer sem.Release(1)
 
 		helper := m.(*ProviderHelper)
 		client := helper.Requester
@@ -169,10 +171,12 @@ func getResourcePolicyCreate(sem sem.Semaphore) schema.CreateContextFunc {
 	}
 }
 
-func getResourcePolicyUpdate(sem sem.Semaphore) schema.UpdateContextFunc {
+func getResourcePolicyUpdate(sem *semaphore.Weighted) schema.UpdateContextFunc {
 	return func(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
-		sem.Acquire()
-		defer sem.Release()
+		if err := sem.Acquire(ctx, 1); err != nil {
+			return diag.FromErr(err)
+		}
+		defer sem.Release(1)
 
 		helper := m.(*ProviderHelper)
 		client := helper.Requester
@@ -217,10 +221,12 @@ func getResourcePolicyUpdate(sem sem.Semaphore) schema.UpdateContextFunc {
 	}
 }
 
-func getResourcePolicyDelete(sem sem.Semaphore) schema.DeleteContextFunc {
+func getResourcePolicyDelete(sem *semaphore.Weighted) schema.DeleteContextFunc {
 	return func(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
-		sem.Acquire()
-		defer sem.Release()
+		if err := sem.Acquire(ctx, 1); err != nil {
+			return diag.FromErr(err)
+		}
+		defer sem.Release(1)
 
 		client := m.(border0client.Requester)
 		if err := client.DeletePolicy(ctx, d.Id()); err != nil {
