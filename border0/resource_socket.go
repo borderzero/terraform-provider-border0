@@ -8,14 +8,14 @@ import (
 	border0client "github.com/borderzero/border0-go/client"
 	"github.com/borderzero/border0-go/types/service"
 	"github.com/borderzero/terraform-provider-border0/internal/diagnostics"
-	"github.com/borderzero/terraform-provider-border0/internal/lib/sem"
 	"github.com/borderzero/terraform-provider-border0/internal/schemautil"
 	"github.com/borderzero/terraform-provider-border0/internal/schemautil/socket/shared"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"golang.org/x/sync/semaphore"
 )
 
-func resourceSocket(semaphore sem.Semaphore) *schema.Resource {
+func resourceSocket(semaphore *semaphore.Weighted) *schema.Resource {
 	headerBlockResource := &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"key": {
@@ -677,10 +677,12 @@ func fetchSocket(ctx context.Context, d *schema.ResourceData, m any, idOrName st
 	return socket, nil
 }
 
-func getResourceSocketCreate(sem sem.Semaphore) schema.CreateContextFunc {
+func getResourceSocketCreate(sem *semaphore.Weighted) schema.CreateContextFunc {
 	return func(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
-		sem.Acquire()
-		defer sem.Release()
+		if err := sem.Acquire(ctx, 1); err != nil {
+			return diag.FromErr(err)
+		}
+		defer sem.Release(1)
 
 		helper := m.(*ProviderHelper)
 		client := helper.Requester
@@ -708,10 +710,12 @@ func getResourceSocketCreate(sem sem.Semaphore) schema.CreateContextFunc {
 	}
 }
 
-func getResourceSocketUpdate(sem sem.Semaphore) schema.UpdateContextFunc {
+func getResourceSocketUpdate(sem *semaphore.Weighted) schema.UpdateContextFunc {
 	return func(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
-		sem.Acquire()
-		defer sem.Release()
+		if err := sem.Acquire(ctx, 1); err != nil {
+			return diag.FromErr(err)
+		}
+		defer sem.Release(1)
 
 		helper := m.(*ProviderHelper)
 		client := helper.Requester
@@ -745,10 +749,12 @@ func getResourceSocketUpdate(sem sem.Semaphore) schema.UpdateContextFunc {
 	}
 }
 
-func getResourceSocketDelete(sem sem.Semaphore) schema.DeleteContextFunc {
+func getResourceSocketDelete(sem *semaphore.Weighted) schema.DeleteContextFunc {
 	return func(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
-		sem.Acquire()
-		defer sem.Release()
+		if err := sem.Acquire(ctx, 1); err != nil {
+			return diag.FromErr(err)
+		}
+		defer sem.Release(1)
 
 		client := m.(border0client.Requester)
 		if err := client.DeleteSocket(ctx, d.Id()); err != nil {
