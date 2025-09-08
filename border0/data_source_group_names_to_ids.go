@@ -46,6 +46,9 @@ func dataSourceGroupNamesToIDsRead(ctx context.Context, d *schema.ResourceData, 
 		groups = set.New(schemaconvert.SetToSlice[string](v.(*schema.Set))...)
 	}
 
+	// NOTE: internally uses the border0 go sdk's groups paginator
+	// to retrieve all pages of groups in the organization, using
+	// the default page size defined there.
 	groupsList, err := client.Groups(ctx)
 	if err != nil {
 		return diagnostics.Error(err, "Failed to fetch groups list")
