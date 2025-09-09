@@ -46,6 +46,9 @@ func dataSourceUserEmailsToIDsRead(ctx context.Context, d *schema.ResourceData, 
 		emails = set.New(schemaconvert.SetToSlice[string](v.(*schema.Set))...)
 	}
 
+	// NOTE: internally uses the border0 go sdk's users paginator
+	// to retrieve all pages of users in the organization, using
+	// the default page size defined there.
 	users, err := client.Users(ctx)
 	if err != nil {
 		return diagnostics.Error(err, "Failed to fetch users list")
