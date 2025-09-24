@@ -56,20 +56,20 @@ func standardFromUpstreamConfig(data *map[string]any, config *service.StandardSs
 
 	switch config.SshAuthenticationType {
 	case service.StandardSshServiceAuthenticationTypeBorder0Certificate:
-		if config == nil {
+		if config.Border0CertificateAuthConfiguration == nil {
 			return diag.Errorf(`got a socket with SSH authentication type "border0_certificate" but Border0 certificate auth configuration was not present`)
 		}
 		(*data)["username_provider"] = config.Border0CertificateAuthConfiguration.UsernameProvider
 		(*data)["username"] = config.Border0CertificateAuthConfiguration.Username
 	case service.StandardSshServiceAuthenticationTypePrivateKey:
-		if config == nil {
-			return diag.Errorf(`got a socket with SSH authentication type "ssh_private_key" but private key auth configuration was not present`)
+		if config.PrivateKeyAuthConfiguration == nil {
+			return diag.Errorf(`got a socket with SSH authentication type "private_key" but private key auth configuration was not present`)
 		}
 		(*data)["username_provider"] = config.PrivateKeyAuthConfiguration.UsernameProvider
 		(*data)["username"] = config.PrivateKeyAuthConfiguration.Username
 		(*data)["private_key"] = config.PrivateKeyAuthConfiguration.PrivateKey
 	case service.StandardSshServiceAuthenticationTypeUsernameAndPassword:
-		if config == nil {
+		if config.UsernameAndPasswordAuthConfiguration == nil {
 			return diag.Errorf(`got a socket with SSH authentication type "username_and_password" but username and password auth configuration was not present`)
 		}
 		(*data)["username_provider"] = config.UsernameAndPasswordAuthConfiguration.UsernameProvider
