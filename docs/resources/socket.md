@@ -302,7 +302,7 @@ Required:
 
 Optional:
 
-- `authentication_type` (String) The upstream authentication type for standard SSH service. Valid values: `username_and_password`, `border0_certificate`, `ssh_private_key`. Defaults to `border0_certificate`.
+- `authentication_type` (String) The upstream authentication type for standard SSH service. Valid values: `username_and_password`, `border0_certificate`, `private_key`. Defaults to `border0_certificate`.
 - `aws_credentials` (Block List) The upstream service's AWS credentials. (see [below for nested schema](#nestedblock--ssh_configuration--aws_credentials))
 - `ec2_instance_id` (String) The upstream EC2 instance id. Used when service type is either `aws_ec2_instance_connect` or `aws_ssm`.
 - `ec2_instance_region` (String) The upstream EC2 instance region. Used when service type is either `aws_ec2_instance_connect` or `aws_ssm` (SSM target type is `ec2`).

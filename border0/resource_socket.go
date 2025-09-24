@@ -166,7 +166,7 @@ func resourceSocket(semaphore *semaphore.Weighted) *schema.Resource {
 							Type:        schema.TypeString,
 							Optional:    true,
 							Computed:    true,
-							Description: "The upstream authentication type for standard SSH service. Valid values: `username_and_password`, `border0_certificate`, `ssh_private_key`. Defaults to `border0_certificate`.",
+							Description: "The upstream authentication type for standard SSH service. Valid values: `username_and_password`, `border0_certificate`, `private_key`. Defaults to `border0_certificate`.",
 						},
 						"username_provider": {
 							Type:        schema.TypeString,
