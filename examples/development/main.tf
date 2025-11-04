@@ -178,6 +178,18 @@ resource "border0_socket" "test_tf_ssh" {
   }
 }
 
+resource "border0_socket" "test_tf_kubectl_exec" {
+  name              = "test-tf-kubectl-exec"
+  recording_enabled = true
+  socket_type       = "ssh"
+  connector_ids     = [border0_connector.test_tf_connector.id]
+
+  ssh_configuration {
+    service_type    = "kubectl_exec"
+    kubeconfig_path = "/root/.kube/config"
+  }
+}
+
 resource "border0_policy_attachment" "test_tf_policy_builtin_ssh" {
   policy_id = border0_policy.test_tf_policy.id
   socket_id = border0_connector.test_tf_connector.built_in_ssh_service_id
@@ -201,6 +213,11 @@ resource "border0_policy_attachment" "test_tf_policy_ssh_socket" {
 resource "border0_policy_attachment" "another_test_tf_policy_ssh_socket" {
   policy_id = border0_policy.another_test_tf_policy.id
   socket_id = border0_socket.test_tf_ssh.id
+}
+
+resource "border0_policy_attachment" "test_tf_policy_kubectl_exec_socket" {
+  policy_id = border0_policy.test_tf_policy.id
+  socket_id = border0_socket.test_tf_kubectl_exec.id
 }
 
 resource "border0_socket" "test_tf_mysql" {
@@ -289,6 +306,11 @@ output "managed_resources" {
       id   = border0_socket.test_tf_ssh.id
       name = border0_socket.test_tf_ssh.name
       type = border0_socket.test_tf_ssh.socket_type
+    }
+    kubectl_exec_socket = {
+      id   = border0_socket.test_tf_kubectl_exec.id
+      name = border0_socket.test_tf_kubectl_exec.name
+      type = border0_socket.test_tf_kubectl_exec.socket_type
     }
   }
 }
