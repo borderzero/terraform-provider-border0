@@ -309,11 +309,18 @@ Optional:
 - `ecs_cluster_name` (String) The upstream ECS cluster name. Only used when service type is `aws_ssm`, and SSM target type is `ecs`.
 - `ecs_cluster_region` (String) The upstream ECS cluster region. Only used when service type is `aws_ssm`, and SSM target type is `ecs`.
 - `ecs_service_name` (String) The upstream ECS service name. Only used when service type is `aws_ssm`, and SSM target type is `ecs`.
+- `eks_cluster_name` (String) The EKS cluster name. Only used when service type is `kubectl_exec` and kubectl exec target type is `aws_eks`.
+- `eks_cluster_region` (String) The EKS cluster region. Only used when service type is `kubectl_exec` and kubectl exec target type is `aws_eks`.
 - `hostname` (String) The upstream SSH hostname.
+- `kubeconfig_path` (String) The path to the kubeconfig file. Only used when service type is `kubectl_exec` and kubectl exec target type is `standard`.
+- `kubectl_exec_target_type` (String) The kubectl exec target type. Valid values: `standard`, `aws_eks`. Defaults to `standard`. Only used when service type is `kubectl_exec`.
+- `master_url` (String) The Kubernetes master URL. Only used when service type is `kubectl_exec` and kubectl exec target type is `standard`.
+- `namespace_allowlist` (Set of String) List of allowed Kubernetes namespaces. Only used when service type is `kubectl_exec`.
+- `namespace_selectors_allowlist` (String) JSON-encoded map of namespace to label selectors (map[string]map[string][]string). Only used when service type is `kubectl_exec`.
 - `password` (String, Sensitive) The upstream password. Only used when authentication type is `username_and_password`.
 - `port` (Number) The upstream SSH port number.
 - `private_key` (String, Sensitive) The upstream private key. Only used when authentication type is `private_key`.
-- `service_type` (String) The upstream service type. Valid values: `standard`, `aws_ec2_instance_connect`, `aws_ssm`. Defaults to `standard`.
+- `service_type` (String) The upstream service type. Valid values: `standard`, `aws_ec2_instance_connect`, `aws_ssm`, `kubectl_exec`, `connector_built_in_ssh_service`. Defaults to `standard`.
 - `ssm_target_type` (String) The upstream SSM target type. Valid values: `ec2`, `ecs`. Defaults to `ec2`. Only used when service type is `aws_ssm`.
 - `username` (String, Sensitive) The upstream username.
 - `username_provider` (String) The upstream username provider. Valid values: `defined`, `prompt_client`, `use_connector_user`. Defaults to `prompt_client`.
