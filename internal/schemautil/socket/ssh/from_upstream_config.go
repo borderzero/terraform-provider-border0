@@ -1,6 +1,8 @@
 package ssh
 
 import (
+	"encoding/json"
+
 	"github.com/borderzero/border0-go/types/service"
 	"github.com/borderzero/terraform-provider-border0/internal/diagnostics"
 	"github.com/borderzero/terraform-provider-border0/internal/schemautil/socket/shared"
@@ -28,6 +30,8 @@ func FromUpstreamConfig(d *schema.ResourceData, config *service.SshServiceConfig
 		diags = awsEc2InstanceConnectFromUpstreamConfig(&data, config.AwsEc2ICSshServiceConfiguration)
 	case service.SshServiceTypeAwsSsm:
 		diags = awsSsmFromUpstreamConfig(&data, config.AwsSsmSshServiceConfiguration)
+	case service.SshServiceTypeKubectlExec:
+		diags = kubectlExecFromUpstreamConfig(&data, config.KubectlExecSshServiceConfiguration)
 	case service.SshServiceTypeConnectorBuiltIn:
 		diags = connectorBuiltInFromUpstreamConfig(&data, config.BuiltInSshServiceConfiguration)
 	default:
@@ -123,6 +127,54 @@ func awsSsmFromUpstreamConfig(data *map[string]any, config *service.AwsSsmSshSer
 		(*data)["aws_credentials"] = shared.FromAwsCredentials(config.AwsSsmEcsTargetConfiguration.AwsCredentials)
 	default:
 		return diag.Errorf(`sockets with AWS SSM target type "%s" not yet supported`, config.SsmTargetType)
+	}
+
+	return nil
+}
+
+func kubectlExecFromUpstreamConfig(data *map[string]any, config *service.KubectlExecSshServiceConfiguration) diag.Diagnostics {
+	if config == nil {
+		return diag.Errorf(`got a socket with SSH service type "kubectl_exec" but Kubectl Exec SSH service configuration was not present`)
+	}
+
+	(*data)["kubectl_exec_target_type"] = config.KubectlExecTargetType
+
+	// Handle base configuration (common to all target types)
+	if len(config.NamespaceAllowlist) > 0 {
+		(*data)["namespace_allowlist"] = config.NamespaceAllowlist
+	}
+
+	if len(config.NamespaceSelectorsAllowlist) > 0 {
+		// Convert the complex nested map to JSON string for Terraform
+		jsonBytes, err := json.Marshal(config.NamespaceSelectorsAllowlist)
+		if err != nil {
+			return diag.Errorf(`failed to marshal namespace_selectors_allowlist to JSON: %v`, err)
+		}
+		(*data)["namespace_selectors_allowlist"] = string(jsonBytes)
+	}
+
+	switch config.KubectlExecTargetType {
+	case service.KubectlExecTargetTypeAwsEks:
+		if config.AwsEksKubectlExecTargetConfiguration == nil {
+			return diag.Errorf(`got a socket with kubectl exec target type "aws_eks" but AWS EKS kubectl exec target configuration was not present`)
+		}
+		(*data)["eks_cluster_name"] = config.AwsEksKubectlExecTargetConfiguration.EksClusterName
+		(*data)["eks_cluster_region"] = config.AwsEksKubectlExecTargetConfiguration.EksClusterRegion
+		(*data)["aws_credentials"] = shared.FromAwsCredentials(config.AwsEksKubectlExecTargetConfiguration.AwsCredentials)
+
+	case service.KubectlExecTargetTypeStandard, "":
+		// Empty string defaults to standard
+		if config.StandardKubectlExecTargetConfiguration != nil {
+			if config.StandardKubectlExecTargetConfiguration.KubeconfigPath != "" {
+				(*data)["kubeconfig_path"] = config.StandardKubectlExecTargetConfiguration.KubeconfigPath
+			}
+			if config.StandardKubectlExecTargetConfiguration.MasterUrl != "" {
+				(*data)["master_url"] = config.StandardKubectlExecTargetConfiguration.MasterUrl
+			}
+		}
+
+	default:
+		return diag.Errorf(`kubectl exec target type "%s" is invalid`, config.KubectlExecTargetType)
 	}
 
 	return nil

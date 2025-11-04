@@ -150,7 +150,7 @@ func resourceSocket(semaphore *semaphore.Weighted) *schema.Resource {
 							Type:        schema.TypeString,
 							Optional:    true,
 							Default:     service.SshServiceTypeStandard,
-							Description: "The upstream service type. Valid values: `standard`, `aws_ec2_instance_connect`, `aws_ssm`. Defaults to `standard`.",
+							Description: "The upstream service type. Valid values: `standard`, `aws_ec2_instance_connect`, `aws_ssm`, `kubectl_exec`, `connector_built_in_ssh_service`. Defaults to `standard`.",
 						},
 						"hostname": {
 							Type:        schema.TypeString,
@@ -223,6 +223,43 @@ func resourceSocket(semaphore *semaphore.Weighted) *schema.Resource {
 							Type:        schema.TypeString,
 							Optional:    true,
 							Description: "The upstream ECS service name. Only used when service type is `aws_ssm`, and SSM target type is `ecs`.",
+						},
+						"kubectl_exec_target_type": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							Description: "The kubectl exec target type. Valid values: `standard`, `aws_eks`. Defaults to `standard`. Only used when service type is `kubectl_exec`.",
+						},
+						"kubeconfig_path": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The path to the kubeconfig file. Only used when service type is `kubectl_exec` and kubectl exec target type is `standard`.",
+						},
+						"master_url": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The Kubernetes master URL. Only used when service type is `kubectl_exec` and kubectl exec target type is `standard`.",
+						},
+						"eks_cluster_name": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The EKS cluster name. Only used when service type is `kubectl_exec` and kubectl exec target type is `aws_eks`.",
+						},
+						"eks_cluster_region": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The EKS cluster region. Only used when service type is `kubectl_exec` and kubectl exec target type is `aws_eks`.",
+						},
+						"namespace_allowlist": {
+							Type:        schema.TypeSet,
+							Optional:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Description: "List of allowed Kubernetes namespaces. Only used when service type is `kubectl_exec`.",
+						},
+						"namespace_selectors_allowlist": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "JSON-encoded map of namespace to label selectors (map[string]map[string][]string). Only used when service type is `kubectl_exec`.",
 						},
 					},
 				},

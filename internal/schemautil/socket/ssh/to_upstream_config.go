@@ -1,6 +1,8 @@
 package ssh
 
 import (
+	"encoding/json"
+
 	"github.com/borderzero/border0-go/types/service"
 	"github.com/borderzero/terraform-provider-border0/internal/schemautil/socket/shared"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -49,6 +51,12 @@ func ToUpstreamConfig(d *schema.ResourceData, config *service.SshServiceConfigur
 			config.BuiltInSshServiceConfiguration = new(service.BuiltInSshServiceConfiguration)
 		}
 		return connectorBuiltInToUpstreamConfig(data, config.BuiltInSshServiceConfiguration)
+
+	case service.SshServiceTypeKubectlExec:
+		if config.KubectlExecSshServiceConfiguration == nil {
+			config.KubectlExecSshServiceConfiguration = new(service.KubectlExecSshServiceConfiguration)
+		}
+		return kubectlExecToUpstreamConfig(data, config.KubectlExecSshServiceConfiguration)
 
 	default:
 		return diag.Errorf(`sockets with ssh service type "%s" not yet supported`, sshServiceType)
@@ -209,6 +217,69 @@ func connectorBuiltInToUpstreamConfig(data map[string]any, config *service.Built
 
 	if v, ok := data["username"]; ok {
 		config.Username = v.(string)
+	}
+
+	return nil
+}
+
+func kubectlExecToUpstreamConfig(data map[string]any, config *service.KubectlExecSshServiceConfiguration) diag.Diagnostics {
+	targetType := service.KubectlExecTargetTypeStandard // default to "standard"
+
+	if v, ok := data["kubectl_exec_target_type"]; ok {
+		if str := v.(string); str != "" {
+			targetType = str
+		}
+	}
+	config.KubectlExecTargetType = targetType
+
+	// Handle base configuration (common to all target types)
+	if v, ok := data["namespace_allowlist"]; ok {
+		if namespaces, ok := v.(*schema.Set); ok {
+			config.NamespaceAllowlist = make([]string, 0, namespaces.Len())
+			for _, ns := range namespaces.List() {
+				config.NamespaceAllowlist = append(config.NamespaceAllowlist, ns.(string))
+			}
+		}
+	}
+
+	if v, ok := data["namespace_selectors_allowlist"]; ok && v.(string) != "" {
+		// Parse JSON string into the complex nested map
+		jsonStr := v.(string)
+		var selectors map[string]map[string][]string
+		if err := json.Unmarshal([]byte(jsonStr), &selectors); err != nil {
+			return diag.Errorf(`failed to unmarshal namespace_selectors_allowlist from JSON: %v`, err)
+		}
+		config.NamespaceSelectorsAllowlist = selectors
+	}
+
+	switch targetType {
+	case service.KubectlExecTargetTypeStandard:
+		if config.StandardKubectlExecTargetConfiguration == nil {
+			config.StandardKubectlExecTargetConfiguration = new(service.StandardKubectlExecTargetConfiguration)
+		}
+		if v, ok := data["kubeconfig_path"]; ok {
+			config.StandardKubectlExecTargetConfiguration.KubeconfigPath = v.(string)
+		}
+		if v, ok := data["master_url"]; ok {
+			config.StandardKubectlExecTargetConfiguration.MasterUrl = v.(string)
+		}
+
+	case service.KubectlExecTargetTypeAwsEks:
+		if config.AwsEksKubectlExecTargetConfiguration == nil {
+			config.AwsEksKubectlExecTargetConfiguration = new(service.AwsEksKubectlExecTargetConfiguration)
+		}
+		if v, ok := data["eks_cluster_name"]; ok {
+			config.AwsEksKubectlExecTargetConfiguration.EksClusterName = v.(string)
+		}
+		if v, ok := data["eks_cluster_region"]; ok {
+			config.AwsEksKubectlExecTargetConfiguration.EksClusterRegion = v.(string)
+		}
+		if v, ok := data["aws_credentials"]; ok {
+			config.AwsEksKubectlExecTargetConfiguration.AwsCredentials = shared.ToAwsCredentials(v)
+		}
+
+	default:
+		return diag.Errorf(`kubectl exec target type "%s" is invalid`, targetType)
 	}
 
 	return nil
