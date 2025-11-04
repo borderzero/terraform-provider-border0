@@ -32,6 +32,8 @@ func FromUpstreamConfig(d *schema.ResourceData, config *service.SshServiceConfig
 		diags = awsSsmFromUpstreamConfig(&data, config.AwsSsmSshServiceConfiguration)
 	case service.SshServiceTypeKubectlExec:
 		diags = kubectlExecFromUpstreamConfig(&data, config.KubectlExecSshServiceConfiguration)
+	case service.SshServiceTypeDockerExec:
+		diags = dockerExecFromUpstreamConfig(&data, config.DockerExecSshServiceConfiguration)
 	case service.SshServiceTypeConnectorBuiltIn:
 		diags = connectorBuiltInFromUpstreamConfig(&data, config.BuiltInSshServiceConfiguration)
 	default:
@@ -175,6 +177,18 @@ func kubectlExecFromUpstreamConfig(data *map[string]any, config *service.Kubectl
 
 	default:
 		return diag.Errorf(`kubectl exec target type "%s" is invalid`, config.KubectlExecTargetType)
+	}
+
+	return nil
+}
+
+func dockerExecFromUpstreamConfig(data *map[string]any, config *service.DockerExecSshServiceConfiguration) diag.Diagnostics {
+	if config == nil {
+		return diag.Errorf(`got a socket with SSH service type "docker_exec" but Docker Exec SSH service configuration was not present`)
+	}
+
+	if len(config.ContainerNameAllowlist) > 0 {
+		(*data)["container_name_allowlist"] = config.ContainerNameAllowlist
 	}
 
 	return nil

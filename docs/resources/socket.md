@@ -304,6 +304,7 @@ Optional:
 
 - `authentication_type` (String) The upstream authentication type for standard SSH service. Valid values: `username_and_password`, `border0_certificate`, `private_key`. Defaults to `border0_certificate`.
 - `aws_credentials` (Block List) The upstream service's AWS credentials. (see [below for nested schema](#nestedblock--ssh_configuration--aws_credentials))
+- `container_name_allowlist` (Set of String) List of allowed container names (supports wildcards). Only used when service type is `docker_exec`.
 - `ec2_instance_id` (String) The upstream EC2 instance id. Used when service type is either `aws_ec2_instance_connect` or `aws_ssm`.
 - `ec2_instance_region` (String) The upstream EC2 instance region. Used when service type is either `aws_ec2_instance_connect` or `aws_ssm` (SSM target type is `ec2`).
 - `ecs_cluster_name` (String) The upstream ECS cluster name. Only used when service type is `aws_ssm`, and SSM target type is `ecs`.
@@ -320,7 +321,7 @@ Optional:
 - `password` (String, Sensitive) The upstream password. Only used when authentication type is `username_and_password`.
 - `port` (Number) The upstream SSH port number.
 - `private_key` (String, Sensitive) The upstream private key. Only used when authentication type is `private_key`.
-- `service_type` (String) The upstream service type. Valid values: `standard`, `aws_ec2_instance_connect`, `aws_ssm`, `kubectl_exec`, `connector_built_in_ssh_service`. Defaults to `standard`.
+- `service_type` (String) The upstream service type. Valid values: `standard`, `aws_ec2_instance_connect`, `aws_ssm`, `kubectl_exec`, `docker_exec`, `connector_built_in_ssh_service`. Defaults to `standard`.
 - `ssm_target_type` (String) The upstream SSM target type. Valid values: `ec2`, `ecs`. Defaults to `ec2`. Only used when service type is `aws_ssm`.
 - `username` (String, Sensitive) The upstream username.
 - `username_provider` (String) The upstream username provider. Valid values: `defined`, `prompt_client`, `use_connector_user`. Defaults to `prompt_client`.
