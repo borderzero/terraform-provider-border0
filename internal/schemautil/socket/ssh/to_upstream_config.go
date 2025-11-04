@@ -58,6 +58,12 @@ func ToUpstreamConfig(d *schema.ResourceData, config *service.SshServiceConfigur
 		}
 		return kubectlExecToUpstreamConfig(data, config.KubectlExecSshServiceConfiguration)
 
+	case service.SshServiceTypeDockerExec:
+		if config.DockerExecSshServiceConfiguration == nil {
+			config.DockerExecSshServiceConfiguration = new(service.DockerExecSshServiceConfiguration)
+		}
+		return dockerExecToUpstreamConfig(data, config.DockerExecSshServiceConfiguration)
+
 	default:
 		return diag.Errorf(`sockets with ssh service type "%s" not yet supported`, sshServiceType)
 	}
@@ -280,6 +286,19 @@ func kubectlExecToUpstreamConfig(data map[string]any, config *service.KubectlExe
 
 	default:
 		return diag.Errorf(`kubectl exec target type "%s" is invalid`, targetType)
+	}
+
+	return nil
+}
+
+func dockerExecToUpstreamConfig(data map[string]any, config *service.DockerExecSshServiceConfiguration) diag.Diagnostics {
+	if v, ok := data["container_name_allowlist"]; ok {
+		if containers, ok := v.(*schema.Set); ok {
+			config.ContainerNameAllowlist = make([]string, 0, containers.Len())
+			for _, container := range containers.List() {
+				config.ContainerNameAllowlist = append(config.ContainerNameAllowlist, container.(string))
+			}
+		}
 	}
 
 	return nil

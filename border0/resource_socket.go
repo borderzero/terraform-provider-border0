@@ -150,7 +150,7 @@ func resourceSocket(semaphore *semaphore.Weighted) *schema.Resource {
 							Type:        schema.TypeString,
 							Optional:    true,
 							Default:     service.SshServiceTypeStandard,
-							Description: "The upstream service type. Valid values: `standard`, `aws_ec2_instance_connect`, `aws_ssm`, `kubectl_exec`, `connector_built_in_ssh_service`. Defaults to `standard`.",
+							Description: "The upstream service type. Valid values: `standard`, `aws_ec2_instance_connect`, `aws_ssm`, `kubectl_exec`, `docker_exec`, `connector_built_in_ssh_service`. Defaults to `standard`.",
 						},
 						"hostname": {
 							Type:        schema.TypeString,
@@ -260,6 +260,12 @@ func resourceSocket(semaphore *semaphore.Weighted) *schema.Resource {
 							Type:        schema.TypeString,
 							Optional:    true,
 							Description: "JSON-encoded map of namespace to label selectors (map[string]map[string][]string). Only used when service type is `kubectl_exec`.",
+						},
+						"container_name_allowlist": {
+							Type:        schema.TypeSet,
+							Optional:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Description: "List of allowed container names (supports wildcards). Only used when service type is `docker_exec`.",
 						},
 					},
 				},
