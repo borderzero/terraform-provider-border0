@@ -4,6 +4,7 @@ import (
 	border0client "github.com/borderzero/border0-go/client"
 	"github.com/borderzero/border0-go/types/service"
 	"github.com/borderzero/terraform-provider-border0/internal/diagnostics"
+	"github.com/borderzero/terraform-provider-border0/internal/schemautil/socket/aws_s3"
 	"github.com/borderzero/terraform-provider-border0/internal/schemautil/socket/database"
 	"github.com/borderzero/terraform-provider-border0/internal/schemautil/socket/elasticsearch"
 	"github.com/borderzero/terraform-provider-border0/internal/schemautil/socket/exit_node"
@@ -57,6 +58,8 @@ func FromUpstreamConfig(
 		return kubernetes.FromUpstreamConfig(d, config.KubernetesServiceConfiguration)
 	case service.ServiceTypeElasticsearch:
 		return elasticsearch.FromUpstreamConfig(d, config.ElasticsearchServiceConfiguration)
+	case service.ServiceTypeAwsS3:
+		return aws_s3.FromUpstreamConfig(d, config.AwsS3ServiceConfiguration)
 	default:
 		return diag.Errorf(`sockets with service type "%s" not yet supported`, config.ServiceType)
 	}
@@ -147,6 +150,12 @@ func ToUpstreamConfig(d *schema.ResourceData, socket *border0client.Socket) diag
 			socket.UpstreamConfig.ElasticsearchServiceConfiguration = new(service.ElasticsearchServiceConfiguration)
 		}
 		diags = elasticsearch.ToUpstreamConfig(d, socket.UpstreamConfig.ElasticsearchServiceConfiguration)
+
+	case service.ServiceTypeAwsS3:
+		if socket.UpstreamConfig.AwsS3ServiceConfiguration == nil {
+			socket.UpstreamConfig.AwsS3ServiceConfiguration = new(service.AwsS3ServiceConfiguration)
+		}
+		diags = aws_s3.ToUpstreamConfig(d, socket.UpstreamConfig.AwsS3ServiceConfiguration)
 	default:
 		return diag.Errorf(`sockets with service type "%s" not yet supported`, socket.UpstreamConfig.ServiceType)
 	}

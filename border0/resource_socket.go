@@ -53,7 +53,7 @@ func resourceSocket(semaphore *semaphore.Weighted) *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: "The type of the socket. Valid values: `ssh`, `http`, `database`, `tls`, `vnc`, `rdp`, `subnet_router`, `exit_node`, `snowflake`, `elasticsearch`, `kubernetes`.",
+				Description: "The type of the socket. Valid values: `ssh`, `http`, `database`, `tls`, `vnc`, `rdp`, `subnet_router`, `exit_node`, `snowflake`, `elasticsearch`, `kubernetes`, `aws_s3`.",
 			},
 			"description": {
 				Type:        schema.TypeString,
@@ -661,6 +661,16 @@ func resourceSocket(semaphore *semaphore.Weighted) *schema.Resource {
 							Optional:    true,
 							Description: "The AWS region of the EKS cluster. Only used when service type is `aws_eks`.",
 						},
+						"aws_credentials": shared.AwsCredentialsSchema,
+					},
+				},
+			},
+
+			"aws_s3_configuration": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
 						"aws_credentials": shared.AwsCredentialsSchema,
 					},
 				},
