@@ -137,10 +137,11 @@ resource "border0_socket" "example_connect_to_ecs_with_ssm" {
 ### Required
 
 - `name` (String) The name of the socket. Must be unique within your Border0 organization. Socket name can have alphanumerics and hyphens, but it must start or end with alphanumeric.
-- `socket_type` (String) The type of the socket. Valid values: `ssh`, `http`, `database`, `tls`, `vnc`, `rdp`, `subnet_router`, `exit_node`, `snowflake`, `elasticsearch`, `kubernetes`.
+- `socket_type` (String) The type of the socket. Valid values: `ssh`, `http`, `database`, `tls`, `vnc`, `rdp`, `subnet_router`, `exit_node`, `snowflake`, `elasticsearch`, `kubernetes`, `aws_s3`.
 
 ### Optional
 
+- `aws_s3_configuration` (Block List) (see [below for nested schema](#nestedblock--aws_s3_configuration))
 - `connector_id` (String, Deprecated) The ID of the connector that the socket is attached to.
 - `connector_ids` (Set of String) The ID(s) of the connector(s) that the socket is attached to.
 - `database_configuration` (Block List) (see [below for nested schema](#nestedblock--database_configuration))
@@ -163,6 +164,25 @@ resource "border0_socket" "example_connect_to_ecs_with_ssm" {
 ### Read-Only
 
 - `id` (String) The ID of this resource.
+
+<a id="nestedblock--aws_s3_configuration"></a>
+### Nested Schema for `aws_s3_configuration`
+
+Optional:
+
+- `aws_credentials` (Block List) The upstream service's AWS credentials. (see [below for nested schema](#nestedblock--aws_s3_configuration--aws_credentials))
+
+<a id="nestedblock--aws_s3_configuration--aws_credentials"></a>
+### Nested Schema for `aws_s3_configuration.aws_credentials`
+
+Optional:
+
+- `access_key_id` (String, Sensitive) The upstream AWS access key id.
+- `profile` (String, Sensitive) The upstream AWS profile.
+- `secret_access_key` (String, Sensitive) The upstream AWS secret access key.
+- `session_token` (String, Sensitive) The upstream AWS session token.
+
+
 
 <a id="nestedblock--database_configuration"></a>
 ### Nested Schema for `database_configuration`
