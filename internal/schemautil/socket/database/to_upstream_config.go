@@ -56,6 +56,12 @@ func ToUpstreamConfig(d *schema.ResourceData, config *service.DatabaseServiceCon
 		}
 		return azureSqlToUpstreamConfig(data, config.AzureSql)
 
+	case service.DatabaseServiceTypeMongoDBAtlas:
+		if config.MongoDBAtlas == nil {
+			config.MongoDBAtlas = new(service.MongoDBAtlasDatabaseServiceConfiguration)
+		}
+		return mongoDBAtlasToUpstreamConfig(data, config.MongoDBAtlas)
+
 	default:
 		return diag.Errorf(`sockets with database service type "%s" not yet supported`, databaseServiceType)
 	}
@@ -199,6 +205,61 @@ func awsDocumentDBToUpstreamConfig(data map[string]any, config *service.AwsDocum
 	if v, ok := data["port"]; ok {
 		config.Port = uint16(v.(int))
 	}
+	if v, ok := data["database_name"]; ok {
+		config.DatabaseName = v.(string)
+	}
+
+	switch authType {
+	case service.DatabaseAuthenticationTypeUsernameAndPassword:
+		if config.UsernameAndPasswordAuth == nil {
+			config.UsernameAndPasswordAuth = new(service.AwsRdsUsernameAndPasswordAuthConfiguration)
+		}
+
+		if v, ok := data["username"]; ok {
+			config.UsernameAndPasswordAuth.Username = v.(string)
+		}
+		if v, ok := data["password"]; ok {
+			config.UsernameAndPasswordAuth.Password = v.(string)
+		}
+		if v, ok := data["ca_certificate"]; ok {
+			config.UsernameAndPasswordAuth.CaCertificate = v.(string)
+		}
+	case service.DatabaseAuthenticationTypeIam:
+		if config.IamAuth == nil {
+			config.IamAuth = new(service.MongoDBAWSAuthConfiguration)
+		}
+
+		if v, ok := data["cluster_region"]; ok {
+			config.IamAuth.ClusterRegion = v.(string)
+		}
+		if v, ok := data["ca_certificate"]; ok {
+			config.IamAuth.CaCertificate = v.(string)
+		}
+		if v, ok := data["aws_credentials"]; ok {
+			config.IamAuth.AwsCredentials = shared.ToAwsCredentials(v)
+		}
+	default:
+		return diag.Errorf(`database authentication type "%s" is invalid`, authType)
+	}
+
+	return nil
+}
+
+func mongoDBAtlasToUpstreamConfig(data map[string]any, config *service.MongoDBAtlasDatabaseServiceConfiguration) diag.Diagnostics {
+	authType := service.DatabaseAuthenticationTypeUsernameAndPassword // default to "username_and_password"
+
+	if v, ok := data["authentication_type"]; ok {
+		authType = v.(string)
+	}
+	config.AuthenticationType = authType
+
+	// MongoDB Atlas uses mongodb protocol
+	config.DatabaseProtocol = "mongodb"
+
+	if v, ok := data["hostname"]; ok {
+		config.Hostname = v.(string)
+	}
+	// Note: MongoDB Atlas uses SRV records, no port needed
 	if v, ok := data["database_name"]; ok {
 		config.DatabaseName = v.(string)
 	}

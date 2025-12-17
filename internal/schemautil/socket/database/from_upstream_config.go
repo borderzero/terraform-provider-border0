@@ -32,6 +32,8 @@ func FromUpstreamConfig(d *schema.ResourceData, config *service.DatabaseServiceC
 		diags = azureSqlFromUpstreamConfig(&data, config.AzureSql)
 	case service.DatabaseServiceTypeAwsDocumentDB:
 		diags = awsDocumentDBFromUpstreamConfig(&data, config.AwsDocumentDB)
+	case service.DatabaseServiceTypeMongoDBAtlas:
+		diags = mongoDBAtlasFromUpstreamConfig(&data, config.MongoDBAtlas)
 	default:
 		return diag.Errorf(`sockets with database service type "%s" not yet supported`, config.DatabaseServiceType)
 	}
@@ -229,6 +231,39 @@ func azureSqlFromUpstreamConfig(data *map[string]any, config *service.AzureSqlDa
 
 	default:
 		return diag.Errorf("gcp cloud sql database configuration had no authentication configured")
+	}
+
+	return nil
+}
+
+func mongoDBAtlasFromUpstreamConfig(data *map[string]any, config *service.MongoDBAtlasDatabaseServiceConfiguration) diag.Diagnostics {
+	if config == nil {
+		return diag.Errorf(`got a socket with database service type "mongodb_atlas" but MongoDB Atlas database service configuration was not present`)
+	}
+
+	(*data)["authentication_type"] = config.AuthenticationType
+	(*data)["protocol"] = config.DatabaseProtocol
+	(*data)["hostname"] = config.Hostname
+	// Note: MongoDB Atlas uses SRV records, no port
+	(*data)["database_name"] = config.DatabaseName
+
+	switch config.AuthenticationType {
+	case service.DatabaseAuthenticationTypeUsernameAndPassword:
+		if config.UsernameAndPasswordAuth == nil {
+			return diag.Errorf(`got a socket with database authentication type "username_and_password" but username and password auth configuration was not present`)
+		}
+		(*data)["username"] = config.UsernameAndPasswordAuth.Username
+		(*data)["password"] = config.UsernameAndPasswordAuth.Password
+		(*data)["ca_certificate"] = config.UsernameAndPasswordAuth.CaCertificate
+	case service.DatabaseAuthenticationTypeIam:
+		if config.IamAuth == nil {
+			return diag.Errorf(`got a socket with database authentication type "iam" but IAM auth configuration was not present`)
+		}
+		(*data)["cluster_region"] = config.IamAuth.ClusterRegion
+		(*data)["ca_certificate"] = config.IamAuth.CaCertificate
+		(*data)["aws_credentials"] = shared.FromAwsCredentials(config.IamAuth.AwsCredentials)
+	default:
+		return diag.Errorf(`database authentication type "%s" is invalid`, config.AuthenticationType)
 	}
 
 	return nil
