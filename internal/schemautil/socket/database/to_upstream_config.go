@@ -212,7 +212,7 @@ func awsDocumentDBToUpstreamConfig(data map[string]any, config *service.AwsDocum
 	switch authType {
 	case service.DatabaseAuthenticationTypeUsernameAndPassword:
 		if config.UsernameAndPasswordAuth == nil {
-			config.UsernameAndPasswordAuth = new(service.AwsRdsUsernameAndPasswordAuthConfiguration)
+			config.UsernameAndPasswordAuth = new(service.UsernamePasswordCaAuthConfiguration)
 		}
 
 		if v, ok := data["username"]; ok {
@@ -267,7 +267,7 @@ func mongoDBAtlasToUpstreamConfig(data map[string]any, config *service.MongoDBAt
 	switch authType {
 	case service.DatabaseAuthenticationTypeUsernameAndPassword:
 		if config.UsernameAndPasswordAuth == nil {
-			config.UsernameAndPasswordAuth = new(service.AwsRdsUsernameAndPasswordAuthConfiguration)
+			config.UsernameAndPasswordAuth = new(service.UsernamePasswordCaAuthConfiguration)
 		}
 
 		if v, ok := data["username"]; ok {
