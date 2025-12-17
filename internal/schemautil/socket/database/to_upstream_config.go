@@ -226,7 +226,7 @@ func awsDocumentDBToUpstreamConfig(data map[string]any, config *service.AwsDocum
 		}
 	case service.DatabaseAuthenticationTypeIam:
 		if config.IamAuth == nil {
-			config.IamAuth = new(service.MongoDBAWSAuthConfiguration)
+			config.IamAuth = new(service.MongoAWSAuthConfiguration)
 		}
 
 		if v, ok := data["cluster_region"]; ok {
@@ -281,7 +281,7 @@ func mongoDBAtlasToUpstreamConfig(data map[string]any, config *service.MongoDBAt
 		}
 	case service.DatabaseAuthenticationTypeIam:
 		if config.IamAuth == nil {
-			config.IamAuth = new(service.MongoDBAWSAuthConfiguration)
+			config.IamAuth = new(service.MongoAWSAuthConfiguration)
 		}
 
 		if v, ok := data["cluster_region"]; ok {
