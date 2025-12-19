@@ -152,7 +152,7 @@ func awsRdsToUpstreamConfig(data map[string]any, config *service.AwsRdsDatabaseS
 	switch authType {
 	case service.DatabaseAuthenticationTypeUsernameAndPassword:
 		if config.UsernameAndPasswordAuth == nil {
-			config.UsernameAndPasswordAuth = new(service.AwsRdsUsernameAndPasswordAuthConfiguration)
+			config.UsernameAndPasswordAuth = new(service.UsernamePasswordCaAuthConfiguration)
 		}
 
 		if v, ok := data["username"]; ok {
