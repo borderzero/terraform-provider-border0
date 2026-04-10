@@ -537,6 +537,24 @@ func (_c *APIClientRequester_CreateConnectorToken_Call) RunAndReturn(run func(co
 	return _c
 }
 
+// APIClientRequester_CreateConnectorInstallToken_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateConnectorInstallToken'
+type APIClientRequester_CreateConnectorInstallToken_Call struct {
+	*mock.Call
+}
+
+// CreateConnectorInstallToken is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *APIClientRequester_Expecter) CreateConnectorInstallToken(ctx interface{}) *APIClientRequester_CreateConnectorInstallToken_Call {
+	return &APIClientRequester_CreateConnectorInstallToken_Call{Call: _e.mock.On("CreateConnectorInstallToken", ctx)}
+}
+
+func (_c *APIClientRequester_CreateConnectorInstallToken_Call) Run(run func(ctx context.Context)) *APIClientRequester_CreateConnectorInstallToken_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context))
+	})
+	return _c
+}
+
 // CreateGroup provides a mock function with given fields: ctx, in
 func (_m *APIClientRequester) CreateGroup(ctx context.Context, in *client.Group) (*client.Group, error) {
 	ret := _m.Called(ctx, in)
@@ -2864,6 +2882,65 @@ func (_c *APIClientRequester_UsersPaginator_Call) Return(_a0 *client.Paginator[c
 }
 
 func (_c *APIClientRequester_UsersPaginator_Call) RunAndReturn(run func(context.Context, int) *client.Paginator[client.User]) *APIClientRequester_UsersPaginator_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ExchangeWebIdentityToken provides a mock function with given fields: ctx, input
+func (_m *APIClientRequester) ExchangeWebIdentityToken(ctx context.Context, input *client.WebIdentityTokenExchangeInput) (*client.WebIdentityTokenExchangeOutput, error) {
+	ret := _m.Called(ctx, input)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ExchangeWebIdentityToken")
+	}
+
+	var r0 *client.WebIdentityTokenExchangeOutput
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *client.WebIdentityTokenExchangeInput) (*client.WebIdentityTokenExchangeOutput, error)); ok {
+		return rf(ctx, input)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *client.WebIdentityTokenExchangeInput) *client.WebIdentityTokenExchangeOutput); ok {
+		r0 = rf(ctx, input)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*client.WebIdentityTokenExchangeOutput)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *client.WebIdentityTokenExchangeInput) error); ok {
+		r1 = rf(ctx, input)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// APIClientRequester_ExchangeWebIdentityToken_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ExchangeWebIdentityToken'
+type APIClientRequester_ExchangeWebIdentityToken_Call struct {
+	*mock.Call
+}
+
+// ExchangeWebIdentityToken is a helper method to define mock.On call
+//   - ctx context.Context
+//   - input *client.WebIdentityTokenExchangeInput
+func (_e *APIClientRequester_Expecter) ExchangeWebIdentityToken(ctx interface{}, input interface{}) *APIClientRequester_ExchangeWebIdentityToken_Call {
+	return &APIClientRequester_ExchangeWebIdentityToken_Call{Call: _e.mock.On("ExchangeWebIdentityToken", ctx, input)}
+}
+
+func (_c *APIClientRequester_ExchangeWebIdentityToken_Call) Run(run func(ctx context.Context, input *client.WebIdentityTokenExchangeInput)) *APIClientRequester_ExchangeWebIdentityToken_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(*client.WebIdentityTokenExchangeInput))
+	})
+	return _c
+}
+
+func (_c *APIClientRequester_ExchangeWebIdentityToken_Call) Return(_a0 *client.WebIdentityTokenExchangeOutput, _a1 error) *APIClientRequester_ExchangeWebIdentityToken_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *APIClientRequester_ExchangeWebIdentityToken_Call) RunAndReturn(run func(context.Context, *client.WebIdentityTokenExchangeInput) (*client.WebIdentityTokenExchangeOutput, error)) *APIClientRequester_ExchangeWebIdentityToken_Call {
 	_c.Call.Return(run)
 	return _c
 }
