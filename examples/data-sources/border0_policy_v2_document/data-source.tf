@@ -34,7 +34,7 @@ data "border0_policy_v2_document" "example" {
       service_account = ["example-service-account"]
     }
     where {
-      allowed_ip = ["0.0.0.0/0", "::/0"]
+      allowed_ip  = ["0.0.0.0/0", "::/0"]
       country     = ["NL", "CA", "US", "BR", "FR"]
       country_not = ["RU"]
     }

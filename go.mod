@@ -3,7 +3,7 @@ module github.com/borderzero/terraform-provider-border0
 go 1.25
 
 require (
-	github.com/borderzero/border0-go v1.4.118
+	github.com/borderzero/border0-go v1.4.123
 	github.com/golang-jwt/jwt/v5 v5.3.0
 	github.com/hashicorp/go-uuid v1.0.3
 	github.com/hashicorp/terraform-plugin-docs v0.24.0
@@ -92,4 +92,4 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-// replace github.com/borderzero/border0-go => ../border0-go
+//replace github.com/borderzero/border0-go => ../border0-go

@@ -52,6 +52,6 @@ resource "border0_policy" "example" {
   // This results in (example-tag1:example-value1 AND example_tag2:more-example-value OR example-tag:example-value)
   tag_rules = [
     { example_tag1 = "example-value1", example_tag2 = "more-example-value" },
-    { example_tag = "example-value"},
+    { example_tag = "example-value" },
   ]
 }

@@ -36,3 +36,4 @@ resource "border0_connector" "example" {
 
 - `built_in_ssh_service_id` (String) The socket id of the built-in ssh service.
 - `id` (String) The ID of this resource.
+- `tailscale_auth_key` (String, Sensitive) The Tailscale auth key for this connector. Only populated on create for Tailscale-managed organizations.

@@ -42,6 +42,12 @@ func resourceConnector() *schema.Resource {
 				Computed:    true,
 				Description: "The socket id of the built-in ssh service.",
 			},
+			"tailscale_auth_key": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Sensitive:   true,
+				Description: "The Tailscale auth key for this connector. Only populated on create for Tailscale-managed organizations.",
+			},
 		},
 	}
 }
@@ -99,6 +105,13 @@ func resourceConnectorCreate(ctx context.Context, d *schema.ResourceData, m any)
 		return diagnostics.Error(err, "Failed to create connector")
 	}
 	d.SetId(created.ConnectorID)
+
+	// Store the tailscale_auth_key if present (only returned on create for TS-managed orgs)
+	if created.TailscaleAuthKey != nil && created.TailscaleAuthKey.Key != "" {
+		if err := d.Set("tailscale_auth_key", created.TailscaleAuthKey.Key); err != nil {
+			return diagnostics.Error(err, "Failed to set tailscale_auth_key")
+		}
+	}
 
 	helper.ReadAfterWriteDelay()
 	if diags := resourceConnectorRead(ctx, d, m); diags.HasError() {
