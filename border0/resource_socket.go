@@ -461,6 +461,22 @@ func resourceSocket(semaphore *semaphore.Weighted) *schema.Resource {
 							Optional:    true,
 							Description: "The upstream RDP port number.",
 						},
+						"username": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The upstream RDP username.",
+						},
+						"password": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Sensitive:   true,
+							Description: "The upstream RDP password.",
+						},
+						"domain": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The upstream RDP domain.",
+						},
 					},
 				},
 			},

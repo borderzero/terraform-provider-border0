@@ -27,6 +27,15 @@ func ToUpstreamConfig(d *schema.ResourceData, config *service.RdpServiceConfigur
 	if v, ok := data["port"]; ok {
 		config.Port = uint16(v.(int))
 	}
+	if v, ok := data["username"]; ok {
+		config.Username = v.(string)
+	}
+	if v, ok := data["password"]; ok {
+		config.Password = v.(string)
+	}
+	if v, ok := data["domain"]; ok {
+		config.Domain = v.(string)
+	}
 
 	return nil
 }
