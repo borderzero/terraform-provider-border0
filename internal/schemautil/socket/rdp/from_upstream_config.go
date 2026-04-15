@@ -16,6 +16,9 @@ func FromUpstreamConfig(d *schema.ResourceData, config *service.RdpServiceConfig
 	data := map[string]any{
 		"hostname": config.Hostname,
 		"port":     config.Port,
+		"username": config.Username,
+		"password": config.Password,
+		"domain":   config.Domain,
 	}
 	if err := d.Set("rdp_configuration", []map[string]any{data}); err != nil {
 		return diagnostics.Error(err, `Failed to set "rdp_configuration"`)

@@ -303,8 +303,11 @@ Optional:
 
 Optional:
 
+- `domain` (String) The upstream RDP domain.
 - `hostname` (String) The upstream RDP hostname.
+- `password` (String, Sensitive) The upstream RDP password.
 - `port` (Number) The upstream RDP port number.
+- `username` (String, Sensitive) The upstream RDP username.
 
 
 <a id="nestedblock--snowflake_configuration"></a>
