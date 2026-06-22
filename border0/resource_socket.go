@@ -286,7 +286,7 @@ func resourceSocket(semaphore *semaphore.Weighted) *schema.Resource {
 							Type:        schema.TypeString,
 							Optional:    true,
 							Default:     service.DatabaseProtocolMySql,
-							Description: "The upstream database protocol. Valid values: `mysql`, `postgres` or `cockroachdb`. Defaults to `mysql`.",
+							Description: "The upstream database protocol. Valid values: `mysql`, `postgres`, `mssql`, `cockroachdb`, `mongodb` or `aerospike`. Defaults to `mysql`.",
 						},
 						"hostname": {
 							Type:        schema.TypeString,
