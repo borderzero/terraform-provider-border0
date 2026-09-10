@@ -58,6 +58,7 @@ func Provider(options ...ProviderOption) *schema.Provider {
 			"border0_socket":                resourceSocket(semaphore),
 			"border0_policy":                resourcePolicy(semaphore),
 			"border0_policy_attachment":     resourcePolicyAttachment(),
+			"border0_approval_flow":         resourceApprovalFlow(),
 			"border0_connector":             resourceConnector(),
 			"border0_connector_token":       resourceConnectorToken(),
 			"border0_user":                  resourceUser(),

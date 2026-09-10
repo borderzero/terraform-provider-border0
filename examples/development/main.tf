@@ -286,6 +286,62 @@ resource "border0_socket" "test_tf_rdp" {
   }
 }
 
+resource "border0_user" "test_tf_requester" {
+  display_name    = "test-tf-requester"
+  email           = "test-tf-requester@example.com"
+  role            = "member"
+  notify_by_email = false
+}
+
+resource "border0_user" "test_tf_approver" {
+  display_name    = "test-tf-approver"
+  email           = "test-tf-approver@example.com"
+  role            = "admin"
+  notify_by_email = false
+}
+
+resource "border0_group" "test_tf_requesters" {
+  display_name = "test-tf-requesters"
+  members      = [border0_user.test_tf_requester.id]
+}
+
+resource "border0_group" "test_tf_approvers" {
+  display_name = "test-tf-approvers"
+  members      = [border0_user.test_tf_approver.id]
+}
+
+# approval flow scoped to specific sockets, using individual users
+resource "border0_approval_flow" "test_tf_approval_flow_by_socket" {
+  name        = "test-tf-approval-flow-by-socket"
+  description = "test approval flow from terraform, scoped by socket id"
+
+  socket_ids = [
+    border0_socket.test_tf_ssh.id,
+    border0_socket.test_tf_mysql.id,
+  ]
+
+  requester_user_ids = [border0_user.test_tf_requester.id]
+  approver_user_ids  = [border0_user.test_tf_approver.id]
+
+  allow_self_approval = false
+}
+
+# approval flow scoped by socket tags, using groups
+# the tags below match border0_socket.test_tf_http
+resource "border0_approval_flow" "test_tf_approval_flow_by_tags" {
+  name        = "test-tf-approval-flow-by-tags"
+  description = "test approval flow from terraform, scoped by socket tags"
+
+  socket_tags = {
+    "test_key_1" = "test_value_1"
+  }
+
+  requester_group_ids = [border0_group.test_tf_requesters.id]
+  approver_group_ids  = [border0_group.test_tf_approvers.id]
+
+  allow_self_approval = true
+}
+
 output "managed_resources" {
   value = {
     connector = {
@@ -333,6 +389,19 @@ output "managed_resources" {
       id   = border0_socket.test_tf_docker_exec.id
       name = border0_socket.test_tf_docker_exec.name
       type = border0_socket.test_tf_docker_exec.socket_type
+    }
+    approval_flow_by_socket = {
+      id                 = border0_approval_flow.test_tf_approval_flow_by_socket.id
+      name               = border0_approval_flow.test_tf_approval_flow_by_socket.name
+      requester_user_ids = border0_approval_flow.test_tf_approval_flow_by_socket.requester_user_ids
+      approver_user_ids  = border0_approval_flow.test_tf_approval_flow_by_socket.approver_user_ids
+    }
+    approval_flow_by_tags = {
+      id                  = border0_approval_flow.test_tf_approval_flow_by_tags.id
+      name                = border0_approval_flow.test_tf_approval_flow_by_tags.name
+      socket_tags         = border0_approval_flow.test_tf_approval_flow_by_tags.socket_tags
+      requester_group_ids = border0_approval_flow.test_tf_approval_flow_by_tags.requester_group_ids
+      approver_group_ids  = border0_approval_flow.test_tf_approval_flow_by_tags.approver_group_ids
     }
   }
 }
