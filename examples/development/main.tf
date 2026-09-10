@@ -103,10 +103,12 @@ data "border0_policy_v2_document" "test_tf_policy_document" {
       docker_exec { allowed = true }
     }
     database {
-      allowed = true
+      allowed                    = true
+      use_allowed_databases_list = true
       allowed_databases {
-        database            = "books"
-        allowed_query_types = ["ReadOnly"]
+        database                     = "books"
+        use_allowed_query_types_list = true
+        allowed_query_types          = ["ReadOnly"]
       }
     }
     http { allowed = true }
