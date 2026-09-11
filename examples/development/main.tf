@@ -286,6 +286,13 @@ resource "border0_socket" "test_tf_rdp" {
   }
 }
 
+# kubernetes_configuration is optional, so this socket deliberately omits it
+resource "border0_socket" "test_tf_kubernetes" {
+  name          = "test-tf-kubernetes"
+  socket_type   = "kubernetes"
+  connector_ids = [border0_connector.test_tf_connector.id]
+}
+
 resource "border0_user" "test_tf_requester" {
   display_name    = "test-tf-requester"
   email           = "test-tf-requester@example.com"
