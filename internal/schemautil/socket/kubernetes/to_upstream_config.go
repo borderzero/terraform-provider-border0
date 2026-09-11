@@ -18,6 +18,11 @@ func ToUpstreamConfig(d *schema.ResourceData, config *service.KubernetesServiceC
 		}
 	}
 
+	return blockToUpstreamConfig(data, config)
+}
+
+// blockToUpstreamConfig converts one "kubernetes_configuration" block.
+func blockToUpstreamConfig(data map[string]any, config *service.KubernetesServiceConfiguration) diag.Diagnostics {
 	serviceType := service.KubernetesServiceTypeStandard // default to "standard"
 	if v, ok := data["service_type"]; ok {
 		serviceType = v.(string)
