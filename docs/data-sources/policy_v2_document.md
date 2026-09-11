@@ -26,10 +26,12 @@ data "border0_policy_v2_document" "example" {
     }
 
     database {
-      allowed = true
+      allowed                    = true
+      use_allowed_databases_list = true
       allowed_databases {
-        database            = "books"
-        allowed_query_types = ["ReadOnly"]
+        database                     = "books"
+        use_allowed_query_types_list = true
+        allowed_query_types          = ["ReadOnly"]
       }
     }
 
@@ -147,7 +149,7 @@ Optional:
 
 - `allowed_databases` (Block List) List of allowed databases. (see [below for nested schema](#nestedblock--permissions--database--allowed_databases))
 - `max_session_duration_seconds` (Number) Maximum session duration in seconds.
-- `use_allowed_databases_list` (Boolean) Use allowed databases list.
+- `use_allowed_databases_list` (Boolean) Set to `true` to enforce the `allowed_databases` list. When `false` (the default) the list is ignored and all databases are allowed.
 
 <a id="nestedblock--permissions--database--allowed_databases"></a>
 ### Nested Schema for `permissions.database.allowed_databases`
@@ -159,7 +161,7 @@ Required:
 Optional:
 
 - `allowed_query_types` (List of String) List of allowed query types.
-- `use_allowed_query_types_list` (Boolean) Use allowed query types list.
+- `use_allowed_query_types_list` (Boolean) Set to `true` to enforce the `allowed_query_types` list. When `false` (the default) the list is ignored and all query types are allowed.
 
 
 
@@ -212,7 +214,7 @@ Optional:
 - `sftp` (Block Set) SSH SFTP permission. (see [below for nested schema](#nestedblock--permissions--ssh--sftp))
 - `shell` (Block Set) SSH Shell permission. (see [below for nested schema](#nestedblock--permissions--ssh--shell))
 - `tcp_forwarding` (Block Set) SSH TCP Forwarding permission. (see [below for nested schema](#nestedblock--permissions--ssh--tcp_forwarding))
-- `use_allowed_usernames_list` (Boolean) Use allowed usernames list.
+- `use_allowed_usernames_list` (Boolean) Set to `true` to enforce the `allowed_usernames` list. When `false` (the default) the list is ignored and all usernames are allowed.
 
 <a id="nestedblock--permissions--ssh--docker_exec"></a>
 ### Nested Schema for `permissions.ssh.docker_exec`
@@ -224,7 +226,7 @@ Required:
 Optional:
 
 - `allowed_containers` (List of String) List of allowed containers.
-- `use_allowed_containers_list` (Boolean) Use allowed containers list.
+- `use_allowed_containers_list` (Boolean) Set to `true` to enforce the `allowed_containers` list. When `false` (the default) the list is ignored and all containers are allowed.
 
 
 <a id="nestedblock--permissions--ssh--exec"></a>
@@ -237,7 +239,7 @@ Required:
 Optional:
 
 - `commands` (List of String) List of allowed commands.
-- `use_commands_list` (Boolean) Use allowed commands list.
+- `use_commands_list` (Boolean) Set to `true` to enforce the `commands` list. When `false` (the default) the list is ignored and all commands are allowed.
 
 
 <a id="nestedblock--permissions--ssh--kubectl_exec"></a>
@@ -250,7 +252,7 @@ Required:
 Optional:
 
 - `allowed_namespaces` (Block List) List of allowed namespaces. (see [below for nested schema](#nestedblock--permissions--ssh--kubectl_exec--allowed_namespaces))
-- `use_allowed_namespaces_list` (Boolean) Use allowed namespaces list.
+- `use_allowed_namespaces_list` (Boolean) Set to `true` to enforce the `allowed_namespaces` list. When `false` (the default) the list is ignored and all namespaces are allowed.
 
 <a id="nestedblock--permissions--ssh--kubectl_exec--allowed_namespaces"></a>
 ### Nested Schema for `permissions.ssh.kubectl_exec.allowed_namespaces`
@@ -262,7 +264,7 @@ Required:
 Optional:
 
 - `pod_selector` (Map of String) Pod selector map.
-- `use_pod_selector` (Boolean) Use pod selector.
+- `use_pod_selector` (Boolean) Set to `true` to enforce the `pod_selector` map. When `false` (the default) the map is ignored and all pods are allowed.
 
 
 
@@ -292,7 +294,7 @@ Required:
 Optional:
 
 - `allowed_connections` (Block List) List of allowed TCP forwarding connections. (see [below for nested schema](#nestedblock--permissions--ssh--tcp_forwarding--allowed_connections))
-- `use_allowed_connections_list` (Boolean) Use allowed connections list.
+- `use_allowed_connections_list` (Boolean) Set to `true` to enforce the `allowed_connections` list. When `false` (the default) the list is ignored and all connections are allowed.
 
 <a id="nestedblock--permissions--ssh--tcp_forwarding--allowed_connections"></a>
 ### Nested Schema for `permissions.ssh.tcp_forwarding.allowed_connections`

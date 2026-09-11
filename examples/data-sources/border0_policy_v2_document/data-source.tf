@@ -12,10 +12,12 @@ data "border0_policy_v2_document" "example" {
     }
 
     database {
-      allowed = true
+      allowed                    = true
+      use_allowed_databases_list = true
       allowed_databases {
-        database            = "books"
-        allowed_query_types = ["ReadOnly"]
+        database                     = "books"
+        use_allowed_query_types_list = true
+        allowed_query_types          = ["ReadOnly"]
       }
     }
 

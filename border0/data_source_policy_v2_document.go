@@ -35,7 +35,7 @@ func dataSourcePolicyV2Document() *schema.Resource {
 									"use_allowed_databases_list": {
 										Type:        schema.TypeBool,
 										Optional:    true,
-										Description: "Use allowed databases list.",
+										Description: "Set to `true` to enforce the `allowed_databases` list. When `false` (the default) the list is ignored and all databases are allowed.",
 									},
 									"allowed_databases": {
 										Type:        schema.TypeList,
@@ -59,7 +59,7 @@ func dataSourcePolicyV2Document() *schema.Resource {
 												"use_allowed_query_types_list": {
 													Type:        schema.TypeBool,
 													Optional:    true,
-													Description: "Use allowed query types list.",
+													Description: "Set to `true` to enforce the `allowed_query_types` list. When `false` (the default) the list is ignored and all query types are allowed.",
 												},
 											},
 										},
@@ -111,7 +111,7 @@ func dataSourcePolicyV2Document() *schema.Resource {
 												"use_commands_list": {
 													Type:        schema.TypeBool,
 													Optional:    true,
-													Description: "Use allowed commands list.",
+													Description: "Set to `true` to enforce the `commands` list. When `false` (the default) the list is ignored and all commands are allowed.",
 												},
 												"commands": {
 													Type:        schema.TypeList,
@@ -152,7 +152,7 @@ func dataSourcePolicyV2Document() *schema.Resource {
 												"use_allowed_connections_list": {
 													Type:        schema.TypeBool,
 													Optional:    true,
-													Description: "Use allowed connections list.",
+													Description: "Set to `true` to enforce the `allowed_connections` list. When `false` (the default) the list is ignored and all connections are allowed.",
 												},
 												"allowed_connections": {
 													Type:        schema.TypeList,
@@ -190,7 +190,7 @@ func dataSourcePolicyV2Document() *schema.Resource {
 												"use_allowed_namespaces_list": {
 													Type:        schema.TypeBool,
 													Optional:    true,
-													Description: "Use allowed namespaces list.",
+													Description: "Set to `true` to enforce the `allowed_namespaces` list. When `false` (the default) the list is ignored and all namespaces are allowed.",
 												},
 												"allowed_namespaces": {
 													Type:        schema.TypeList,
@@ -214,7 +214,7 @@ func dataSourcePolicyV2Document() *schema.Resource {
 															"use_pod_selector": {
 																Type:        schema.TypeBool,
 																Optional:    true,
-																Description: "Use pod selector.",
+																Description: "Set to `true` to enforce the `pod_selector` map. When `false` (the default) the map is ignored and all pods are allowed.",
 															},
 														},
 													},
@@ -236,7 +236,7 @@ func dataSourcePolicyV2Document() *schema.Resource {
 												"use_allowed_containers_list": {
 													Type:        schema.TypeBool,
 													Optional:    true,
-													Description: "Use allowed containers list.",
+													Description: "Set to `true` to enforce the `allowed_containers` list. When `false` (the default) the list is ignored and all containers are allowed.",
 												},
 												"allowed_containers": {
 													Type:        schema.TypeList,
@@ -262,7 +262,7 @@ func dataSourcePolicyV2Document() *schema.Resource {
 									"use_allowed_usernames_list": {
 										Type:        schema.TypeBool,
 										Optional:    true,
-										Description: "Use allowed usernames list.",
+										Description: "Set to `true` to enforce the `allowed_usernames` list. When `false` (the default) the list is ignored and all usernames are allowed.",
 									},
 									"allowed_usernames": {
 										Type:        schema.TypeList,
