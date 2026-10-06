@@ -100,6 +100,9 @@ func standardToUpstreamConfig(data map[string]any, config *service.StandardDatab
 		if v, ok := data["password"]; ok {
 			config.UsernameAndPasswordAuth.Password = v.(string)
 		}
+		if v, ok := data["ca_certificate"]; ok && v.(string) != "" {
+			return diag.Errorf(`"ca_certificate" is not supported for standard database sockets with authentication type "username_and_password"; use authentication type "tls" to provide a CA certificate`)
+		}
 	case service.DatabaseAuthenticationTypeTls:
 		if config.TlsAuth == nil {
 			config.TlsAuth = new(service.DatabaseTlsAuthConfiguration)
