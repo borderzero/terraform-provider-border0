@@ -39,6 +39,9 @@ data "border0_policy_v2_document" "unit_test" {
 			sftp {
 				allowed = true
 			}
+			agent_forwarding {
+				allowed = true
+			}
 			tcp_forwarding {
 				allowed = true
 				use_allowed_connections_list = true
@@ -133,6 +136,7 @@ func Test_DataSource_PolicyDocumentV2(t *testing.T) {
 					resource.TestCheckResourceAttr("data.border0_policy_v2_document.unit_test", "permissions.0.ssh.0.exec.0.use_commands_list", "true"),
 					resource.TestCheckResourceAttr("data.border0_policy_v2_document.unit_test", "permissions.0.ssh.0.exec.0.commands.0", "ls"),
 					resource.TestCheckResourceAttr("data.border0_policy_v2_document.unit_test", "permissions.0.ssh.0.sftp.0.allowed", "true"),
+					resource.TestCheckResourceAttr("data.border0_policy_v2_document.unit_test", "permissions.0.ssh.0.agent_forwarding.0.allowed", "true"),
 					resource.TestCheckResourceAttr("data.border0_policy_v2_document.unit_test", "permissions.0.ssh.0.tcp_forwarding.0.allowed", "true"),
 					resource.TestCheckResourceAttr("data.border0_policy_v2_document.unit_test", "permissions.0.ssh.0.tcp_forwarding.0.use_allowed_connections_list", "true"),
 					resource.TestCheckResourceAttr("data.border0_policy_v2_document.unit_test", "permissions.0.ssh.0.tcp_forwarding.0.allowed_connections.0.destination_address", "*"),

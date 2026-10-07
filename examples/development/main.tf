@@ -62,6 +62,7 @@ resource "border0_policy" "test_tf_policy" {
         "shell" : {},
         "exec" : {},
         "sftp" : {},
+        "agent_forwarding" : {},
         "tcp_forwarding" : {},
         "kubectl_exec" : {},
         "docker_exec" : {}
@@ -98,6 +99,7 @@ data "border0_policy_v2_document" "test_tf_policy_document" {
       shell { allowed = true }
       exec { allowed = true }
       sftp { allowed = true }
+      agent_forwarding { allowed = true }
       tcp_forwarding { allowed = true }
       kubectl_exec { allowed = true }
       docker_exec { allowed = true }
