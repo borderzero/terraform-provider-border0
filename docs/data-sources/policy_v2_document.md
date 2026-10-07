@@ -20,6 +20,7 @@ data "border0_policy_v2_document" "example" {
       shell { allowed = true }
       exec { allowed = true }
       sftp { allowed = true }
+      agent_forwarding { allowed = true }
       tcp_forwarding { allowed = true }
       kubectl_exec { allowed = true }
       docker_exec { allowed = true }
@@ -206,6 +207,7 @@ Required:
 
 Optional:
 
+- `agent_forwarding` (Block Set, Max: 1) SSH agent forwarding permission. (see [below for nested schema](#nestedblock--permissions--ssh--agent_forwarding))
 - `allowed_usernames` (List of String) List of allowed usernames.
 - `docker_exec` (Block Set) SSH Docker Exec permission. (see [below for nested schema](#nestedblock--permissions--ssh--docker_exec))
 - `exec` (Block Set) SSH Exec permission. (see [below for nested schema](#nestedblock--permissions--ssh--exec))
@@ -215,6 +217,14 @@ Optional:
 - `shell` (Block Set) SSH Shell permission. (see [below for nested schema](#nestedblock--permissions--ssh--shell))
 - `tcp_forwarding` (Block Set) SSH TCP Forwarding permission. (see [below for nested schema](#nestedblock--permissions--ssh--tcp_forwarding))
 - `use_allowed_usernames_list` (Boolean) Set to `true` to enforce the `allowed_usernames` list. When `false` (the default) the list is ignored and all usernames are allowed.
+
+<a id="nestedblock--permissions--ssh--agent_forwarding"></a>
+### Nested Schema for `permissions.ssh.agent_forwarding`
+
+Required:
+
+- `allowed` (Boolean) Whether ssh agent forwarding is allowed.
+
 
 <a id="nestedblock--permissions--ssh--docker_exec"></a>
 ### Nested Schema for `permissions.ssh.docker_exec`

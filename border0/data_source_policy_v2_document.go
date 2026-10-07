@@ -143,6 +143,21 @@ func dataSourcePolicyV2Document() *schema.Resource {
 											},
 										},
 									},
+									"agent_forwarding": {
+										Type:        schema.TypeSet,
+										Optional:    true,
+										MaxItems:    1,
+										Description: "SSH agent forwarding permission.",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"allowed": {
+													Type:        schema.TypeBool,
+													Required:    true,
+													Description: "Whether ssh agent forwarding is allowed.",
+												},
+											},
+										},
+									},
 									"tcp_forwarding": {
 										Type:        schema.TypeSet,
 										Optional:    true,
@@ -659,6 +674,7 @@ func parseSSHPermissions(sshPerms []any) *border0client.SSHPermissions {
 	var shellPermission *border0client.SSHShellPermission
 	var execPermission *border0client.SSHExecPermission
 	var sftpPermission *border0client.SSHSFTPPermission
+	var agentForwardingPermission *border0client.SSHAgentForwardingPermission
 	var tcpForwardingPermission *border0client.SSHTCPForwardingPermission
 	var kubectlExecPermission *border0client.SSHKubectlExecPermission
 	var dockerExecPermission *border0client.SSHDockerExecPermission
@@ -727,6 +743,20 @@ func parseSSHPermissions(sshPerms []any) *border0client.SSHPermissions {
 
 			if sftpAllowed {
 				sftpPermission = &border0client.SSHSFTPPermission{}
+			}
+		}
+
+		if v, ok := permMap["agent_forwarding"]; ok {
+			var agentForwardingAllowed bool
+			if agentForwardings := v.(*schema.Set).List(); len(agentForwardings) > 0 {
+				agentForwarding := agentForwardings[0].(map[string]any)
+				if v, ok := agentForwarding["allowed"]; ok {
+					agentForwardingAllowed, _ = v.(bool)
+				}
+			}
+
+			if agentForwardingAllowed {
+				agentForwardingPermission = &border0client.SSHAgentForwardingPermission{}
 			}
 		}
 
@@ -841,6 +871,7 @@ func parseSSHPermissions(sshPerms []any) *border0client.SSHPermissions {
 		Shell:                     shellPermission,
 		Exec:                      execPermission,
 		SFTP:                      sftpPermission,
+		AgentForwarding:           agentForwardingPermission,
 		TCPForwarding:             tcpForwardingPermission,
 		KubectlExec:               kubectlExecPermission,
 		DockerExec:                dockerExecPermission,

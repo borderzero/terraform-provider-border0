@@ -13,6 +13,7 @@ resource "border0_policy" "example" {
         "shell" : {},
         "exec" : {},
         "sftp" : {},
+        "agent_forwarding" : {},
         "tcp_forwarding" : {},
         "kubectl_exec" : {},
         "docker_exec" : {}

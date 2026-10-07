@@ -91,6 +91,7 @@ resource "border0_policy" "unit_test_v2" {
         "http": {},
         "rdp": {},
         "ssh": {
+            "agent_forwarding": {},
             "docker_exec": {
                 "allowed_containers": [
                     "api-api-1"
@@ -149,6 +150,7 @@ resource "border0_policy" "unit_test_v2" {
         "http": {},
         "rdp": {},
         "ssh": {
+            "agent_forwarding": {},
             "docker_exec": {
                 "allowed_containers": [
                     "api-api-2"
@@ -342,6 +344,7 @@ func Test_Resource_Border0PolicyV2(t *testing.T) {
 			HTTP: &border0client.HTTPPermissions{},
 			RDP:  &border0client.RDPPermissions{},
 			SSH: &border0client.SSHPermissions{
+				AgentForwarding: &border0client.SSHAgentForwardingPermission{},
 				DockerExec: &border0client.SSHDockerExecPermission{
 					AllowedContainers: &[]string{"api-api-1"},
 				},
@@ -404,6 +407,7 @@ func Test_Resource_Border0PolicyV2(t *testing.T) {
 			HTTP: &border0client.HTTPPermissions{},
 			RDP:  &border0client.RDPPermissions{},
 			SSH: &border0client.SSHPermissions{
+				AgentForwarding: &border0client.SSHAgentForwardingPermission{},
 				DockerExec: &border0client.SSHDockerExecPermission{
 					AllowedContainers: &[]string{"api-api-2"},
 				},

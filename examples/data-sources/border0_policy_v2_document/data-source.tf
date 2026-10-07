@@ -6,6 +6,7 @@ data "border0_policy_v2_document" "example" {
       shell { allowed = true }
       exec { allowed = true }
       sftp { allowed = true }
+      agent_forwarding { allowed = true }
       tcp_forwarding { allowed = true }
       kubectl_exec { allowed = true }
       docker_exec { allowed = true }
