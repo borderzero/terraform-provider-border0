@@ -368,16 +368,11 @@ func gcpCloudSqlToUpstreamConfig(data map[string]any, config *service.GcpCloudSq
 		if v, ok := data["username"]; ok {
 			config.GcpCloudSQLConnectorIAMAuth.Username = v.(string)
 		}
-		if v, ok := data["certificate"]; ok {
-			config.TlsAuth.Certificate = v.(string)
+		if v, ok := data["cloudsql_instance_id"]; ok {
+			config.GcpCloudSQLConnectorIAMAuth.InstanceId = v.(string)
 		}
-		if v, ok := data["private_key"]; ok {
-			config.TlsAuth.Key = v.(string)
-		}
-		if v, ok := data["ca_certificate"]; ok {
-			if ca_cert := v.(string); ca_cert != "" {
-				config.TlsAuth.CaCertificate = ca_cert
-			}
+		if v, ok := data["gcp_credentials"]; ok {
+			config.GcpCloudSQLConnectorIAMAuth.GcpCredentialsJson = v.(string)
 		}
 		return nil
 	}
